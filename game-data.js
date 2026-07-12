@@ -40,7 +40,22 @@ export const PROCEDURES = [
   { id: 'p_crisis', type: 'procedure', title: 'Crisis Management',
     description: 'Brief the execs, prep notifications, keep the org from panicking with a slide titled \u201cWe Have This Under Control.\u201d Vital \u2014 but it detects nothing.',
     tools: ['A good notification strategy'] },
+  { id: 'p_threat', type: 'procedure', title: 'Threat Intel Correlation',
+    description: 'Match indicators against feeds and prior cases \u2014 assuming the subscription didn\u2019t lapse quietly last spring.',
+    tools: ['MISP', 'OpenCTI'] },
+  { id: 'p_vuln', type: 'procedure', title: 'Vulnerability Scan Review',
+    description: 'Cross-reference the last scan against what actually got patched. The gap is where the fun lives.',
+    tools: ['Nessus', 'OpenVAS'] },
 ];
+
+export const DIFFICULTIES = {
+  standard: { id: 'standard', label: 'Standard', turns: 10, successAt: 11, establishedCount: 4, cooldown: 3,
+    blurb: 'The default briefing \u2014 ten turns, four trusted procedures.' },
+  hard: { id: 'hard', label: 'Hard', turns: 8, successAt: 12, establishedCount: 3, cooldown: 3,
+    blurb: 'Eight turns, a stricter roll, one fewer established procedure.' },
+  brutal: { id: 'brutal', label: 'Brutal', turns: 6, successAt: 13, establishedCount: 2, cooldown: 4,
+    blurb: 'Six turns, a hard roll, and cooldowns that bite. Bring coffee.' },
+};
 
 export const ATTACKS = [
   // \u2014 Initial Compromise \u2014
@@ -104,6 +119,18 @@ export const ATTACKS = [
     tools: ['Burp', 'Hydra', 'Users registering for services with work email addresses'],
     siteTypes: ['cloud', 'office'],
     brief: 'A wave of logins with valid passwords but all the wrong browsers hit {node}.' },
+  { id: 'ic_supply', type: 'initial', title: 'Supply Chain Compromise',
+    description: 'A trusted vendor\u2019s update pushes the attacker\u2019s code straight through your front door.',
+    detection: ['p_threat', 'p_vuln'],
+    tools: ['SolarWinds-style implant', 'Signed but poisoned update package'],
+    siteTypes: ['hq', 'datacenter', 'factory'],
+    brief: 'A routine vendor update at {node} shipped with an extra, uninvited payload.' },
+  { id: 'ic_deepfake', type: 'initial', title: 'Deepfake Vishing',
+    description: 'A synthesized voice, sounding exactly like the CFO, asks very nicely for a wire transfer and a password reset.',
+    detection: ['p_espa'],
+    tools: ['Voice-cloning service', 'A very convincing sense of urgency'],
+    siteTypes: ['hq', 'office'],
+    brief: 'The help desk at {node} took a call from someone who sounded exactly like the CFO.' },
 
   // \u2014 Pivot & Escalate \u2014
   { id: 'pe_spray', type: 'pivot', title: 'Internal Password Spray',
@@ -141,6 +168,16 @@ export const ATTACKS = [
     detection: ['p_ueba', 'p_firewall'],
     tools: ['Responder', 'CredDefense Toolkit (defense)'],
     siteTypes: ['hq', 'office', 'factory'] },
+  { id: 'pe_golden', type: 'pivot', title: 'Golden Ticket Attack',
+    description: 'A forged Kerberos ticket grants domain-wide access that never expires \u2014 and never should have existed.',
+    detection: ['p_siem', 'p_ueba'],
+    tools: ['Mimikatz'],
+    siteTypes: ['hq', 'datacenter'] },
+  { id: 'pe_rdp', type: 'pivot', title: 'RDP Lateral Movement',
+    description: 'Remote Desktop, one hop at a time, using credentials that were never supposed to work twice.',
+    detection: ['p_ueba', 'p_seg', 'p_netflow'],
+    tools: ['xfreerdp', 'CrackMapExec'],
+    siteTypes: ['hq', 'office', 'datacenter', 'factory'] },
 
   // \u2014 C2 & Exfil \u2014
   { id: 'ce_http', type: 'c2', title: 'HTTP as Exfil',
@@ -173,6 +210,16 @@ export const ATTACKS = [
     detection: ['p_netflow'],
     tools: ['Cobalt Strike'],
     siteTypes: ['hq', 'datacenter', 'cloud'] },
+  { id: 'ce_ftp', type: 'c2', title: 'FTP Exfiltration',
+    description: 'Plain old FTP, chosen because nobody\u2019s watched that port since 2011.',
+    detection: ['p_netflow', 'p_firewall'],
+    tools: ['curl', 'A forgotten legacy firewall rule'],
+    siteTypes: ['datacenter', 'factory'] },
+  { id: 'ce_slack', type: 'c2', title: 'Chat-App Webhook as C2',
+    description: 'Commands ride in on a Slack webhook, indistinguishable from a noisy integration bot.',
+    detection: ['p_netflow'],
+    tools: ['Custom webhook relay'],
+    siteTypes: ['hq', 'office', 'cloud'] },
 
   // \u2014 Persistence \u2014
   { id: 'ps_malware', type: 'persistence', title: 'Malicious Service / Just Malware',
@@ -220,6 +267,16 @@ export const ATTACKS = [
     detection: ['p_endpoint', 'p_espa'],
     tools: ['Bash Bunny', 'USB Rubber Ducky'],
     siteTypes: ['hq', 'office'] },
+  { id: 'ps_task', type: 'persistence', title: 'Scheduled Task Persistence',
+    description: 'A task named "SystemHealthCheck" runs the implant every four hours, forever, unless someone actually checks.',
+    detection: ['p_espa', 'p_endpoint'],
+    tools: ['schtasks.exe', 'Cobalt Strike'],
+    siteTypes: ['hq', 'office', 'datacenter'] },
+  { id: 'ps_gpo', type: 'persistence', title: 'Group Policy Object Abuse',
+    description: 'A malicious GPO pushes the payload domain-wide, right alongside the wallpaper policy.',
+    detection: ['p_siem', 'p_ueba'],
+    tools: ['SharpGPOAbuse', 'GPO Editor'],
+    siteTypes: ['hq', 'datacenter'] },
 ];
 
 export const INJECTS = [
@@ -253,6 +310,15 @@ export const INJECTS = [
   { id: 'in_newproc', type: 'inject', title: 'Management Approves a New Procedure',
     description: 'Knights in shining business suits! Internal network capture and analysis just got funded. Get taps and monitoring in ASAP.',
     effect: { kind: 'modifier', value: 5, label: '+5 on your next roll' } },
+  { id: 'in_ransom', type: 'inject', title: 'Ransom Note Appears',
+    description: 'Every screen in the building now displays a countdown timer and a Bitcoin address. Morale: complicated.',
+    effect: { kind: 'flavor', mapEvent: 'highlightRandom' } },
+  { id: 'in_vendor', type: 'inject', title: 'Vendor Escalation Call',
+    description: 'Your EDR vendor\u2019s actual engineering team joins the call, unprompted, and is weirdly helpful.',
+    effect: { kind: 'modifier', value: 1, label: '+1 on your next roll' } },
+  { id: 'in_shift', type: 'inject', title: 'Shift Change Confusion',
+    description: 'The handoff notes were three sentences long and one of them was wrong. Context is lost for a moment.',
+    effect: { kind: 'modifier', value: -1, label: '\u22121 on your next roll' } },
 ];
 
 export const SITE_TYPES = {

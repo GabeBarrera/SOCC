@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOC Commander — Office Tower</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f3f2f2; --ink:#201f1d; --accent:#b68235; --accentDeep:#8a5f22;
+    --divider:#d9d5cf; --paper:#faf9f7; --mute:#6b665f; --slab:#3a3733;
+    --salmon:#b0524f; --green:#5f7d63; --gold:#b68235;
+  }
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font-family:'Lora',Georgia,serif;overflow:hidden;}
+  canvas{display:block;}
+  a{color:var(--accent);} a:hover{color:var(--accentDeep);}
+  *{box-sizing:border-box;}
+
+  #hud{position:fixed;top:0;left:0;right:0;display:flex;align-items:baseline;
+    gap:18px;padding:12px 22px;pointer-events:none;z-index:5;
+    border-bottom:1px solid var(--divider);background:rgba(243,242,242,.9);}
+  #hud h1{margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:700;
+    font-size:22px;letter-spacing:.04em;}
+  #hud .sub{margin:0;font-size:12px;font-style:italic;color:var(--mute);max-width:340px;}
+  #hud .spacer{flex:1;}
+  #hud .status{display:flex;align-items:center;gap:14px;pointer-events:auto;flex-wrap:wrap;justify-content:flex-end;}
+  #hud .stat{font-family:'Cormorant Garamond',serif;font-size:15px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--slab);white-space:nowrap;}
+  #hud .stat b{color:var(--accentDeep);font-weight:700;}
+  #chainpips{display:flex;gap:5px;}
+  #chainpips .pip{width:15px;height:15px;border:1.5px solid var(--divider);border-radius:3px;background:transparent;}
+  .topbtn{pointer-events:auto;font-family:'Cormorant Garamond',serif;font-size:14px;
+    letter-spacing:.06em;text-transform:uppercase;padding:6px 13px;background:transparent;
+    color:var(--accentDeep);border:1px solid var(--accent);border-radius:6px;cursor:pointer;
+    text-decoration:none;transition:background .15s;}
+  .topbtn:hover{background:rgba(182,130,53,.12);}
+  .topbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  #prompt{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:5;
+    display:none;align-items:center;gap:10px;padding:9px 18px;background:rgba(32,31,29,.9);
+    color:var(--paper);border-radius:30px;font-size:14px;box-shadow:0 6px 24px rgba(0,0,0,.28);
+    pointer-events:none;}
+  #prompt .key{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;
+    padding:0 6px;border-radius:5px;background:var(--accent);color:#241a08;font-family:'Cormorant Garamond',serif;
+    font-weight:700;font-size:13px;}
+  #endTurnBtn{position:fixed;right:26px;bottom:26px;z-index:6;display:none;
+    font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;letter-spacing:.06em;
+    padding:12px 26px;background:var(--paper);color:var(--accentDeep);border:1.5px solid var(--accent);
+    border-radius:8px;cursor:pointer;box-shadow:0 8px 26px rgba(0,0,0,.22);}
+  #endTurnBtn:hover{background:rgba(182,130,53,.1);}
+
+  /* pull-out kill-chain tab */
+  #kcDrawer{position:fixed;top:88px;right:0;z-index:8;display:flex;align-items:flex-start;
+    transform:translateX(300px);transition:transform .32s cubic-bezier(.3,.8,.3,1);}
+  #kcDrawer.open{transform:translateX(0);}
+  #kcHandle{align-self:flex-start;margin-top:8px;writing-mode:vertical-rl;
+    background:var(--accent);color:#241a08;border:none;padding:18px 9px;cursor:pointer;
+    font-family:'Cormorant Garamond',serif;font-weight:700;letter-spacing:.2em;font-size:14px;
+    border-radius:9px 0 0 9px;box-shadow:-4px 4px 16px rgba(0,0,0,.2);text-transform:uppercase;}
+  #kcHandle:hover{background:var(--accentDeep);color:#fff;}
+  #kcPanel{width:300px;max-height:calc(100vh - 108px);overflow:auto;background:var(--paper);
+    border:1px solid var(--divider);border-left:3px solid var(--accent);
+    padding:16px 16px 20px;box-shadow:-10px 8px 34px rgba(0,0,0,.16);}
+  .kc-h{font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--accentDeep);margin-bottom:14px;}
+  .kc-card{border:1px solid var(--divider);border-radius:11px;padding:13px 15px;margin-bottom:11px;background:#fff;}
+  .kc-card .cc{font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:.13em;
+    text-transform:uppercase;display:flex;gap:8px;align-items:center;}
+  .kc-dots{color:#c9c3b8;letter-spacing:4px;margin:9px 0 6px;font-size:15px;}
+  .kc-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;line-height:1.1;margin:6px 0 3px;}
+  .kc-sub{font-size:12px;color:var(--mute);font-style:italic;}
+
+  #menuWrap{position:relative;pointer-events:auto;}
+  #hamMenu{position:absolute;top:calc(100% + 6px);right:0;min-width:150px;background:var(--paper);
+    border:1px solid var(--divider);border-radius:9px;box-shadow:0 12px 30px rgba(0,0,0,.2);
+    padding:6px;display:none;flex-direction:column;gap:2px;z-index:9;}
+  #hamMenu.open{display:flex;}
+  #hamMenu button{font-family:'Cormorant Garamond',serif;font-size:15px;letter-spacing:.04em;
+    text-align:left;padding:9px 12px;background:transparent;border:none;border-radius:6px;color:var(--ink);
+    cursor:pointer;}
+  #hamMenu button:hover{background:rgba(182,130,53,.12);color:var(--accentDeep);}
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;gap:14px;
+    padding:13px 0;border-bottom:1px solid var(--divider);}
+  .toggle-row:last-of-type{border-bottom:none;}
+  .toggle-row .tl{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;}
+  .toggle-row .td{font-size:12.5px;color:var(--mute);line-height:1.4;margin-top:2px;}
+  .sw{flex:none;width:52px;height:28px;border-radius:16px;border:1.5px solid var(--divider);
+    background:#eceae6;position:relative;cursor:pointer;transition:background .15s,border-color .15s;}
+  .sw::after{content:'';position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .18s;}
+  .sw.on{background:var(--accent);border-color:var(--accent);}
+  .sw.on::after{left:26px;}
+
+  #backdrop{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;
+    padding:24px;background:rgba(32,31,29,.44);backdrop-filter:blur(2px);}
+  #modal{width:min(540px,94vw);max-height:88vh;overflow:auto;background:var(--paper);
+    border:1px solid var(--divider);border-radius:12px;box-shadow:0 24px 60px rgba(0,0,0,.34);
+    animation:pop .28s cubic-bezier(.2,.9,.3,1) both;}
+  @keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98);}to{opacity:1;transform:none;}}
+  .m-head{padding:14px 22px;border-bottom:1px solid var(--divider);display:flex;
+    align-items:center;justify-content:space-between;gap:12px;}
+  .m-kicker{font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--accentDeep);}
+  .m-body{padding:20px 22px;}
+  .m-title{font-family:'Cormorant Garamond',serif;font-size:29px;font-weight:600;line-height:1.12;
+    margin:0 0 10px;letter-spacing:.01em;}
+  .m-title.sm{font-size:23px;}
+  .m-desc{font-size:15.5px;line-height:1.6;color:#38352f;margin:0;}
+  .m-desc + .m-desc{margin-top:10px;}
+  .aside{margin-top:14px;padding:13px 15px;border-left:3px solid var(--accent);
+    background:rgba(182,130,53,.08);font-size:14.5px;line-height:1.55;color:#4a4133;font-style:italic;}
+  .aside b{font-style:normal;color:var(--accentDeep);}
+  .m-x{background:none;border:none;font-size:22px;line-height:1;color:var(--mute);cursor:pointer;font-family:serif;}
+  .m-x:hover{color:var(--ink);}
+  .m-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;}
+  .btn{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;letter-spacing:.04em;
+    padding:11px 22px;background:transparent;color:var(--accentDeep);border:1.5px solid var(--accent);
+    border-radius:8px;cursor:pointer;transition:background .15s;}
+  .btn:hover{background:rgba(182,130,53,.12);}
+  .btn.primary{background:var(--accent);color:#241a08;}
+  .btn.primary:hover{background:var(--accentDeep);color:#fff;}
+  .btn.ghost{border-color:var(--divider);color:var(--mute);}
+  .btn.ghost:hover{border-color:var(--mute);color:var(--ink);background:transparent;}
+  .btn:disabled{opacity:.4;cursor:default;}
+  .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+  .choice{display:flex;flex-direction:column;gap:10px;margin-top:8px;}
+  .choice button{display:flex;align-items:center;gap:14px;text-align:left;width:100%;padding:15px 18px;
+    background:#fff;border:1px solid var(--divider);border-radius:11px;cursor:pointer;font-family:'Lora',serif;
+    transition:border-color .15s,background .15s;}
+  .choice button:hover{border-color:var(--accent);background:rgba(182,130,53,.06);}
+  .choice .num{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:700;color:var(--accentDeep);width:34px;text-align:center;}
+  .choice .ct{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;line-height:1.1;}
+  .choice .cd{font-size:13px;color:var(--mute);line-height:1.45;margin-top:2px;}
+
+  .proc-list{display:flex;flex-direction:column;gap:8px;margin-top:6px;}
+  .proc{display:flex;align-items:flex-start;gap:12px;text-align:left;width:100%;
+    padding:12px 14px;background:#fff;border:1px solid var(--divider);border-radius:9px;cursor:pointer;
+    font-family:'Lora',serif;transition:border-color .15s,background .15s;}
+  .proc:hover:not(:disabled){border-color:var(--accent);background:rgba(182,130,53,.06);}
+  .proc:disabled{opacity:.5;cursor:default;}
+  .proc .pt{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;line-height:1.1;}
+  .proc .pd{font-size:12.5px;color:var(--mute);line-height:1.45;margin-top:3px;}
+  .proc .pm{margin-left:auto;font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:700;white-space:nowrap;}
+  .proc .pm.est{color:var(--accentDeep);}
+  .proc .pm.no{color:#a8a29a;}
+  .proc .lock{margin-left:auto;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--salmon);white-space:nowrap;align-self:center;}
+  .field-note{font-size:13px;color:var(--mute);font-style:italic;margin:4px 0 0;}
+
+  .dice{margin:6px auto 4px;width:120px;height:120px;border-radius:20px;display:flex;align-items:center;
+    justify-content:center;font-family:'Cormorant Garamond',serif;font-size:58px;font-weight:700;
+    background:var(--paper);border:2px solid var(--divider);color:var(--ink);}
+  .dice.roll{animation:shake .3s ease infinite;}
+  @keyframes shake{0%,100%{transform:rotate(0);}25%{transform:rotate(-6deg);}75%{transform:rotate(6deg);}}
+  .dice.win{border-color:var(--green);color:var(--green);}
+  .dice.lose{border-color:var(--salmon);color:var(--salmon);}
+  .dice-wrap{text-align:center;}
+  .dice-math{font-size:15px;color:var(--mute);margin-top:10px;}
+  .dice-verdict{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;letter-spacing:.08em;margin-top:4px;}
+  .manual{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap;}
+  .manual input{width:70px;font-family:'Cormorant Garamond',serif;font-size:18px;text-align:center;
+    padding:8px;background:#fff;border:1.5px solid var(--divider);border-radius:7px;color:var(--ink);}
+  .manual input:focus{outline:none;border-color:var(--accent);}
+
+  .slot{border:1px solid var(--divider);border-radius:9px;padding:11px 14px;margin-top:8px;background:#fff;}
+  .slot .sc{font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase;}
+  .slot .st{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;line-height:1.1;margin-top:2px;}
+  .slot .ss{font-size:12px;color:var(--mute);font-style:italic;margin-top:2px;}
+  .log{margin-top:6px;max-height:180px;overflow:auto;border-top:1px solid var(--divider);padding-top:10px;}
+  .log .le{font-size:12.5px;line-height:1.5;color:#4a4640;border-left:2px solid var(--divider);padding-left:9px;margin-bottom:7px;}
+  .log .le b{color:var(--accentDeep);font-weight:600;}
+  .subhead{font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--mute);margin:18px 0 2px;}
+  .subhead:first-child{margin-top:0;}
+</style>
+</head>
+<body>
+<div id="hud">
+  <div>
+    <h1>The Office Tower</h1>
+  </div>
+  <div class="spacer"></div>
+  <div class="status">
+    <div class="stat" id="agentStat">Agent 1/1</div>
+    <div class="stat" id="buffStat"></div>
+    <div class="stat">Turn <b id="turnNum">1</b>/<span id="turnMax">10</span></div>
+    <div class="stat" id="streakStat">Streak <b id="streakDots">○○○</b></div>
+    <div id="chainpips"></div>
+    <button class="topbtn" id="caseBtn">Case File</button>
+    <div id="menuWrap">
+      <button class="topbtn" id="hamBtn" aria-label="Menu">☰</button>
+      <div id="hamMenu">
+        <button data-menu="restart">↻ Restart</button>
+        <button data-menu="controls">⌘ Controls</button>
+        <button data-menu="settings">⚙ Settings</button>
+        <button data-menu="quit">◂ Main menu</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<canvas id="game"></canvas>
+
+<div id="prompt"></div>
+<button id="endTurnBtn">End the Turn ▸</button>
+
+<div id="kcDrawer">
+  <button id="kcHandle">◈ Kill Chain</button>
+  <div id="kcPanel">
+    <div class="kc-h">Kill chain · <span id="kcCount">0</span>/4 found</div>
+    <div id="kcCards"></div>
+  </div>
+</div>
+
+<div id="backdrop"><div id="modal"></div></div>
+
+<script type="module">
+import * as E from './engine.js';
+import * as D from './game-data.js';
+
+/* =====================================================================
+   CANVAS PLATFORMER
+   ===================================================================== */
+const canvas = document.getElementById('game');
+let ctx = canvas.getContext('2d');
+
+const C = {
+  bg:'#f3f2f2', ink:'#201f1d', accent:'#b68235', accentDeep:'#8a5f22',
+  paper:'#faf9f7', wall:'#efedea', slab:'#3a3733', slabLite:'#57534c',
+  line:'#d9d5cf', mute:'#8a857e', dark:'#26241f', salmon:'#b0524f',
+  skin:'#e8c39e', skin2:'#c68d5e', skin3:'#8a5a3b',
+  shirtA:'#7d8a99', shirtB:'#9a7d5e', shirtC:'#6f7d6a', shirtD:'#8a6a7d',
+  screen:'#cfe0d8', screenGlow:'#e9f2ee'
+};
+
+const PLAYER_COLORS = ['#b0342f', '#3a5f8a', '#c99a2e'];
+const PLAYER_COLORS_DEEP = ['#7e2320', '#28405e', '#8f6c1c'];
+
+const W = 1920, H = 1120;
+const FLOOR_H = 196, SLAB = 18;
+const BX = 150, BW = 1620;
+const GROUND_Y = 1050;
+const floorY = i => GROUND_Y - i*FLOOR_H;
+const ROOF_Y = floorY(4) - (FLOOR_H - SLAB) - SLAB;
+
+const FLOORS = [
+  {name:'INFOSEC', num:'01'}, {name:'IT', num:'02'}, {name:'', num:'03'},
+  {name:'FINANCE', num:'04'}, {name:'EXECUTIVE', num:'05'},
+];
+
+const LADDERS = [ {x:BX+BW-90,f:0}, {x:BX+70,f:1}, {x:BX+BW-90,f:2}, {x:BX+70,f:3} ];
+const LADDER_W = 34;
+
+let numPlayers = 1;   // set by intro
+
+function rect(x,y,w,h,fill,stroke){
+  if(fill){ctx.fillStyle=fill;ctx.fillRect(x,y,w,h);}
+  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1.5;ctx.strokeRect(x+.5,y+.5,w-1,h-1);}
+}
+function line(x1,y1,x2,y2,col,w){
+  ctx.strokeStyle=col||C.line;ctx.lineWidth=w||1;
+  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+}
+function ctext(str,x,y,size,opt={}){
+  ctx.fillStyle=opt.color||C.ink;
+  ctx.font=`${opt.italic?'italic ':''}${opt.weight||400} ${size}px ${opt.body?"'Lora'":"'Cormorant Garamond'"}, Georgia, serif`;
+  ctx.textAlign=opt.align||'left';
+  if(opt.spacing){ctx.save();ctx.letterSpacing=opt.spacing;ctx.fillText(str,x,y);ctx.restore();}
+  else ctx.fillText(str,x,y);
+  ctx.textAlign='left';
+}
+
+const ENTITIES = [];
+function registerEntity(type, x, y, w){
+  const floor = Math.round((GROUND_Y - y)/FLOOR_H);
+  const key = type+':'+x+':'+floor;
+  let e = ENTITIES.find(e=>e.key===key);
+  if(!e){ e = {key, type, x, y, w, floor, id: ENTITIES.length}; ENTITIES.push(e); }
+  return e;
+}
+
+function desk(x,y,facing=1){
+  const dw=110, dh=46;
+  rect(x, y-dh-4, dw, 6, C.dark);
+  line(x+6, y-dh+2, x+6, y, C.dark, 3);
+  line(x+dw-6, y-dh+2, x+dw-6, y, C.dark, 3);
+  const mx = facing===1 ? x+dw-46 : x+8;
+  rect(mx, y-dh-34, 38, 26, C.dark);
+  rect(mx+3, y-dh-31, 32, 20, C.screen);
+  ctx.fillStyle=C.screenGlow; ctx.fillRect(mx+5, y-dh-29, 12, 4);
+  line(mx+19, y-dh-8, mx+19, y-dh-4, C.dark, 3);
+  rect(mx+12, y-dh-5, 14, 2, C.dark);
+  rect(facing===1? x+30: x+52, y-dh-6, 26, 3, C.mute);
+}
+function person(x,y,shirt,skin,seated=true){
+  if(seated){
+    rect(x-12, y-34, 24, 4, C.dark);
+    line(x, y-30, x, y-8, C.dark, 3);
+    line(x-10, y-8, x+10, y-8, C.dark, 3);
+    line(x-10, y-8, x-10, y, C.dark, 2); line(x+10, y-8, x+10, y, C.dark, 2);
+    rect(x-14, y-58, 5, 30, C.dark);
+    rect(x-8, y-56, 16, 24, shirt);
+    ctx.fillStyle=skin; ctx.beginPath(); ctx.arc(x, y-64, 8, 0, 7); ctx.fill();
+    line(x+6, y-50, x+22, y-44, shirt, 4);
+    line(x-4, y-33, x-4, y-14, C.slab, 4);
+  } else {
+    rect(x-8, y-52, 16, 30, shirt);
+    ctx.fillStyle=skin; ctx.beginPath(); ctx.arc(x, y-60, 8, 0, 7); ctx.fill();
+    line(x-4, y-22, x-4, y, C.slab, 4);
+    line(x+4, y-22, x+4, y, C.slab, 4);
+  }
+}
+function workstation(x,y,shirt,skin){ desk(x,y,1); person(x-8,y,shirt,skin); registerEntity('userdesk', x, y, 110); }
+function terminal(x,y){ desk(x,y,1); registerEntity('terminal', x, y, 110); }
+
+function fridge(x,y){
+  rect(x, y-96, 52, 96, C.paper, C.ink);
+  line(x, y-62, x+52, y-62, C.ink, 1.5);
+  line(x+42, y-88, x+42, y-70, C.ink, 2.5);
+  line(x+42, y-54, x+42, y-30, C.ink, 2.5);
+  ctext('❄', x+18, y-72, 16, {color:C.accent});
+  registerEntity('fridge', x, y, 52);
+}
+function coffeeTable(x,y){
+  rect(x, y-42, 80, 5, C.dark);
+  line(x+8,y-37,x+8,y,C.dark,3); line(x+72,y-37,x+72,y,C.dark,3);
+  rect(x+14, y-70, 26, 28, C.slab);
+  rect(x+20, y-52, 12, 8, C.paper);
+  ctx.strokeStyle=C.mute; ctx.lineWidth=1.2;
+  ctx.beginPath(); ctx.moveTo(x+27,y-74); ctx.quadraticCurveTo(x+23,y-80,x+27,y-86); ctx.stroke();
+  rect(x+50, y-50, 9, 8, C.accent); rect(x+62, y-50, 9, 8, C.mute);
+  registerEntity('coffee', x, y, 80);
+}
+function serverRack(x,y,h=110){
+  rect(x, y-h, 46, h, C.dark);
+  for(let i=0;i<Math.floor(h/18);i++){
+    line(x+5, y-h+12+i*18, x+30, y-h+12+i*18, C.mute, 2);
+    ctx.fillStyle = i%2? C.accent : '#5f8a6a';
+    ctx.fillRect(x+36, y-h+9+i*18, 5, 5);
+  }
+  registerEntity('rack', x, y, 46);
+}
+function plant(x,y,s=1){
+  rect(x-9*s, y-16*s, 18*s, 16*s, '#9a7d5e', C.ink);
+  ctx.strokeStyle='#6f7d6a'; ctx.lineWidth=2.5*s;
+  for(const a of [-0.5,-0.15,0.2,0.55]){
+    ctx.beginPath(); ctx.moveTo(x, y-14*s);
+    ctx.quadraticCurveTo(x+a*36*s, y-34*s, x+a*52*s, y-52*s); ctx.stroke();
+  }
+}
+function poster(x,y,label,glyph){
+  rect(x, y, 66, 84, C.paper, C.ink);
+  ctext(glyph, x+33, y+42, 30, {align:'center', color:C.accent});
+  line(x+12, y+56, x+54, y+56, C.line, 1);
+  ctext(label, x+33, y+72, 11, {align:'center', body:true, color:C.mute});
+}
+function whiteboard(x,y){
+  rect(x, y, 130, 78, C.paper, C.ink);
+  ctx.strokeStyle=C.accent; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(x+14,y+58); ctx.lineTo(x+40,y+40); ctx.lineTo(x+64,y+48); ctx.lineTo(x+112,y+18); ctx.stroke();
+  line(x+14,y+64,x+116,y+64,C.mute,1);
+  line(x+14,y+12,x+14,y+64,C.mute,1);
+}
+function filingCabinet(x,y){
+  rect(x, y-84, 48, 84, C.mute, C.ink);
+  for(let i=0;i<3;i++){
+    line(x, y-84+28*(i+1), x+48, y-84+28*(i+1), C.ink, 1.2);
+    rect(x+16, y-72+28*i, 16, 4, C.ink);
+  }
+}
+function safeBox(x,y){
+  rect(x, y-64, 62, 64, C.slab, C.ink);
+  ctx.strokeStyle=C.accent; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.arc(x+31, y-32, 13, 0, 7); ctx.stroke();
+  ctx.beginPath(); ctx.arc(x+31, y-32, 4, 0, 7); ctx.stroke();
+}
+function waterCooler(x,y){
+  rect(x-8, y-56, 16, 56, C.paper, C.ink);
+  ctx.fillStyle='#cfe0e8'; ctx.strokeStyle=C.ink; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.ellipse(x, y-66, 11, 12, 0, 0, 7); ctx.fill(); ctx.stroke();
+}
+function printer(x,y){
+  rect(x, y-58, 60, 22, C.mute, C.ink);
+  rect(x+4, y-36, 52, 36, C.paper, C.ink);
+  rect(x+14, y-64, 32, 8, C.paper, C.ink);
+  line(x+8,y-18,x+52,y-18,C.ink,1);
+}
+function execTable(x,y){
+  const w=260;
+  registerEntity('exec', x, y, w);
+  rect(x, y-52, w, 8, '#4a3826');
+  line(x+18,y-44,x+18,y,'#4a3826',5); line(x+w-18,y-44,x+w-18,y,'#4a3826',5);
+  const lx=x+w/2-20;
+  rect(lx, y-56, 40, 4, C.dark);
+  ctx.fillStyle=C.dark; ctx.beginPath();
+  ctx.moveTo(lx+2,y-56); ctx.lineTo(lx+6,y-82); ctx.lineTo(lx+38,y-82); ctx.lineTo(lx+38,y-56); ctx.closePath(); ctx.fill();
+  ctx.fillStyle=C.screen; ctx.beginPath();
+  ctx.moveTo(lx+6,y-59); ctx.lineTo(lx+9,y-79); ctx.lineTo(lx+35,y-79); ctx.lineTo(lx+35,y-59); ctx.closePath(); ctx.fill();
+}
+function bookshelf(x,y){
+  rect(x, y-118, 86, 118, C.paper, C.ink);
+  for(let s=0;s<3;s++){
+    const sy=y-118+8+s*36;
+    line(x, sy+30, x+86, sy+30, C.ink, 1.2);
+    let bx=x+7;
+    const cols=[C.accent,'#6f7d6a',C.mute,'#8a6a7d','#9a7d5e'];
+    for(let b=0;b<6 && bx<x+72;b++){
+      const bw=7+((s*7+b*5)%6);
+      rect(bx, sy+4, bw, 26, cols[(s+b)%5]);
+      bx+=bw+3;
+    }
+  }
+}
+function ladder(x, ytop, ybot){
+  line(x, ytop, x, ybot, C.accentDeep, 3);
+  line(x+LADDER_W, ytop, x+LADDER_W, ybot, C.accentDeep, 3);
+  for(let y=ytop+10;y<ybot-4;y+=18) line(x, y, x+LADDER_W, y, C.accentDeep, 2.5);
+}
+function window_(x,y){
+  rect(x, y, 44, 60, '#e5ecef', C.mute);
+  line(x+22, y, x+22, y+60, C.mute, 1);
+  line(x, y+30, x+44, y+30, C.mute, 1);
+}
+function lockPoster(x,y){
+  rect(x, y, 66, 84, C.paper, C.ink);
+  ctx.strokeStyle=C.accent; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.arc(x+33, y+30, 11, Math.PI, 0); ctx.stroke();
+  rect(x+18, y+30, 30, 24, C.accent);
+  line(x+12, y+66, x+54, y+66, C.line, 1);
+  ctext('ZERO TRUST', x+33, y+78, 10, {align:'center', body:true, color:C.mute});
+}
+
+function drawFloorRoom(i){
+  const fy = floorY(i);
+  const top = fy - (FLOOR_H - SLAB);
+  rect(BX, top, BW, FLOOR_H - SLAB, C.wall);
+  line(BX, fy-1, BX+BW, fy-1, C.line, 1);
+  ctext(FLOORS[i].num, BX-70, top+110, 88, {color:'rgba(182,130,53,0.55)', weight:500, align:'center'});
+  if(FLOORS[i].name){
+    ctext(FLOORS[i].name, BX+150, top+52, 26, {weight:600, spacing:'0.18em', color:C.slab});
+    line(BX+150, top+62, BX+150+FLOORS[i].name.length*15, top+62, C.accent, 1.5);
+  }
+}
+
+function drawBuilding(){
+  rect(0,0,W,H,C.bg);
+  line(0, GROUND_Y+SLAB, W, GROUND_Y+SLAB, C.ink, 2);
+  rect(0, GROUND_Y+SLAB, W, H-GROUND_Y-SLAB, '#e7e4df');
+  for(let i=0;i<5;i++) drawFloorRoom(i);
+  for(let i=0;i<5;i++) rect(BX-14, floorY(i), BW+28, SLAB, C.slab);
+  rect(BX-14, ROOF_Y, BW+28, SLAB, C.slab);
+  rect(BX+BW/2-190, ROOF_Y-54, 380, 54, C.paper, C.ink);
+  ctext('THE OFFICE TOWER', BX+BW/2, ROOF_Y-20, 30, {align:'center', weight:600, spacing:'0.14em'});
+  line(BX-14, ROOF_Y, BX-14, GROUND_Y+SLAB, C.slab, 6);
+  line(BX+BW+14, ROOF_Y, BX+BW+14, GROUND_Y+SLAB, C.slab, 6);
+  for(const L of LADDERS){ ladder(L.x, floorY(L.f+1)+SLAB, floorY(L.f)); }
+
+  // Floor 1 — InfoSec + breakroom
+  {
+    const y = floorY(0);
+    const bwx = BX+BW-560;
+    line(bwx, y-(FLOOR_H-SLAB)+16, bwx, y, C.line, 2);
+    ctext('BREAKROOM', bwx+24, y-(FLOOR_H-SLAB)+44, 18, {spacing:'0.2em', color:C.mute, weight:600});
+    fridge(bwx+40, y);
+    coffeeTable(bwx+140, y);
+    plant(bwx+280, y, 1);
+    person(bwx+330, y, C.shirtD, C.skin2, false);
+    terminal(BX+320, y);
+    // InfoSec staff; extra players displace them (2nd -> middle desk, 3rd -> CISO)
+    const infosec = [
+      {x:BX+500, shirt:C.shirtC, skin:C.skin3, removeAt:2, ciso:false},
+      {x:BX+680, shirt:C.shirtB, skin:C.skin2, removeAt:3, ciso:true},
+    ];
+    for(const d of infosec){
+      desk(d.x, y, 1);
+      const removed = numPlayers >= d.removeAt;
+      if(!removed) person(d.x-8, y, d.shirt, d.skin);
+      const e = registerEntity('userdesk', d.x, y, 110);
+      e.ciso = d.ciso && !removed;
+      e.playerHome = removed;
+    }
+    serverRack(BX+120, y, 118);
+    lockPoster(BX+880, y-(FLOOR_H-SLAB)+34);
+    ctext('SOC MONITORING', BX+320, y-108, 13, {body:true, italic:true, color:C.mute});
+  }
+
+  // Floor 2 — IT
+  {
+    const y = floorY(1);
+    workstation(BX+260, y, C.shirtB, C.skin3);
+    workstation(BX+440, y, C.shirtA, C.skin2);
+    workstation(BX+620, y, C.shirtD, C.skin);
+    serverRack(BX+840, y, 100);
+    serverRack(BX+900, y, 118);
+    printer(BX+1030, y);
+    ctx.strokeStyle=C.mute; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(BX+960, y-8);
+    ctx.bezierCurveTo(BX+1000,y-40,BX+960,y-60,BX+1010,y-30); ctx.stroke();
+    { const px=BX+1180, py=y-(FLOOR_H-SLAB)+34, pw=112, ph=96;
+      rect(px, py, pw, ph, C.paper, C.ink);
+      ctext('⟳', px+pw/2, py+48, 34, {align:'center', color:C.accent});
+      line(px+16, py+62, px+pw-16, py+62, C.line, 1);
+      ctext('HAVE YOU TRIED', px+pw/2, py+78, 11.5, {align:'center', body:true, color:C.mute});
+      ctext('REBOOTING IT?', px+pw/2, py+90, 11.5, {align:'center', body:true, color:C.mute}); }
+  }
+
+  // Floor 3 — HR & Marketing
+  {
+    const y = floorY(2);
+    const mid = BX + BW/2;
+    ctext('HR', BX+120, y-(FLOOR_H-SLAB)+52, 22, {weight:600, spacing:'0.16em', color:C.slab});
+    workstation(BX+220, y, C.shirtC, C.skin);
+    workstation(BX+400, y, C.shirtD, C.skin2);
+    workstation(BX+580, y, C.shirtA, C.skin3);
+    poster(BX+120, y-84, 'BE KIND', '♥');
+    plant(BX+700, y, 1.1);
+    line(mid, y-(FLOOR_H-SLAB)+16, mid, y, C.line, 2);
+    ctext('MARKETING', mid+40, y-(FLOOR_H-SLAB)+52, 22, {weight:600, spacing:'0.16em', color:C.slab});
+    workstation(mid+130, y, C.shirtB, C.skin3);
+    workstation(mid+310, y, C.shirtA, C.skin);
+    whiteboard(mid+470, y-(FLOOR_H-SLAB)+34);
+    ctext('Q3 CAMPAIGN', mid+470+65, y-(FLOOR_H-SLAB)+34+92, 12, {align:'center', body:true, color:C.mute});
+    waterCooler(mid+700, y);
+  }
+
+  // Floor 4 — Finance
+  {
+    const y = floorY(3);
+    workstation(BX+300, y, C.shirtA, C.skin2);
+    workstation(BX+480, y, C.shirtC, C.skin3);
+    workstation(BX+660, y, C.shirtB, C.skin);
+    filingCabinet(BX+880, y);
+    filingCabinet(BX+940, y);
+    safeBox(BX+1060, y);
+    poster(BX+1220, y-(FLOOR_H-SLAB)+34, 'MARKETS', '↗');
+    plant(BX+1380, y, 1);
+  }
+
+  // Floor 5 — Executive
+  {
+    const y = floorY(4);
+    execTable(BX+620, y);
+    person(BX+560, y, C.slab, C.skin);
+    person(BX+700, y, C.shirtA, C.skin2);
+    person(BX+800, y, C.shirtD, C.skin3);
+    person(BX+900, y, C.shirtB, C.skin);
+    bookshelf(BX+1000, y);
+    plant(BX+300, y, 1.4);
+    plant(BX+1200, y, 1.2);
+    window_(BX+180, y-100); window_(BX+240, y-100);
+    window_(BX+1320, y-152); window_(BX+1380, y-152);
+    ctext('corner office, quiet hours', BX+620, y-120, 15, {body:true, italic:true, color:C.mute});
+  }
+}
+
+const mapCanvas = document.createElement('canvas');
+mapCanvas.width = W; mapCanvas.height = H;
+
+/* ---- players ---- */
+function makeChar(x, floor){ return {x, y:floorY(floor), vx:0, vy:0, w:22, h:52, onGround:true, onLadder:false, face:1}; }
+let players = [ makeChar(BX+220,0) ];
+let active = 0;
+let player = players[0];
+
+const keys = {};
+addEventListener('keydown', e=>{
+  if(e.key==='Tab'){ e.preventDefault(); if(!modalOpen && players.length>1){ active=(active+1)%players.length; player=players[active]; target=null; refreshHUD(); } return; }
+  if(e.key==='e'||e.key==='E'){ tryInteract(); return; }
+  if(modalOpen) return;
+  keys[e.key]=true;
+  if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key)) target=null;
+  if(['ArrowUp','ArrowDown',' '].includes(e.key)) e.preventDefault();
+});
+addEventListener('keyup', e=>keys[e.key]=false);
+
+let target = null;
+
+function viewTransform(){
+  const scale = Math.min(canvas.width/W, canvas.height/H);
+  return {scale, ox:(canvas.width-W*scale)/2, oy:(canvas.height-H*scale)/2};
+}
+function toWorld(e){
+  const r = canvas.getBoundingClientRect();
+  const {scale, ox, oy} = viewTransform();
+  return { x:((e.clientX-r.left)*devicePixelRatio-ox)/scale, y:((e.clientY-r.top)*devicePixelRatio-oy)/scale };
+}
+function entityAt(wx, wy){
+  for(const d of ENTITIES){
+    if(wx >= d.x-18 && wx <= d.x+d.w+18 && wy >= d.y-124 && wy <= d.y+8) return d;
+  }
+  return null;
+}
+function playerHitTest(wx, wy){
+  for(let i=0;i<players.length;i++){ const c=players[i]; if(wx>=c.x-18 && wx<=c.x+18 && wy>=c.y-66 && wy<=c.y+6) return i; }
+  return -1;
+}
+canvas.addEventListener('click', e=>{
+  if(modalOpen) return;
+  const p = toWorld(e);
+  const hp = playerHitTest(p.x, p.y);
+  if(hp>=0){ active=hp; player=players[active]; target=null; refreshHUD(); return; }
+  const d = entityAt(p.x, p.y);
+  if(d) target = {x: d.x + d.w/2, floor: d.floor, entity: d};
+});
+canvas.addEventListener('mousemove', e=>{
+  if(modalOpen){ canvas.style.cursor='default'; return; }
+  const p = toWorld(e);
+  canvas.style.cursor = (playerHitTest(p.x,p.y)>=0 || entityAt(p.x,p.y)) ? 'pointer' : 'default';
+});
+
+function playerFloor(){ return Math.max(0, Math.min(4, Math.round((GROUND_Y - player.y)/FLOOR_H))); }
+
+function autoIntent(){
+  const a = {left:false,right:false,up:false,down:false};
+  if(!target) return a;
+  const pf = playerFloor();
+  if(player.onLadder){
+    if(player.y > floorY(target.floor)) a.up = true;
+    else if(player.y < floorY(target.floor)) a.down = true;
+    return a;
+  }
+  if(pf === target.floor && player.onGround){
+    const dx = target.x - player.x;
+    if(Math.abs(dx) <= 6){ const ent=target.entity; target=null; if(ent) openEntity(ent); return a; }
+    if(dx < 0) a.left = true; else a.right = true;
+    return a;
+  }
+  const L = target.floor > pf ? LADDERS[pf] : LADDERS[pf-1];
+  if(!L){ target = null; return a; }
+  const cx = L.x + LADDER_W/2;
+  const dx = cx - player.x;
+  if(Math.abs(dx) > 6){ if(dx < 0) a.left = true; else a.right = true; }
+  else { if(target.floor > pf) a.up = true; else a.down = true; }
+  return a;
+}
+
+function ladderAt(px, py){
+  for(const L of LADDERS){
+    const ytop = floorY(L.f+1), ybot = floorY(L.f);
+    if(px > L.x-6 && px < L.x+LADDER_W+6 && py > ytop-4 && py <= ybot+4) return L;
+  }
+  return null;
+}
+
+function updatePlayer(dt){
+  if(modalOpen) return;
+  const boost = 1 + 0.25*((game && game.coffeeCups)||0);
+  const SPEED=340*boost, JUMP=560, GRAV=1500, CLIMB=220*boost;
+  const auto = autoIntent();
+  const inLeft = keys['ArrowLeft']||auto.left,  inRight = keys['ArrowRight']||auto.right;
+  const inUp   = keys['ArrowUp']||auto.up,      inDown  = keys['ArrowDown']||auto.down;
+  const L = ladderAt(player.x, player.y);
+  if(L && (inUp||inDown)) player.onLadder=true;
+  if(!L) player.onLadder=false;
+  if(player.onLadder){
+    player.vy=0; player.vx=0;
+    if(inUp)   player.y -= CLIMB*dt;
+    if(inDown) player.y += CLIMB*dt;
+    if(inLeft) {player.x -= SPEED*.6*dt; player.onLadder=false;}
+    if(inRight){player.x += SPEED*.6*dt; player.onLadder=false;}
+    const ytop = floorY(L?L.f+1:0), ybot = floorY(L?L.f:0);
+    if(L){
+      if(player.y <= ytop){ player.y = ytop; player.onLadder=false; player.onGround=true; }
+      if(player.y >= ybot){ player.y = ybot; player.onLadder=false; player.onGround=true; }
+    }
+  } else {
+    player.vx = 0;
+    if(inLeft)  {player.vx=-SPEED; player.face=-1;}
+    if(inRight) {player.vx= SPEED; player.face=1;}
+    if((keys['ArrowUp']||keys[' ']) && player.onGround){ player.vy=-JUMP; player.onGround=false; }
+    player.vy += GRAV*dt;
+    player.x += player.vx*dt;
+    player.y += player.vy*dt;
+    player.onGround=false;
+    for(let i=0;i<5;i++){
+      const fy = floorY(i);
+      if(player.vy>=0 && player.y>=fy && player.y<=fy+30){ player.y=fy; player.vy=0; player.onGround=true; break; }
+    }
+    const ceil = (()=>{
+      for(let i=0;i<5;i++){ const fy=floorY(i); if(player.y<=fy && player.y>fy-FLOOR_H) return fy-(FLOOR_H-SLAB); }
+      return ROOF_Y+SLAB;
+    })();
+    if(player.y-player.h-14 < ceil){ player.y = ceil+player.h+14; if(player.vy<0) player.vy=0; }
+  }
+  player.x = Math.max(BX+14, Math.min(BX+BW-14, player.x));
+  player.y = Math.min(player.y, GROUND_Y);
+}
+
+function drawChar(g, p, isActive, idx){
+  const {x,y,face}=p;
+  const body = PLAYER_COLORS[idx % PLAYER_COLORS.length];
+  const bodyEdge = PLAYER_COLORS_DEEP[idx % PLAYER_COLORS_DEEP.length];
+  g.strokeStyle=C.slab; g.lineWidth=5;
+  g.beginPath(); g.moveTo(x-5,y-22); g.lineTo(x-6,y); g.stroke();
+  g.beginPath(); g.moveTo(x+5,y-22); g.lineTo(x+6,y); g.stroke();
+  g.fillStyle=body; g.fillRect(x-9, y-50, 18, 30);
+  g.strokeStyle=bodyEdge; g.lineWidth=1.5; g.strokeRect(x-9.5,y-50.5,19,31);
+  g.strokeStyle=bodyEdge; g.lineWidth=4;
+  g.beginPath(); g.moveTo(x, y-44); g.lineTo(x+10*face, y-32); g.stroke();
+  g.fillStyle=C.skin; g.beginPath(); g.arc(x, y-59, 9, 0, 7); g.fill();
+  g.strokeStyle=C.ink; g.lineWidth=1; g.stroke();
+  g.fillStyle=C.paper; g.fillRect(x-4+3*face, y-46, 6, 8);
+  if(isActive && players.length>1){
+    const ay = y-88 + Math.sin(performance.now()/300)*3;
+    g.fillStyle=C.accent;
+    g.beginPath(); g.moveTo(x, ay+8); g.lineTo(x-6, ay); g.lineTo(x+6, ay); g.closePath(); g.fill();
+  }
+}
+
+function drawEntityMarker(g, e, hot){
+  const cx = e.x + e.w/2;
+  const my = e.y - (e.type==='rack'?134:e.type==='exec'?96:114) + Math.sin(performance.now()/600 + e.id)*3;
+  const isCaller = caller && e.key===caller.key;
+  if(!settings.markers && !hot && !isCaller && !e.ciso) return;
+  g.save();
+  if(hot){
+    g.strokeStyle=C.accent; g.lineWidth=2; g.setLineDash([6,4]);
+    const bh = e.type==='rack'?122:e.type==='exec'?60:100;
+    g.strokeRect(e.x-10, e.y-bh, e.w+20, bh+6);
+    g.setLineDash([]);
+  }
+  g.fillStyle = isCaller ? C.salmon : e.ciso ? C.accentDeep : 'rgba(182,130,53,0.85)';
+  g.beginPath(); g.moveTo(cx,my-7); g.lineTo(cx-6,my); g.lineTo(cx,my+7); g.lineTo(cx+6,my); g.closePath(); g.fill();
+  if(e.ciso){ g.fillStyle=C.accentDeep; g.font="700 13px 'Cormorant Garamond', serif"; g.textAlign='center'; g.fillText('CISO', cx, my-14); g.textAlign='left'; }
+  g.restore();
+}
+function drawCaller(g){
+  if(!caller) return;
+  const e = callerEntity(); if(!e) return;
+  const cx = e.x + e.w/2;
+  const by = e.y - 118 + Math.sin(performance.now()/380)*5;
+  g.fillStyle=C.salmon;
+  g.beginPath(); g.arc(cx, by, 15, 0, 7); g.fill();
+  g.beginPath(); g.moveTo(cx-6, by+12); g.lineTo(cx+6, by+12); g.lineTo(cx, by+22); g.closePath(); g.fill();
+  g.fillStyle='#fff'; g.font="700 16px 'Cormorant Garamond', serif"; g.textAlign='center'; g.textBaseline='middle';
+  g.fillText('☎', cx, by+1);
+  g.textAlign='left'; g.textBaseline='alphabetic';
+}
+
+let last=performance.now();
+let nearEntity=null;
+let mapDrawn=false;
+function drawScene(){
+  const real = ctx;
+  ctx = mapCanvas.getContext('2d');
+  ENTITIES.length = 0;
+  drawBuilding();
+  ctx = real;
+  mapDrawn=true;
+}
+function frame(now){
+  const dt=Math.min((now-last)/1000, .033); last=now;
+  updatePlayer(dt);
+
+  nearEntity=null;
+  if(!modalOpen && game && !game.result && player.onGround){
+    const pf=playerFloor(); let best=1e9;
+    for(const e of ENTITIES){
+      if(e.floor!==pf) continue;
+      const d=Math.abs(player.x-(e.x+e.w/2));
+      if(d<78 && d<best){ best=d; nearEntity=e; }
+    }
+  }
+
+  const g = canvas.getContext('2d');
+  const scale = Math.min(canvas.width/W, canvas.height/H);
+  g.setTransform(1,0,0,1,0,0);
+  g.fillStyle=C.bg; g.fillRect(0,0,canvas.width,canvas.height);
+  g.setTransform(scale,0,0,scale,(canvas.width-W*scale)/2,(canvas.height-H*scale)/2);
+  if(mapDrawn) g.drawImage(mapCanvas,0,0);
+  for(const e of ENTITIES) drawEntityMarker(g, e, e===nearEntity);
+  drawCaller(g);
+  if(target){
+    const t = performance.now()/500;
+    const mx = target.entity.x + target.entity.w/2, my = target.entity.y - 96 - 8 + Math.sin(t*2)*4;
+    g.fillStyle=C.accent;
+    g.beginPath(); g.moveTo(mx, my); g.lineTo(mx-8, my-12); g.lineTo(mx+8, my-12); g.closePath(); g.fill();
+  }
+  for(let i=0;i<players.length;i++) drawChar(g, players[i], i===active, i);
+
+  updateFloatingUI();
+  requestAnimationFrame(frame);
+}
+
+function resize(){
+  canvas.width = innerWidth * devicePixelRatio;
+  canvas.height = innerHeight * devicePixelRatio;
+  canvas.style.width = innerWidth+'px';
+  canvas.style.height = innerHeight+'px';
+}
+addEventListener('resize', resize);
+resize();
+
+/* =====================================================================
+   OFFICE GAME LAYER
+   ===================================================================== */
+const backdrop = document.getElementById('backdrop');
+const modal = document.getElementById('modal');
+const promptEl = document.getElementById('prompt');
+const endTurnBtn = document.getElementById('endTurnBtn');
+let modalOpen = false;
+let closeableModal = true;
+let game = null;
+let caller = null;
+let pending = null;
+let ovQueue = [];
+let diceTimer = null;
+let started = false;
+const isMobile = matchMedia('(pointer: coarse)').matches;
+
+const SETTINGS_KEY = 'socc_office_settings';
+let settings = { fastDice:false, markers:false };
+try{ const sv = JSON.parse(localStorage.getItem(SETTINGS_KEY)); if(sv) settings = { ...settings, ...sv }; }catch(e){}
+function saveSettings(){ try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }catch(e){} }
+
+const SAVE_KEY = 'socc_office_save_v1';
+
+const ENTITY_PROCS = {
+  terminal: ['p_siem','p_server','p_firewall','p_netflow','p_seg','p_espa','p_ueba','p_iso','p_threat','p_vuln'],
+  rack:     ['p_server','p_netflow','p_seg','p_iso'],
+  userdesk: ['p_endpoint','p_iso'],
+  exec:     ['p_crisis'],
+};
+const ENTITY_LABEL = { terminal:'Analysis Terminal', rack:'Server Rack', userdesk:'Employee Desk', exec:'Executive Office', coffee:'Coffee Machine', fridge:'Fridge' };
+const ENTITY_KICKER = { terminal:'InfoSec workstation', rack:'Server infrastructure', userdesk:'On-site interview', exec:'Fifth floor', coffee:'Breakroom', fridge:'Breakroom' };
+
+const NAMES = ['Dana','Marcus','Priya','Tom','Alicia','Chen','Rosa','Kevin','Nadia','Sam','Grace','Omar','Elena','Rahul'];
+const rand = a => a[Math.floor(Math.random()*a.length)];
+function deptFor(e){
+  if(e.floor===1) return 'IT';
+  if(e.floor===2) return (e.x < BX+BW/2) ? 'HR' : 'Marketing';
+  if(e.floor===3) return 'Finance';
+  return 'InfoSec';
+}
+
+const OFFICE_CALLS = {
+  ic_phish: { call:"I keep getting these emails from 'IT Support' telling me to re-verify my password. It feels off, but I'm not sure.",
+    symptom:"Now that you mention it — I did click a link earlier, and a little shield icon in my system tray keeps flashing up and vanishing.", hint:'p_espa' },
+  ic_web: { call:"Our public web app is behaving really strangely — pages loading that I've never seen before.",
+    symptom:"The web server's been pegged at 100% CPU since last night, and there are database errors in the app log I don't recognize.", hint:'p_server' },
+  ic_cloud: { call:"I got a text saying I signed in from another country. I definitely didn't.",
+    symptom:"My sign-in history shows sessions at 3 a.m. from cities I've never been to — it's all sitting in the login logs.", hint:'p_siem' },
+  ic_insider: { call:"This is a little sensitive... I think one of my colleagues is accessing files they really shouldn't be.",
+    symptom:"They're badging in around 2 a.m. and opening shared folders nobody in their role has ever touched.", hint:'p_ueba' },
+  ic_spray: { call:"Half my team got locked out this morning — all of us, at basically the same time.",
+    symptom:"The account-lockout logs are overflowing. Hundreds of failed logins overnight, against just about everyone.", hint:'p_siem' },
+  ic_trust: { call:"Our partner's integration is doing weird things on our side and I don't know who to call.",
+    symptom:"There are logins coming in through the partner connection at hours their office is completely closed.", hint:'p_siem' },
+  ic_social: { call:"Someone called pretending to be from the help desk, and I... I think I may have installed something.",
+    symptom:"They walked me through a 'quick fix,' and now there's a program running on my machine I've never seen before.", hint:'p_espa' },
+  ic_byod: { call:"I brought my home laptop in for a presentation, and ever since, the Wi-Fi's been acting up.",
+    symptom:"My laptop keeps sending traffic out to somewhere even when I'm not doing anything on it.", hint:'p_netflow' },
+  ic_extsvc: { call:"One of our internet-facing servers rebooted overnight. Nobody I've asked scheduled it.",
+    symptom:"There are brand-new services running on that box, and a config file changed itself at 3 a.m.", hint:'p_server' },
+  ic_stuff: { call:"People keep getting 'new device' login alerts that they swear they didn't trigger.",
+    symptom:"The logins succeed with the right passwords — but from browsers and devices these people have never used.", hint:'p_ueba' },
+  ic_supply: { call:"That vendor update we installed last week — should I be worried? There's chatter about it online.",
+    symptom:"Other companies running the same vendor package are reporting compromises, and the indicators line up.", hint:'p_threat' },
+  ic_deepfake: { call:"The CFO just called me to approve an urgent wire and a password reset. It sounded exactly like her.",
+    symptom:"Right after that call, the workstation I used picked up a new background process — started at the exact minute the phone rang.", hint:'p_espa' },
+};
+
+function callerEntity(){ return caller ? ENTITIES.find(e=>e.key===caller.key) : null; }
+function initialCall(){ return OFFICE_CALLS[game.hidden[0].cardId] || {call:'Something feels wrong with my computer.',symptom:'It just... does things.',hint:'p_endpoint'}; }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function floorName(f){ return ['InfoSec floor','IT floor','HR / Marketing floor','Finance floor','Executive floor'][f] || 'building'; }
+
+/* ---------- lifecycle ---------- */
+function newGame(n){
+  numPlayers = Math.max(1, Math.min(3, n || numPlayers || 1));
+  drawScene();                          // rebuild map + entities for this player count
+  game = E.createGame();
+  game.coffeeCups = 0; game.coffeeThisTurn = false; game.fridgeUsed = false; game.cisoAsked = false;
+  players = [ makeChar(BX+220, 0) ];
+  if(numPlayers>=2) players.push(makeChar(BX+500, 0));
+  if(numPlayers>=3) players.push(makeChar(BX+680, 0));
+  active = 0; player = players[0]; target = null;
+  const pool = ENTITIES.filter(e=>e.type==='userdesk' && e.floor>0);
+  const ce = pool[Math.floor(Math.random()*pool.length)] || ENTITIES.find(e=>e.type==='userdesk');
+  caller = { key: ce.key, name: rand(NAMES), dept: deptFor(ce), inquired:false };
+  game.log = [{ t:0, text:`${caller.name} (${caller.dept}) called in an incident.` }];
+  try{ localStorage.setItem('socc_last_mode','office'); }catch(e){}
+  save(); refreshHUD(); showCall();
+}
+function save(){
+  try{ if(game) localStorage.setItem(SAVE_KEY, JSON.stringify({ game, caller, numPlayers, players, active })); }catch(e){}
+}
+function clearSave(){ try{ localStorage.removeItem(SAVE_KEY); }catch(e){} }
+function loadGame(){
+  try{
+    const sv = JSON.parse(localStorage.getItem(SAVE_KEY));
+    if(sv && sv.game && sv.caller){
+      numPlayers = sv.numPlayers || 1;
+      drawScene();
+      if(!ENTITIES.some(e=>e.key===sv.caller.key)) return false;
+      game = sv.game; caller = sv.caller;
+      players = (sv.players && sv.players.length) ? sv.players : [ makeChar(BX+220,0) ];
+      active = sv.active || 0; if(active>=players.length) active=0; player = players[active];
+      try{ localStorage.setItem('socc_last_mode','office'); }catch(e){}
+      refreshHUD(); return true;
+    }
+  }catch(e){}
+  return false;
+}
+
+/* ---------- modal plumbing ---------- */
+function setModal(html){ modal.innerHTML = html; backdrop.style.display='flex'; modalOpen=true; }
+function closeModal(){
+  backdrop.style.display='none'; modal.innerHTML=''; modalOpen=false;
+  keys['ArrowLeft']=keys['ArrowRight']=keys['ArrowUp']=keys['ArrowDown']=keys[' ']=false;
+  refreshHUD();
+}
+backdrop.addEventListener('click', e=>{ if(e.target===backdrop && closeableModal) closeModal(); });
+
+function infoModal(kicker, title, body){
+  closeableModal = true;
+  setModal(`<div class="m-head"><span class="m-kicker">${esc(kicker)}</span><button class="m-x" data-act="close">✕</button></div>
+    <div class="m-body"><p class="m-title sm">${esc(title)}</p><p class="m-desc">${esc(body)}</p>
+    <div class="m-actions"><button class="btn primary" data-act="close">Got it ▸</button></div></div>`);
+  bind();
+}
+
+/* ---------- intro ---------- */
+function showIntro(){
+  closeableModal = false;
+  setModal(`
+    <div class="m-head"><span class="m-kicker">Novacore InfoSec · new shift</span></div>
+    <div class="m-body">
+      <p class="m-title">Who's on the floor?</p>
+      <p class="m-desc">Choose your team. Each extra analyst takes over an InfoSec desk — the third displaces the CISO, so you lose their clues.</p>
+      <div class="choice">
+        <button data-players="1"><span class="num">1</span><span><span class="ct">Solo analyst</span><span class="cd">One agent. The CISO is at their desk to offer clues.</span></span></button>
+        <button data-players="2"><span class="num">2</span><span><span class="ct">Pair</span><span class="cd">A second agent joins — split up and cover more ground. CISO still available.</span></span></button>
+        <button data-players="3"><span class="num">3</span><span><span class="ct">Full team</span><span class="cd">Three agents. The CISO's desk becomes an agent — no more clues.</span></span></button>
+      </div>
+    </div>`);
+  bind();
+}
+
+/* ---------- incoming call ---------- */
+function showCall(){
+  const oc = initialCall();
+  closeableModal = true;
+  setModal(`
+    <div class="m-head"><span class="m-kicker">☎ Incoming call · InfoSec desk</span>
+      <button class="m-x" data-act="close">✕</button></div>
+    <div class="m-body">
+      <p class="m-title">${esc(caller.name)} from ${esc(caller.dept)}</p>
+      <p class="m-desc">“${esc(oc.call)}”</p>
+      <div class="aside"><b>What now?</b> Head to <b>${esc(caller.name)}'s desk</b> on the ${floorName(callerEntity().floor)} to <b>inquire</b> about symptoms — then run the right procedure at the matching equipment. You have ${E.RULES.turns} turns.</div>
+      <div class="m-actions"><button class="btn primary" data-act="close">Take the case ▸</button></div>
+    </div>`);
+  bind();
+}
+
+/* ---------- entity panel ---------- */
+function openEntity(e){
+  if(game.result) return;
+  if(e.type==='coffee'){ openCoffee(); return; }
+  if(e.type==='fridge'){ openFridge(); return; }
+
+  const isCaller = caller && e.key===caller.key;
+  const procs = ENTITY_PROCS[e.type] || [];
+  const label = isCaller ? `${caller.name}'s Desk` : e.ciso ? "CISO's Desk" : ENTITY_LABEL[e.type];
+  const kicker = isCaller ? `${caller.dept} · the caller` : e.ciso ? 'Chief Information Security Officer' : ENTITY_KICKER[e.type];
+
+  let extra = '';
+  if(isCaller){
+    const oc = initialCall();
+    if(caller.inquired) extra = `<div class="aside"><b>${esc(caller.name)} says:</b> “${esc(oc.symptom)}”</div>`;
+    else extra = `<div class="m-actions" style="margin-top:8px"><button class="btn" data-act="inquire">Inquire about the problem</button></div>`;
+  } else if(e.ciso){
+    if(game.cisoAsked){
+      const clue = cisoClue();
+      extra = `<div class="aside"><b>The CISO leans over:</b> ${clue ? `“For what you're seeing, I'd start with <b>${esc(clue)}</b>.”` : `“You've traced the whole chain — go contain it.”`}</div>`;
+    } else {
+      extra = `<div class="m-actions" style="margin-top:8px"><button class="btn" data-act="ciso">Ask the CISO for a clue</button></div>`;
+    }
+  }
+
+  let listHtml;
+  if(game.playedThisTurn){
+    listHtml = `<p class="field-note">Your team has already run a procedure this turn. End the turn to continue.</p>`;
+  } else {
+    listHtml = `<div class="proc-list">` + procs.map(pid=>{
+      const p = E.cardById(pid);
+      const removed = (game.removed||[]).includes(pid);
+      const cd = game.cooldowns[pid]||0;
+      const est = game.established.includes(pid);
+      const disabled = removed || cd>0;
+      let right;
+      if(removed) right = `<span class="lock">✕ lost</span>`;
+      else if(cd>0) right = `<span class="lock">cooldown ${cd}</span>`;
+      else right = `<span class="pm ${est?'est':'no'}">${est?'+3':'+0'}</span>`;
+      return `<button class="proc" data-proc="${pid}" ${disabled?'disabled':''}>
+        <span><span class="pt">${esc(p.title)}</span><span class="pd">${esc(p.description)}</span></span>${right}</button>`;
+    }).join('') + `</div>`;
+  }
+
+  closeableModal = true;
+  setModal(`
+    <div class="m-head"><span class="m-kicker">${esc(kicker)}</span>
+      <button class="m-x" data-act="close">✕</button></div>
+    <div class="m-body">
+      <p class="m-title sm">${esc(label)}</p>
+      ${extra}
+      <div class="subhead">${game.playedThisTurn?'&nbsp;':'Available procedures'}</div>
+      ${listHtml}
+    </div>`);
+  bind(e);
+}
+
+function cisoClue(){
+  for(const h of game.hidden){
+    if(!h.revealed){ const c = E.cardById(h.cardId); const pid = (c.detection||[])[0]; if(pid) return E.cardById(pid).title; }
+  }
+  return null;
+}
+
+function openCoffee(){
+  const cups = game.coffeeCups||0;
+  let msg, canDrink=false;
+  if(cups>=4){ msg='Fully caffeinated — 4/4 cups. Your hands are shaking; no more room.'; }
+  else if(game.coffeeThisTurn){ msg='One cup per turn. Come back after the next turn.'; }
+  else { canDrink=true; msg=`Each cup adds +25% movement speed for the rest of the game (currently ${cups}/4).`; }
+  closeableModal = true;
+  setModal(`
+    <div class="m-head"><span class="m-kicker">Breakroom · coffee machine</span><button class="m-x" data-act="close">✕</button></div>
+    <div class="m-body">
+      <p class="m-title sm">Coffee Machine</p>
+      <p class="m-desc">${esc(msg)}</p>
+      <div class="m-actions">
+        ${canDrink?`<button class="btn primary" data-act="drink">Pour a cup ☕</button>`:''}
+        <button class="btn ghost" data-act="close">Back</button>
+      </div>
+    </div>`);
+  bind();
+}
+function openFridge(){
+  const used = game.fridgeUsed;
+  closeableModal = true;
+  setModal(`
+    <div class="m-head"><span class="m-kicker">Breakroom · fridge</span><button class="m-x" data-act="close">✕</button></div>
+    <div class="m-body">
+      <p class="m-title sm">Fridge</p>
+      <p class="m-desc">${used?'Picked clean — you already used the fridge this game.':'A leftover sandwich with someone\u2019s name on it. Eating it grants a one-time +3 on your next roll.'}</p>
+      <div class="m-actions">
+        ${used?'':`<button class="btn primary" data-act="eat">Grab a snack 🥪</button>`}
+        <button class="btn ghost" data-act="close">Back</button>
+      </div>
+    </div>`);
+  bind();
+}
+
+/* ---------- confirm + roll ---------- */
+function showConfirm(entity, procId){
+  const p = E.cardById(procId);
+  const mod = E.procedureMod(game, procId) + game.nextRollMod;
+  const modLbl = (mod>=0?'+':'−')+Math.abs(mod);
+  closeableModal = true;
+  setModal(`
+    <div class="m-head"><span class="m-kicker">Confirm procedure</span>
+      <button class="m-x" data-back="${entity.key}">✕</button></div>
+    <div class="m-body">
+      <p class="m-title sm">${esc(p.title)}</p>
+      <p class="m-desc">${esc(p.description)}</p>
+      <p class="field-note">Success needs ${E.RULES.successAt}+ on a d20. This roll carries <b>${modLbl}</b>${game.established.includes(procId)?' (established)':''}${game.nextRollMod?` (incl. ${game.nextRollMod>0?'+':''}${game.nextRollMod} buff)`:''}.</p>
+      <div class="manual">
+        <span style="font-size:14px;color:var(--mute)">Rolling a real d20?</span>
+        <input id="manualVal" type="number" min="1" max="20" placeholder="1–20" />
+      </div>
+      <div class="m-actions">
+        <button class="btn primary" data-roll="${procId}">🎲 Roll the dice</button>
+        <button class="btn ghost" data-back="${entity.key}">Back</button>
+      </div>
+    </div>`);
+  bind(entity);
+}
+function runRoll(procId, manualNatural){
+  const proc = E.cardById(procId);
+  const res = E.playProcedure(game, procId, manualNatural);
+  save();
+  const roll = res.events.find(x=>x.kind==='roll');
+  pending = { events: res.events, matches: res.matches, proc };
+  showDice(roll, proc, manualNatural!=null);
+}
+function showDice(roll, proc, instant){
+  closeableModal = false;
+  setModal(`
+    <div class="m-body dice-wrap">
+      <div class="m-kicker" style="margin-bottom:6px">Rolling · ${esc(proc.title)}</div>
+      <div class="dice roll" id="diceFace">?</div>
+      <div id="diceResult" style="display:none">
+        <div class="dice-math" id="diceMath"></div>
+        <div class="dice-verdict" id="diceVerdict"></div>
+        <div class="m-actions" style="justify-content:center"><button class="btn primary" data-act="dicecontinue">Continue ▸</button></div>
+      </div>
+    </div>`);
+  const face = modal.querySelector('#diceFace');
+  const settle = ()=>{
+    face.textContent = roll.natural;
+    face.classList.remove('roll'); face.classList.add(roll.success?'win':'lose');
+    modal.querySelector('#diceMath').textContent = `${roll.natural} (natural) ${roll.mod>=0?'+ '+roll.mod:'− '+Math.abs(roll.mod)} = ${roll.total}`;
+    const v = modal.querySelector('#diceVerdict');
+    v.textContent = roll.success?'SUCCESS':'FAILURE';
+    v.style.color = roll.success?'var(--green)':'var(--salmon)';
+    modal.querySelector('#diceResult').style.display='block';
+    bind();
+  };
+  if(instant || settings.fastDice){ settle(); return; }
+  let ticks=0; const max=14;
+  clearInterval(diceTimer);
+  diceTimer=setInterval(()=>{
+    ticks++;
+    if(ticks>=max){ clearInterval(diceTimer); settle(); }
+    else face.textContent = 1+Math.floor(Math.random()*20);
+  }, 82);
+}
+function diceContinue(){
+  const p = pending; pending=null;
+  let list=[];
+  if(p.matches.length>1){
+    const pickCard = p.matches[Math.floor(Math.random()*p.matches.length)];
+    const rev = E.revealCard(game, pickCard.cardId, null);
+    save();
+    const injects = p.events.filter(x=>x.kind==='inject');
+    list = [...eventsToOverlays(rev), ...eventsToOverlays(injects)];
+  } else {
+    list = eventsToOverlays(p.events);
+  }
+  ovQueue = list; nextOverlay();
+}
+function eventsToOverlays(events){
+  const out=[];
+  for(const e of events){
+    if(e.kind==='fail') out.push({type:'fail'});
+    if(e.kind==='noMatch') out.push({type:'noMatch'});
+    if(e.kind==='reveal') out.push({type:'reveal', cardId:e.cardId});
+    if(e.kind==='inject') out.push({type:'inject', cardId:e.cardId, trigger:e.trigger, detail:e.detail});
+    if(e.kind==='turnSkipped') out.push({type:'skip', turn:e.turn});
+  }
+  return out;
+}
+function nextOverlay(){
+  if(!ovQueue.length){ closeModal(); checkEnd(); return; }
+  showOverlay(ovQueue.shift());
+}
+function showOverlay(o){
+  closeableModal = false;
+  let head, title, body='', aside='';
+  if(o.type==='fail'){
+    head='Nothing found'; title='The trail runs cold.';
+    body=`The procedure came back empty this time. Fail streak: ${game.failStreak} of ${E.RULES.failStreakInject}.`;
+    aside=`<div class="aside"><b>Talk it through:</b> why might this fail in real life? Budget? A tool nobody configured? Politics?</div>`;
+  } else if(o.type==='noMatch'){
+    head='Clean result'; title='The sweep came back clean.';
+    body='Good news: the procedure works. Bad news: whatever is out there leaves no tracks this tool can see.';
+  } else if(o.type==='reveal'){
+    const c = E.cardById(o.cardId), cat = D.CATEGORIES[c.type];
+    head = cat.label+' uncovered'; title=c.title; body=c.description;
+    aside=`<div class="aside"><b>Kill chain:</b> ${game.hidden.filter(h=>h.revealed).length} of 4 stages confirmed.</div>`;
+  } else if(o.type==='inject'){
+    const c = E.cardById(o.cardId);
+    head = 'Inject · '+o.trigger; title=c.title; body=c.description;
+    if(o.detail) aside=`<div class="aside"><b>⚠</b> ${esc(o.detail)}</div>`;
+  } else if(o.type==='skip'){
+    head='Turn lost'; title=`Turn ${o.turn} is gone.`;
+    body='Everyone ended up in a conference room instead. The attackers did not.';
+  }
+  setModal(`
+    <div class="m-head"><span class="m-kicker">${esc(head)}</span></div>
+    <div class="m-body">
+      <p class="m-title sm">${esc(title)}</p>
+      <p class="m-desc">${esc(body)}</p>
+      ${aside}
+      <div class="m-actions"><button class="btn primary" data-act="ovnext">Continue ▸</button></div>
+    </div>`);
+  bind();
+}
+
+function endTurn(){
+  const events = E.endTurn(game);
+  game.coffeeThisTurn = false;
+  save();
+  ovQueue = eventsToOverlays(events);
+  if(ovQueue.length) nextOverlay();
+  else { checkEnd(); refreshHUD(); }
+}
+function checkEnd(){
+  if(game && game.result){ clearSave(); showDebrief(); }
+  else refreshHUD();
+}
+
+function showDebrief(){
+  const win = game.result==='win', pentest = game.result==='pentest';
+  const title = win?'INCIDENT CONTAINED':pentest?'IT WAS A PENTEST':'BREACH COMPLETE';
+  const color = win?'var(--green)':pentest?'var(--accentDeep)':'var(--salmon)';
+  const sub = win ? `All four stages uncovered in ${Math.min(game.turn,E.RULES.turns)} turns.`
+    : pentest ? 'You were never under attack — the CEO hired a red team. Here is how far they got.'
+    : (game.loseReason || 'Time ran out.') + ' Here is the kill chain you were up against.';
+  const slots = E.CAT_ORDER.map((cat,i)=>{
+    const h=game.hidden[i], c=E.cardById(h.cardId), cc=D.CATEGORIES[cat];
+    return `<div class="slot" style="border-color:${h.revealed?cc.color:'var(--divider)'}">
+      <div class="sc" style="color:${cc.color}">${i+1}. ${esc(cc.label)} · ${h.revealed?'✓ FOUND':'✕ MISSED'}</div>
+      <div class="st">${esc(c.title)}</div>
+      <div class="ss">${esc(c.description)}</div></div>`;
+  }).join('');
+  closeableModal = false;
+  setModal(`
+    <div class="m-head"><span class="m-kicker" style="color:${color}">Debrief</span></div>
+    <div class="m-body">
+      <p class="m-title" style="color:${color}">${title}</p>
+      <p class="m-desc">${esc(sub)}</p>
+      <div class="subhead">The kill chain</div>
+      ${slots}
+      <div class="m-actions">
+        <button class="btn primary" data-act="again">Play again</button>
+        <button class="btn ghost" data-act="menu">Menu</button>
+      </div>
+    </div>`);
+  bind();
+}
+
+function showCaseFile(){
+  const oc = initialCall();
+  const ce = callerEntity();
+  const log = game.log.slice().reverse().map(l=>`<div class="le"><b>T${l.t}</b> ${esc(l.text)}</div>`).join('');
+  closeableModal = true;
+  setModal(`
+    <div class="m-head"><span class="m-kicker">Case file · Turn ${Math.min(game.turn,E.RULES.turns)}/${E.RULES.turns}</span>
+      <button class="m-x" data-act="close">✕</button></div>
+    <div class="m-body">
+      <div class="subhead">The call</div>
+      <p class="m-desc">“${esc(oc.call)}”<br><span style="color:var(--mute);font-style:italic">— ${esc(caller.name)}, ${esc(caller.dept)} (${floorName(ce.floor)})</span></p>
+      ${caller.inquired?`<div class="aside"><b>Symptom:</b> “${esc(oc.symptom)}”</div>`:`<p class="field-note">Visit ${esc(caller.name)}'s desk to inquire about symptoms.</p>`}
+      <div class="subhead">Team &amp; buffs</div>
+      <p class="m-desc" style="font-size:14px">Agents: ${players.length} · Coffee: ${game.coffeeCups||0}/4 (+${(game.coffeeCups||0)*25}% speed)${game.fridgeUsed?' · fridge used':''}${game.nextRollMod?` · next roll ${game.nextRollMod>0?'+':''}${game.nextRollMod}`:''}</p>
+      <div class="subhead">Log</div>
+      <div class="log">${log}</div>
+    </div>`);
+  bind();
+}
+
+function showControls(){
+  closeableModal = true;
+  const kb = isMobile ? '' : `
+    <div class="subhead">Keyboard</div>
+    <p class="m-desc" style="line-height:1.9">
+      <b>← →</b> — move &nbsp;·&nbsp; <b>↑ / Space</b> — jump<br>
+      <b>↑ ↓</b> on a ladder — climb<br>
+      <b>Tab</b> — switch between agents<br>
+      <b>E</b> — act at the highlighted desk, rack or person
+    </p>`;
+  setModal(`
+    <div class="m-head"><span class="m-kicker">⌘ Controls</span><button class="m-x" data-act="close">✕</button></div>
+    <div class="m-body">
+      ${kb}
+      <div class="subhead">${isMobile?'':'Pointer'}</div>
+      <p class="m-desc" style="line-height:1.8">
+        <b>Tap a desk, rack or person</b> to walk there — the action panel opens when you arrive.<br>
+        <b>Tap another agent</b> to take control of them.
+      </p>
+      <div class="m-actions"><button class="btn primary" data-act="close">Got it ▸</button></div>
+    </div>`);
+  bind();
+}
+
+function showSettings(){
+  closeableModal = true;
+  const row = (key, label, desc)=>`<div class="toggle-row"><div><div class="tl">${label}</div><div class="td">${desc}</div></div>
+    <div class="sw ${settings[key]?'on':''}" data-set="${key}" role="switch" aria-checked="${!!settings[key]}"></div></div>`;
+  setModal(`
+    <div class="m-head"><span class="m-kicker">⚙ Settings</span><button class="m-x" data-act="close">✕</button></div>
+    <div class="m-body">
+      ${row('fastDice','Fast dice','Skip the dice-roll animation and show the result immediately.')}
+      ${row('markers','Show markers','Draw the gold diamonds over interactable objects. The caller and CISO always show.')}
+      <div class="m-actions"><button class="btn primary" data-act="close">Done ▸</button></div>
+    </div>`);
+  bind();
+}
+
+/* ---------- interaction / bindings ---------- */
+function tryInteract(){
+  if(modalOpen || !game || game.result) return;
+  if(nearEntity) openEntity(nearEntity);
+}
+function menuQuit(){ window.location.href='index.html'; }
+
+function bind(entity){
+  modal.querySelectorAll('[data-act]').forEach(el=>{
+    el.onclick = ()=>{
+      const a = el.dataset.act;
+      if(a==='close') closeModal();
+      else if(a==='menu') menuQuit();
+      else if(a==='inquire'){ caller.inquired=true; save(); openEntity(callerEntity()); }
+      else if(a==='ciso'){ game.cisoAsked=true; save(); openEntity(entity); }
+      else if(a==='drink'){ game.coffeeCups=(game.coffeeCups||0)+1; game.coffeeThisTurn=true; save(); refreshHUD(); infoModal('Breakroom','Caffeinated ☕',`Cup ${game.coffeeCups}/4 — movement speed is now +${game.coffeeCups*25}% for the rest of the game.`); }
+      else if(a==='eat'){ game.nextRollMod=(game.nextRollMod||0)+3; game.fridgeUsed=true; save(); refreshHUD(); infoModal('Breakroom','Snack acquired 🥪','Your next roll carries a one-time +3 modifier.'); }
+      else if(a==='dicecontinue') diceContinue();
+      else if(a==='ovnext') nextOverlay();
+      else if(a==='again'){ closeModal(); showIntro(); }
+    };
+  });
+  modal.querySelectorAll('[data-set]').forEach(el=>{
+    el.onclick = ()=>{ const k=el.dataset.set; settings[k]=!settings[k]; saveSettings(); showSettings(); };
+  });
+  modal.querySelectorAll('[data-players]').forEach(el=> el.onclick = ()=> newGame(parseInt(el.dataset.players,10)));
+  modal.querySelectorAll('[data-proc]').forEach(el=>{ if(el.disabled) return; el.onclick = ()=> showConfirm(entity, el.dataset.proc); });
+  modal.querySelectorAll('[data-roll]').forEach(el=>{
+    el.onclick = ()=>{ const inp = modal.querySelector('#manualVal'); const n = inp ? parseInt(inp.value,10) : NaN; runRoll(el.dataset.roll, (n>=1&&n<=20)?n:null); };
+  });
+  modal.querySelectorAll('[data-back]').forEach(el=>{
+    el.onclick = ()=>{ const ent = ENTITIES.find(e=>e.key===el.dataset.back); if(ent) openEntity(ent); else closeModal(); };
+  });
+}
+
+document.getElementById('caseBtn').onclick = ()=>{ if(game && !modalOpen) showCaseFile(); };
+const hamMenu = document.getElementById('hamMenu');
+document.getElementById('hamBtn').onclick = (e)=>{ e.stopPropagation(); hamMenu.classList.toggle('open'); };
+document.addEventListener('click', ()=> hamMenu.classList.remove('open'));
+hamMenu.querySelectorAll('[data-menu]').forEach(el=>{
+  el.onclick = ()=>{
+    hamMenu.classList.remove('open');
+    const m = el.dataset.menu;
+    if(m==='restart') showIntro();
+    else if(m==='controls') showControls();
+    else if(m==='settings') showSettings();
+    else if(m==='quit') menuQuit();
+  };
+});
+document.getElementById('kcHandle').onclick = ()=> document.getElementById('kcDrawer').classList.toggle('open');
+endTurnBtn.onclick = ()=> endTurn();
+
+/* ---------- HUD ---------- */
+function refreshHUD(){
+  if(!game) return;
+  document.getElementById('turnNum').textContent = Math.min(game.turn, E.RULES.turns);
+  document.getElementById('turnMax').textContent = E.RULES.turns;
+  const fs = game.failStreak||0;
+  document.getElementById('streakDots').textContent = '●'.repeat(fs)+'○'.repeat(Math.max(0,3-fs));
+  document.getElementById('streakStat').style.color = fs>=2 ? 'var(--salmon)' : '';
+  document.getElementById('agentStat').textContent = `Agent ${active+1}/${players.length}`;
+  const cups = game.coffeeCups||0;
+  let buff = cups>0 ? `☕ ${cups}/4` : '';
+  if(game.nextRollMod) buff += (buff?' · ':'') + `⚡ ${game.nextRollMod>0?'+':''}${game.nextRollMod}`;
+  document.getElementById('buffStat').textContent = buff;
+  const pips = document.getElementById('chainpips'); pips.innerHTML='';
+  E.CAT_ORDER.forEach((cat,i)=>{
+    const h=game.hidden[i], cc=D.CATEGORIES[cat];
+    const d=document.createElement('div'); d.className='pip';
+    d.title = cc.label + (h.revealed?' — found':' — hidden');
+    if(h.revealed){ d.style.background=cc.color; d.style.borderColor=cc.color; }
+    pips.appendChild(d);
+  });
+  refreshKillChain();
+}
+function refreshKillChain(){
+  if(!game) return;
+  document.getElementById('kcCount').textContent = game.hidden.filter(h=>h.revealed).length;
+  const wrap = document.getElementById('kcCards'); wrap.innerHTML='';
+  E.CAT_ORDER.forEach((cat,i)=>{
+    const h=game.hidden[i], cc=D.CATEGORIES[cat];
+    const c = h.revealed ? E.cardById(h.cardId) : null;
+    const card = document.createElement('div'); card.className='kc-card';
+    if(c) card.style.borderColor = cc.color;
+    card.innerHTML = `<div class="cc" style="color:${c?cc.color:'#a29c90'}"><span>${cc.icon}</span>${esc(cc.label)}</div>`
+      + (c ? `<div class="kc-title">${esc(c.title)}</div><div class="kc-sub">✓ confirmed</div>`
+           : `<div class="kc-dots">• • • • • •</div><div class="kc-sub">still hidden</div>`);
+    wrap.appendChild(card);
+  });
+}
+function updateFloatingUI(){
+  if(nearEntity && !modalOpen && game && !game.result){
+    const isCaller = caller && nearEntity.key===caller.key;
+    const label = isCaller ? `${caller.name}'s Desk` : nearEntity.ciso ? "CISO's Desk" : ENTITY_LABEL[nearEntity.type];
+    promptEl.style.display='flex';
+    promptEl.innerHTML = (isMobile ? '' : `<span class="key">E</span> `) + `<span>${esc(label)}${isCaller?' · caller':''}</span>`;
+  } else {
+    promptEl.style.display='none';
+  }
+  endTurnBtn.style.display = (game && game.playedThisTurn && !game.result && !modalOpen) ? 'block' : 'none';
+}
+
+/* ---------- boot ---------- */
+function boot(){ if(started) return; started=true; if(!loadGame()) showIntro(); }
+document.fonts.ready.then(()=>{ drawScene(); refreshHUD(); if(!started) boot(); });
+drawScene();
+boot();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

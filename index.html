@@ -45,14 +45,15 @@
   <!-- ============ HOME ============ -->
   <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
     <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;gap:0;animation:fadeUp .5s ease both">
-      <div style="font-size:12px;letter-spacing:3px;color:#9184d9;text-transform:uppercase;margin-bottom:14px">Novacore Industries &middot; Incident Response Tabletop</div>
+      <div style="font-size:12px;letter-spacing:3px;color:#9184d9;text-transform:uppercase;margin-bottom:14px">Incident Response Tabletop</div>
       <h1 style="margin:0;font-size:clamp(38px,7vw,84px);font-weight:500;letter-spacing:-2px;line-height:1.3;text-align:center">SOC<span style="color:#e28b90"> COMMANDER</span></h1>
       <div style="margin-top:36px;font-size:17px;color:#9397ab;text-align:center;max-width:560px;text-wrap:pretty">Four hidden attack stages are loose somewhere on the company's global network. You have ten turns, ten procedures and a d20. Find the kill chain before the attackers finish the job.</div>
-      <div style="display:flex;gap:12px;margin-top:36px;flex-wrap:wrap;justify-content:center">
-        <button onClick="{{ newGameHuman }}" style="font-family:'Inter',sans-serif;font-size:16px;font-weight:500;padding:14px 26px;background:transparent;color:#9184d9;border:1px solid #9184d9;border-radius:8px;cursor:pointer;white-space:nowrap" style-hover="background:rgba(145,132,217,0.12)">New Game &middot; Human Captain</button>
-        <button onClick="{{ newGameAuto }}" style="font-family:'Inter',sans-serif;font-size:16px;font-weight:500;padding:14px 26px;background:transparent;color:#9184d9;border:1px solid rgba(145,132,217,0.45);border-radius:8px;cursor:pointer" style-hover="border-color:#9184d9;background:rgba(145,132,217,0.08)">New Game &middot; Auto Captain</button>
+      <div style="display:flex;gap:12px;margin-top:36px;flex-wrap:wrap;justify-content:center;align-items:stretch">
+        <button onClick="{{ newGameHuman }}" style="font-family:'Inter',sans-serif;font-size:16px;font-weight:500;padding:14px 20px;width:230px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;text-align:center;background:transparent;color:#9184d9;border:1px solid #9184d9;border-radius:8px;cursor:pointer;white-space:nowrap" style-hover="background:rgba(145,132,217,0.12)">New Game &middot; Human Captain</button>
+        <button onClick="{{ newGameAuto }}" style="font-family:'Inter',sans-serif;font-size:16px;font-weight:500;padding:14px 20px;width:230px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;text-align:center;background:transparent;color:#9184d9;border:1px solid #9184d9;border-radius:8px;cursor:pointer;white-space:nowrap" style-hover="background:rgba(145,132,217,0.12)">New Game &middot; Auto Captain</button>
+        <a href="socc_office.html" style="text-decoration:none;font-family:'Inter',sans-serif;font-size:16px;font-weight:500;padding:14px 20px;width:230px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;text-align:center;background:transparent;color:#e28b90;border:1px solid #e28b90;border-radius:8px;cursor:pointer;white-space:nowrap" style-hover="background:rgba(226,139,144,0.12)">New Game &middot; Office</a>
         <sc-if value="{{ hasSave }}" hint-placeholder-val="{{ false }}">
-          <button onClick="{{ resumeGame }}" style="font-family:'Inter',sans-serif;font-size:16px;font-weight:500;padding:14px 26px;white-space:nowrap;background:transparent;color:#e9e9ed;border:1px solid rgba(147,151,171,0.35);border-radius:8px;cursor:pointer" style-hover="border-color:#9397ab">Resume Game</button>
+          <button onClick="{{ resumeGame }}" style="font-family:'Inter',sans-serif;font-size:16px;font-weight:500;padding:14px 20px;width:230px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap;background:transparent;color:#e9e9ed;border:1px solid rgba(147,151,171,0.35);border-radius:8px;cursor:pointer" style-hover="border-color:#9397ab">Resume Game</button>
         </sc-if>
       </div>
       <button onClick="{{ toggleHelp }}" style="margin-top:26px;font-family:'Inter',sans-serif;font-size:13px;background:none;border:none;color:#9397ab;cursor:pointer;text-decoration:underline" style-hover="color:#e9e9ed">How to play</button>
@@ -151,7 +152,7 @@
           <button onClick="{{ peekCaptain }}" style="font-family:'Inter',sans-serif;font-size:12px;padding:8px 14px;background:transparent;color:#e28b90;border:1px solid rgba(226,139,144,0.4);border-radius:6px;cursor:pointer" style-hover="background:rgba(226,139,144,0.1)">CAPTAIN VIEW</button>
         </sc-if>
         <button onClick="{{ toggleLog }}" style="font-family:'Inter',sans-serif;font-size:12px;padding:8px 14px;background:transparent;color:#9397ab;border:1px solid rgba(147,151,171,0.3);border-radius:6px;cursor:pointer" style-hover="color:#e9e9ed;border-color:#9397ab">LOG</button>
-        <button onClick="{{ quitToHome }}" style="font-family:'Inter',sans-serif;font-size:12px;padding:8px 14px;background:transparent;color:#9397ab;border:1px solid rgba(147,151,171,0.3);border-radius:6px;cursor:pointer" style-hover="color:#e9e9ed;border-color:#9397ab">MENU</button>
+        <button onClick="{{ leaveToHome }}" style="font-family:'Inter',sans-serif;font-size:12px;padding:8px 14px;background:transparent;color:#9397ab;border:1px solid rgba(147,151,171,0.3);border-radius:6px;cursor:pointer" style-hover="color:#e9e9ed;border-color:#9397ab">MENU</button>
       </div>
 
       <!-- Brief strip -->
@@ -367,9 +368,13 @@ class Component extends DCLogic {
     Promise.all([import('./engine.js'), import('./game-data.js')]).then(([E, D]) => {
       this.E = E; this.D = D;
       E.RULES.turns = this.props.turnLimit ?? 10;
-      let hasSave = false;
-      try { hasSave = !!localStorage.getItem('cyberoutbreak_globe_save'); } catch (e) {}
-      this.setState({ ready: true, hasSave });
+      let hasSave = false, lastMode = '';
+      try {
+        lastMode = localStorage.getItem('socc_last_mode') || '';
+        if (lastMode === 'office') hasSave = !!localStorage.getItem('socc_office_save_v1');
+        else hasSave = !!localStorage.getItem('cyberoutbreak_globe_save');
+      } catch (e) {}
+      this.setState({ ready: true, hasSave, lastMode });
     });
   }
 
@@ -552,8 +557,9 @@ class Component extends DCLogic {
 
   // ================= FLOW =================
   startGame(mode) {
+    try { localStorage.setItem('socc_last_mode', mode); } catch (e) {}
     const game = this.E.createGame();
-    this.setState({ game, captainMode: mode, hasSave: true, debriefStep: 0, selectedNode: null, selectedProc: null, overlay: null, overlayQueue: [], dice: null }, () => this.save());
+    this.setState({ game, captainMode: mode, hasSave: true, lastMode: mode, debriefStep: 0, selectedNode: null, selectedProc: null, overlay: null, overlayQueue: [], dice: null }, () => this.save());
     if (mode === 'human') {
       this.setState({
         screen: 'curtain', captainCtx: 'brief',
@@ -718,6 +724,7 @@ class Component extends DCLogic {
       newGameHuman: () => this.startGame('human'),
       newGameAuto: () => this.startGame('auto'),
       resumeGame: () => {
+        if (s.lastMode === 'office') { window.location.href = 'socc_office.html'; return; }
         try {
           const sv = JSON.parse(localStorage.getItem('cyberoutbreak_globe_save'));
           if (sv && sv.game) this.setState({ game: sv.game, captainMode: sv.captainMode, screen: 'board' });
@@ -725,7 +732,8 @@ class Component extends DCLogic {
       },
       toggleHelp: () => this.setState({ helpOpen: !s.helpOpen }),
       toggleLog: () => this.setState({ logOpen: !s.logOpen }),
-      quitToHome: () => this.setState({ screen: 'home', logOpen: false, overlay: null, overlayQueue: [], dice: null }),
+      quitToHome: () => { try { localStorage.removeItem('cyberoutbreak_globe_save'); } catch (e) {} this.setState({ screen: 'home', logOpen: false, overlay: null, overlayQueue: [], dice: null, hasSave: false }); },
+      leaveToHome: () => { this.setState({ screen: 'home', logOpen: false, overlay: null, overlayQueue: [], dice: null }); },
       curtainContinue: this.curtainContinue,
       curtainTitle: s.curtain ? s.curtain.title : '', curtainSub: s.curtain ? s.curtain.sub : '', curtainCta: s.curtain ? s.curtain.cta : '',
     };
