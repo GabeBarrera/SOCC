@@ -1,0 +1,933 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_ds/nocturne-3db25db2-ccbb-448a-9d77-4918499116a6/styles.css">
+<script src="_ds/nocturne-3db25db2-ccbb-448a-9d77-4918499116a6/_ds_bundle.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/map.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; background: #161826; }
+  body { font-family: 'Inter', sans-serif; color: #e9e9ed; }
+  a { color: #9184d9; } a:hover { color: #b5abfc; }
+  button:focus-visible { outline: 2px solid #9184d9; outline-offset: 2px; }
+  ::selection { background: rgba(145,132,217,0.35); }
+  * { box-sizing: border-box; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes diceShake { 0%,100% { transform: rotate(0deg); } 25% { transform: rotate(-6deg); } 75% { transform: rotate(6deg); } }
+  @keyframes blinkCursor { 50% { opacity: 0; } }
+  ::-webkit-scrollbar { display: none; width: 0; height: 0; }
+  * { scrollbar-width: none; -ms-overflow-style: none; }
+  /* Responsive layout switches â€” kept minimal, id-scoped, no classes */
+  #killChainDesktopList { display: flex; flex-direction: column; gap: 10px; }
+  #killChainMobile { display: none; }
+  #rollConfirmBar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+  @media (max-width: 720px) {
+    #killChainDesktopList { display: none; }
+    #killChainMobile { display: block; }
+    #killChainOuter { flex: 1 1 100% !important; min-width: 100% !important; }
+    #rollConfirmBar > .rcb-label { flex-basis: 100%; }
+  }
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:radial-gradient(1200px 700px at 50% -10%, #1c1f33 0%, #161826 60%);display:flex;flex-direction:column;font-family:'Inter',sans-serif;color:#e9e9ed;overflow:hidden">
+
+  <!-- ============ HOME ============ -->
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;gap:0;animation:fadeUp .5s ease both">
+      <div style="font-size:12px;letter-spacing:3px;color:#9184d9;text-transform:uppercase;margin-bottom:14px">Novacore Industries Â· Incident Response Tabletop</div>
+      <h1 style="margin:0;font-size:clamp(38px,7vw,84px);font-weight:500;letter-spacing:-2px;line-height:1.3;text-align:center">SOC<span style="color:#e28b90"> COMMANDER</span></h1>
+      <div style="margin-top:36px;font-size:17px;color:#9397ab;text-align:center;max-width:560px;text-wrap:pretty">Four hidden attack stages are loose somewhere on the company's global network. You have ten turns, ten procedures and a d20. Find the kill chain before the attackers finish the job.</div>
+      <div style="display:flex;gap:12px;margin-top:36px;flex-wrap:wrap;justify-content:center">
+        <button onClick="{{ newGameHuman }}" style="font-family:'Inter',sans-serif;font-size:16px;font-weight:500;padding:14px 26px;background:transparent;color:#9184d9;border:1px solid #9184d9;border-radius:8px;cursor:pointer;white-space:nowrap" style-hover="background:rgba(145,132,217,0.12)">New Game Â· Human Captain</button>
+        <button onClick="{{ newGameAuto }}" style="font-family:'Inter',sans-serif;font-size:16px;font-weight:500;padding:14px 26px;background:transparent;color:#9184d9;border:1px solid rgba(145,132,217,0.45);border-radius:8px;cursor:pointer" style-hover="border-color:#9184d9;background:rgba(145,132,217,0.08)">New Game Â· Auto Captain</button>
+        <sc-if value="{{ hasSave }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ resumeGame }}" style="font-family:'Inter',sans-serif;font-size:16px;font-weight:500;padding:14px 26px;white-space:nowrap;background:transparent;color:#e9e9ed;border:1px solid rgba(147,151,171,0.35);border-radius:8px;cursor:pointer" style-hover="border-color:#9397ab">Resume Game</button>
+        </sc-if>
+      </div>
+      <button onClick="{{ toggleHelp }}" style="margin-top:26px;font-family:'Inter',sans-serif;font-size:13px;background:none;border:none;color:#9397ab;cursor:pointer;text-decoration:underline" style-hover="color:#e9e9ed">How to play</button>
+      <sc-if value="{{ helpOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:20px;max-width:640px;background:#232532;border:1px solid rgba(233,233,237,0.12);border-radius:12px;padding:24px 28px;font-size:15px;line-height:1.65;color:#b2b6ca;animation:fadeUp .3s ease both">
+          <div style="font-weight:500;color:#e9e9ed;margin-bottom:8px">The short version</div>
+          <div>The <b style="color:#e28b90">Incident Captain</b> secretly holds 4 attack cards â€” one per stage of the kill chain â€” each planted at a company site on the globe. Each turn, the <b style="color:#9184d9">Defenders</b> discuss, play <b>one Procedure</b>, and roll a d20.</div>
+          <ul style="margin:12px 0 0;padding-left:20px">
+            <li><b>11+ succeeds.</b> Established procedures roll at <b>+3</b>; improvised ones at +0.</li>
+            <li>If the procedure can detect a hidden card, it flips â€” and its site lights up on the globe.</li>
+            <li>Played procedures cool down for <b>3 turns</b>. Some injects can remove a procedure entirely.</li>
+            <li>A natural <b>1</b>, natural <b>20</b>, or <b>3 fails in a row</b> draws one of ten Injects. Injects areâ€¦ events.</li>
+            <li>Reveal all 4 cards within <b>10 turns</b> to win. Drag the globe to look around â€” it shows where the attack has reached, nothing more.</li>
+          </ul>
+          <div style="margin-top:12px;font-size:12px;color:#75798c">Card set loaded from cards.xlsx Â· Inspired by Backdoors &amp; Breaches (Black Hills Information Security).</div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- ============ CURTAIN ============ -->
+  <sc-if value="{{ isCurtain }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:#111321">
+      <div style="font-size:12px;letter-spacing:3px;color:#e28b90;text-transform:uppercase;margin-bottom:16px;animation:blinkCursor 1.2s step-end infinite">â–  Classified handoff</div>
+      <div style="font-size:clamp(28px,5vw,44px);font-weight:500;text-align:center;letter-spacing:-1px">{{ curtainTitle }}</div>
+      <div style="margin-top:12px;font-size:16px;color:#9397ab;text-align:center;max-width:420px">{{ curtainSub }}</div>
+      <button onClick="{{ curtainContinue }}" style="margin-top:36px;font-family:'Inter',sans-serif;font-size:17px;font-weight:500;padding:16px 40px;background:transparent;color:#e28b90;border:1px solid #e28b90;border-radius:8px;cursor:pointer" style-hover="background:rgba(226,139,144,0.12)">{{ curtainCta }}</button>
+    </div>
+  </sc-if>
+
+  <!-- ============ CAPTAIN VIEW ============ -->
+  <sc-if value="{{ isCaptain }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;padding:28px clamp(16px,4vw,48px);gap:20px;overflow:auto;background:linear-gradient(180deg,#221a2b 0%, #161826 40%)">
+      <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">
+        <div style="font-size:26px;font-weight:500;letter-spacing:-0.5px;color:#e28b90">Incident Captain â€” Eyes Only</div>
+        <div style="font-size:12px;color:#9397ab">{{ captainSubtitle }}</div>
+      </div>
+      <sc-if value="{{ captainIsBrief }}" hint-placeholder-val="{{ false }}">
+        <div style="background:rgba(226,139,144,0.08);border:1px solid rgba(226,139,144,0.3);border-radius:10px;padding:16px 20px;font-size:15px;line-height:1.6;color:#e8c9cc;max-width:760px">
+          <b>Your opening briefing to the Defenders</b> â€” read it aloud, embellish freely:<br>
+          <span style="color:#f2dfe1">â€œ{{ briefText }}â€</span>
+        </div>
+      </sc-if>
+      <sc-if value="{{ captainIsChoose }}" hint-placeholder-val="{{ false }}">
+        <div style="background:rgba(145,132,217,0.08);border:1px solid rgba(145,132,217,0.35);border-radius:10px;padding:16px 20px;font-size:15px;color:#d2cefd;max-width:760px">
+          The Defenders' procedure matches <b>more than one</b> hidden stage. Choose exactly one card to reveal.
+        </div>
+      </sc-if>
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        <sc-for list="{{ captainCards }}" as="cc" hint-placeholder-count="4">
+          <div style="width:260px;background:#232532;border:1px solid rgba(233,233,237,0.13);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;opacity:{{ cc.opacity }}">
+            <div style="padding:9px 14px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;background:{{ cc.headBg }};color:{{ cc.headFg }};display:flex;justify-content:space-between;align-items:center"><span>{{ cc.catLabel }}</span><span>{{ cc.icon }}</span></div>
+            <div style="padding:14px 16px;display:flex;flex-direction:column;gap:8px;flex:1">
+              <div style="font-size:18px;font-weight:500;line-height:1.2">{{ cc.title }}</div>
+              <div style="font-size:13.5px;color:#9397ab;line-height:1.5;flex:1">{{ cc.description }}</div>
+              <div style="font-size:11px;color:#9184d9">â—‰ {{ cc.nodeName }}</div>
+              <div style="font-size:11px;color:#75798c;line-height:1.5">Detected by: {{ cc.detectionNames }}</div>
+              <div style="font-size:10.5px;color:#595d6c;line-height:1.5">Attacker tools: {{ cc.toolNames }}</div>
+              <sc-if value="{{ cc.revealed }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:11px;color:#cbaa6a">âœ“ ALREADY REVEALED</div>
+              </sc-if>
+              <sc-if value="{{ cc.choosable }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ cc.choose }}" style="font-family:'Inter',sans-serif;font-size:14px;font-weight:500;padding:10px;background:transparent;color:#9184d9;border:1px solid #9184d9;border-radius:7px;cursor:pointer" style-hover="background:rgba(145,132,217,0.12)">Reveal this one</button>
+              </sc-if>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <sc-if value="{{ captainCanExit }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <button onClick="{{ captainExit }}" style="font-family:'Inter',sans-serif;font-size:16px;font-weight:500;padding:14px 30px;background:transparent;color:#e28b90;border:1px solid #e28b90;border-radius:8px;cursor:pointer" style-hover="background:rgba(226,139,144,0.12)">{{ captainExitLabel }}</button>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- ============ BOARD ============ -->
+  <sc-if value="{{ isBoard }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;min-height:0">
+
+      <!-- Header -->
+      <div style="display:flex;align-items:center;gap:16px;padding:12px clamp(12px,3vw,28px);border-bottom:1px solid rgba(233,233,237,0.10);flex-wrap:wrap">
+        <div style="font-weight:500;font-size:17px;letter-spacing:-0.3px">SOC<span style="color:#e28b90"> COMMANDER</span></div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <sc-for list="{{ turnPips }}" as="tp" hint-placeholder-count="10">
+            <div title="{{ tp.title }}" style="width:16px;height:16px;border-radius:3px;background:{{ tp.bg }};border:1px solid {{ tp.border }};display:flex;align-items:center;justify-content:center;font-size:9px;color:{{ tp.fg }}">{{ tp.n }}</div>
+          </sc-for>
+        </div>
+        <div style="font-size:12px;color:#9397ab">TURN <span style="color:#e9e9ed;font-weight:500">{{ turnLabel }}</span></div>
+        <div style="font-size:12px;color:{{ streakColor }}">FAIL STREAK {{ streakLabel }}</div>
+        <sc-if value="{{ hasTempMod }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:12px;color:#cbaa6a;border:1px solid rgba(203,170,106,0.4);border-radius:5px;padding:2px 8px">{{ tempModLabel }} next roll</div>
+        </sc-if>
+        <div style="flex:1"></div>
+        <sc-if value="{{ isHumanCaptain }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ peekCaptain }}" style="font-family:'Inter',sans-serif;font-size:12px;padding:8px 14px;background:transparent;color:#e28b90;border:1px solid rgba(226,139,144,0.4);border-radius:6px;cursor:pointer" style-hover="background:rgba(226,139,144,0.1)">CAPTAIN VIEW</button>
+        </sc-if>
+        <button onClick="{{ toggleLog }}" style="font-family:'Inter',sans-serif;font-size:12px;padding:8px 14px;background:transparent;color:#9397ab;border:1px solid rgba(147,151,171,0.3);border-radius:6px;cursor:pointer" style-hover="color:#e9e9ed;border-color:#9397ab">LOG</button>
+        <button onClick="{{ quitToHome }}" style="font-family:'Inter',sans-serif;font-size:12px;padding:8px 14px;background:transparent;color:#9397ab;border:1px solid rgba(147,151,171,0.3);border-radius:6px;cursor:pointer" style-hover="color:#e9e9ed;border-color:#9397ab">MENU</button>
+      </div>
+
+      <!-- Brief strip -->
+      <div style="padding:8px clamp(12px,3vw,28px);background:rgba(145,132,217,0.05);border-bottom:1px solid rgba(120,160,220,0.08);font-size:12px;color:#9397ab;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">â–¸ SCENARIO: {{ briefText }}</div>
+
+      <!-- Main area: globe + slots -->
+      <div style="flex:1;display:flex;gap:16px;padding:16px clamp(12px,3vw,28px);min-height:0;flex-wrap:wrap;align-content:flex-start;overflow:auto">
+
+        <!-- Globe -->
+        <div style="flex:1 1 520px;min-width:320px;display:flex;flex-direction:column;gap:10px;align-items:center">
+          <div style="position:relative;width:100%;max-width:min(680px, calc(100vh - 350px));min-width:min(320px,100%);aspect-ratio:1/1;background:radial-gradient(60% 60% at 50% 45%, rgba(38,42,96,0.35) 0%, rgba(6,11,22,0) 70%), #12141f;border:1px solid rgba(233,233,237,0.13);border-radius:12px;overflow:hidden">
+            <div ref="{{ boardGlobeRef }}" style="position:absolute;inset:0"></div>
+            <div style="position:absolute;right:12px;bottom:10px;font-size:10px;letter-spacing:2px;color:#595d6c;pointer-events:none;text-align:right">NOVACORE GLOBAL NETWORK</div>
+          </div>
+          <sc-if value="{{ hasSelectedNode }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#232532;border:1px solid rgba(233,233,237,0.13);border-radius:10px;padding:12px 16px;display:flex;gap:14px;align-items:center;animation:fadeUp .25s ease both;flex-wrap:wrap;width:100%;max-width:680px">
+              <div style="font-weight:500;font-size:15px">{{ selNodeName }}</div>
+              <div style="font-size:11px;color:#9397ab;text-transform:uppercase;letter-spacing:1px">{{ selNodeType }}</div>
+              <div style="font-size:13.5px;color:{{ selNodeInfoColor }};flex:1;min-width:180px">{{ selNodeInfo }}</div>
+              <button onClick="{{ closeNode }}" style="font-family:'Inter',sans-serif;font-size:12px;background:none;border:none;color:#9397ab;cursor:pointer" style-hover="color:#e9e9ed">âœ•</button>
+            </div>
+          </sc-if>
+        </div>
+
+        <!-- Revealed slots -->
+        <div id="killChainOuter" style="flex:0 1 250px;min-width:220px;position:relative">
+          <div id="killChainDesktopList">
+            <div style="font-size:11px;letter-spacing:2px;color:#75798c;text-transform:uppercase">Kill chain Â· {{ revealedCount }}/4 found</div>
+            <sc-for list="{{ slots }}" as="sl" hint-placeholder-count="4">
+              <div onClick="{{ sl.onClick }}" style="background:{{ sl.bg }};border:1px solid {{ sl.border }};border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:3px;cursor:{{ sl.cursor }};min-height:58px" style-hover="border-color:rgba(178,182,202,0.4)">
+                <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:{{ sl.catColor }}">{{ sl.icon }} {{ sl.catLabel }}</div>
+                <div style="font-size:15px;font-weight:{{ sl.weight }};color:{{ sl.titleColor }}">{{ sl.title }}</div>
+                <div style="font-size:10.5px;color:#75798c">{{ sl.sub }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div id="killChainMobile">
+            <button onClick="{{ toggleKillChain }}" style="width:100%;display:flex;align-items:center;gap:10px;background:#232532;border:1px solid rgba(233,233,237,0.15);border-radius:10px;padding:10px 14px;cursor:pointer;font-family:'Inter',sans-serif;color:#e9e9ed" style-hover="border-color:rgba(178,182,202,0.4)">
+              <span style="font-size:11px;letter-spacing:1.5px;color:#75798c;text-transform:uppercase;flex:1;text-align:left">Kill chain Â· {{ revealedCount }}/4</span>
+              <div style="display:flex;gap:4px">
+                <sc-for list="{{ slots }}" as="sl" hint-placeholder-count="4">
+                  <div style="width:14px;height:14px;border-radius:3px;background:{{ sl.catColor }}"></div>
+                </sc-for>
+              </div>
+              <span style="font-size:11px;color:#9397ab">{{ killChainChevron }}</span>
+            </button>
+            <sc-if value="{{ killChainOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;top:100%;left:0;right:0;z-index:5;margin-top:8px;display:flex;flex-direction:column;gap:10px;background:#1a1c29;border:1px solid rgba(233,233,237,0.15);border-radius:10px;padding:10px;box-shadow:0 12px 30px rgba(0,0,0,0.4)">
+                <sc-for list="{{ slots }}" as="sl" hint-placeholder-count="4">
+                  <div onClick="{{ sl.onClick }}" style="background:{{ sl.bg }};border:1px solid {{ sl.border }};border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:3px;cursor:{{ sl.cursor }};min-height:58px" style-hover="border-color:rgba(178,182,202,0.4)">
+                    <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:{{ sl.catColor }}">{{ sl.icon }} {{ sl.catLabel }}</div>
+                    <div style="font-size:15px;font-weight:{{ sl.weight }};color:{{ sl.titleColor }}">{{ sl.title }}</div>
+                    <div style="font-size:10.5px;color:#75798c">{{ sl.sub }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+
+      <!-- Procedures dock -->
+      <div style="border-top:1px solid rgba(233,233,237,0.10);padding:12px clamp(12px,3vw,28px) 16px;background:rgba(8,14,28,0.7)">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap">
+          <div style="font-size:11px;letter-spacing:2px;color:#75798c;text-transform:uppercase">Procedures â€” play one per turn</div>
+          <div style="flex:1"></div>
+          <sc-if value="{{ showConfirm }}" hint-placeholder-val="{{ false }}">
+            <div id="rollConfirmBar" style="background:rgba(145,132,217,0.08);border:1px solid rgba(145,132,217,0.4);border-radius:8px;padding:7px 12px;animation:fadeUp .2s ease both">
+              <span class="rcb-label" style="font-size:14px">Run <b>{{ confirmTitle }}</b> <span style="color:#cbaa6a">{{ confirmMod }}</span>?</span>
+              <input type="number" min="1" max="20" value="{{ manualVal }}" onChange="{{ manualValChange }}" placeholder="1â€“20" style="width:64px;font-family:'Inter',sans-serif;font-size:14px;padding:7px 8px;background:#161826;color:#e9e9ed;border:1px solid rgba(145,132,217,0.5);border-radius:6px" />
+              <button onClick="{{ rollActionClick }}" style="font-family:'Inter',sans-serif;font-size:14px;font-weight:500;padding:8px 18px;background:transparent;color:#9184d9;border:1px solid #9184d9;border-radius:6px;cursor:pointer;white-space:nowrap" style-hover="background:rgba(145,132,217,0.12)">{{ rollBtnLabel }}</button>
+              <button onClick="{{ cancelSelect }}" style="font-family:'Inter',sans-serif;font-size:12px;background:none;border:none;color:#9397ab;cursor:pointer" style-hover="color:#e9e9ed">cancel</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ showEndTurn }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ endTurnClick }}" style="font-family:'Inter',sans-serif;font-size:15px;font-weight:500;padding:10px 22px;background:transparent;color:#cbaa6a;border:1px solid #cbaa6a;border-radius:7px;cursor:pointer;animation:fadeUp .25s ease both" style-hover="background:rgba(203,170,106,0.15)">END TURN â–¸</button>
+          </sc-if>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:10px">
+          <sc-for list="{{ procCards }}" as="pr" hint-placeholder-count="10">
+            <div onClick="{{ pr.onSelect }}" style="position:relative;background:{{ pr.bg }};border:1.5px solid {{ pr.border }};border-radius:10px;padding:10px 12px;cursor:{{ pr.cursor }};opacity:{{ pr.opacity }};display:flex;flex-direction:column;gap:4px;min-height:86px" style-hover="border-color:{{ pr.hoverBorder }}">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:6px">
+                <div style="font-size:13.5px;font-weight:500;line-height:1.15">{{ pr.title }}</div>
+                <div style="font-size:11px;font-weight:500;color:{{ pr.modColor }};white-space:nowrap">{{ pr.modLabel }}</div>
+              </div>
+              <div style="font-size:11.5px;color:#9397ab;line-height:1.4;flex:1">{{ pr.desc }}</div>
+              <sc-if value="{{ pr.onCooldown }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;inset:0;background:rgba(6,11,22,0.72);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:1px;color:#9397ab">COOLDOWN Â· {{ pr.cooldown }}</div>
+              </sc-if>
+              <sc-if value="{{ pr.removed }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;inset:0;background:rgba(6,11,22,0.82);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:1px;color:#e28b90">âœ• CARD LOST</div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ DEBRIEF ============ -->
+  <sc-if value="{{ isDebrief }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;padding:24px clamp(16px,4vw,48px);gap:18px;overflow:auto">
+      <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;animation:fadeUp .4s ease both">
+        <div style="font-size:clamp(32px,5vw,52px);font-weight:500;letter-spacing:-1.5px;color:{{ resultColor }}">{{ resultTitle }}</div>
+        <div style="font-size:16px;color:#9397ab;max-width:560px">{{ resultSub }}</div>
+      </div>
+      <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start">
+        <div style="flex:1 1 460px;min-width:300px;max-width:640px;position:relative;aspect-ratio:1/1;background:radial-gradient(60% 60% at 50% 45%, rgba(38,42,96,0.35) 0%, rgba(6,11,22,0) 70%), #12141f;border:1px solid rgba(233,233,237,0.13);border-radius:12px;overflow:hidden">
+          <div ref="{{ debriefGlobeRef }}" style="position:absolute;inset:0"></div>
+        </div>
+        <div style="flex:1 1 340px;min-width:280px;display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="font-size:11px;letter-spacing:2px;color:#75798c;text-transform:uppercase">Kill chain replay</div>
+            <button onClick="{{ debriefPrev }}" style="font-family:'Inter',sans-serif;font-size:13px;padding:4px 12px;background:transparent;color:#9397ab;border:1px solid rgba(147,151,171,0.3);border-radius:5px;cursor:pointer" style-hover="color:#e9e9ed">â—‚</button>
+            <button onClick="{{ debriefNext }}" style="font-family:'Inter',sans-serif;font-size:13px;padding:4px 12px;background:transparent;color:#9397ab;border:1px solid rgba(147,151,171,0.3);border-radius:5px;cursor:pointer" style-hover="color:#e9e9ed">â–¸</button>
+            <div style="font-size:12px;color:#9397ab">step {{ debriefStepLabel }}/4</div>
+          </div>
+          <sc-for list="{{ debriefCards }}" as="dc" hint-placeholder-count="4">
+            <div style="background:{{ dc.bg }};border:1.5px solid {{ dc.border }};border-radius:10px;padding:12px 16px;display:flex;flex-direction:column;gap:4px;transition:border-color .25s">
+              <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
+                <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:{{ dc.catColor }}">{{ dc.step }}. {{ dc.catLabel }}</div>
+                <div style="font-size:10px;color:{{ dc.foundColor }}">{{ dc.foundLabel }}</div>
+              </div>
+              <div style="font-size:16px;font-weight:500">{{ dc.title }}</div>
+              <div style="font-size:13px;color:#9397ab;line-height:1.5">{{ dc.description }}</div>
+              <div style="font-size:11px;color:#9184d9">â—‰ {{ dc.nodeName }}</div>
+            </div>
+          </sc-for>
+          <div style="display:flex;gap:10px;margin-top:6px">
+            <button onClick="{{ playAgain }}" style="font-family:'Inter',sans-serif;font-size:15px;font-weight:500;padding:12px 24px;background:transparent;color:#9184d9;border:1px solid #9184d9;border-radius:8px;cursor:pointer" style-hover="background:rgba(145,132,217,0.12)">Play again</button>
+            <button onClick="{{ quitToHome }}" style="font-family:'Inter',sans-serif;font-size:15px;font-weight:500;padding:12px 24px;background:transparent;color:#9397ab;border:1px solid rgba(147,151,171,0.35);border-radius:8px;cursor:pointer" style-hover="color:#e9e9ed">Menu</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ DICE OVERLAY ============ -->
+  <sc-if value="{{ showDice }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;background:rgba(4,7,14,0.82);display:flex;align-items:center;justify-content:center;z-index:60;backdrop-filter:blur(3px)">
+      <div style="background:#232532;border:1px solid rgba(233,233,237,0.18);border-radius:16px;padding:34px 44px;display:flex;flex-direction:column;align-items:center;gap:14px;animation:fadeUp .25s ease both;max-width:90vw">
+        <div style="font-size:12px;letter-spacing:2px;color:#9397ab;text-transform:uppercase">{{ diceProc }}</div>
+        <div style="{{ diceStyle }}">{{ diceShown }}</div>
+        <sc-if value="{{ diceSettled }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:15px;color:#9397ab;animation:fadeUp .3s ease both">{{ diceMath }}</div>
+          <div style="font-size:24px;font-weight:500;color:{{ diceColor }};animation:fadeUp .35s ease both">{{ diceVerdict }}</div>
+          <button onClick="{{ diceContinue }}" style="font-family:'Inter',sans-serif;font-size:15px;font-weight:500;padding:12px 30px;background:transparent;color:#9184d9;border:1px solid #9184d9;border-radius:8px;cursor:pointer;animation:fadeUp .4s ease both" style-hover="background:rgba(145,132,217,0.12)">Continue</button>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ OUTCOME OVERLAY ============ -->
+  <sc-if value="{{ showOverlay }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;background:rgba(4,7,14,0.82);display:flex;align-items:center;justify-content:center;z-index:70;backdrop-filter:blur(3px);padding:20px">
+      <div style="background:#232532;border:1.5px solid {{ ovBorder }};border-radius:16px;padding:0;width:380px;max-width:92vw;overflow:hidden;animation:fadeUp .3s ease both">
+        <div style="padding:11px 18px;font-size:11px;letter-spacing:2px;text-transform:uppercase;background:{{ ovHeadBg }};color:{{ ovHeadFg }};display:flex;justify-content:space-between"><span>{{ ovKicker }}</span><span>{{ ovIcon }}</span></div>
+        <div style="padding:20px 22px;display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:22px;font-weight:500;line-height:1.15">{{ ovTitle }}</div>
+          <div style="font-size:14.5px;color:#b2b6ca;line-height:1.55">{{ ovBody }}</div>
+          <sc-if value="{{ ovHasMeta }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:12px;color:#9184d9">{{ ovMeta }}</div>
+          </sc-if>
+          <sc-if value="{{ ovHasPrompt }}" hint-placeholder-val="{{ false }}">
+            <div style="background:rgba(203,170,106,0.07);border:1px solid rgba(203,170,106,0.3);border-radius:8px;padding:12px 14px;font-size:13.5px;line-height:1.55;color:#ddd0b2"><b>Captain, ask the table:</b> why might this have failed in real life? Budget? Politics? Staffing? A tool nobody configured?</div>
+          </sc-if>
+          <button onClick="{{ ovContinue }}" style="margin-top:6px;font-family:'Inter',sans-serif;font-size:15px;font-weight:500;padding:12px;background:transparent;color:#9184d9;border:1px solid #9184d9;border-radius:8px;cursor:pointer" style-hover="background:rgba(145,132,217,0.12)">{{ ovCta }}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ LOG DRAWER ============ -->
+  <sc-if value="{{ logOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;top:0;right:0;bottom:0;width:320px;max-width:85vw;background:#232532;border-left:1px solid rgba(233,233,237,0.15);z-index:50;display:flex;flex-direction:column;box-shadow:-12px 0 40px rgba(0,0,0,0.5)">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(233,233,237,0.10)">
+        <div style="font-size:12px;letter-spacing:2px;color:#9397ab">TURN LOG</div>
+        <button onClick="{{ toggleLog }}" style="background:none;border:none;color:#9397ab;font-size:16px;cursor:pointer" style-hover="color:#e9e9ed">âœ•</button>
+      </div>
+      <div style="flex:1;overflow:auto;padding:12px 18px;display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ logEntries }}" as="le" hint-placeholder-count="5">
+          <div style="font-size:12px;line-height:1.5;color:#b2b6ca;border-left:2px solid rgba(233,233,237,0.18);padding-left:10px"><span style="color:#75798c">T{{ le.t }}</span> {{ le.text }}</div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- CRT scanlines -->
+  <sc-if value="{{ crtOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;pointer-events:none;z-index:100;background:repeating-linear-gradient(0deg, rgba(0,0,0,0.14) 0 1px, transparent 1px 3px);mix-blend-mode:multiply"></div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 1280, &quot;height&quot;: 800}, &quot;autoRotate&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Globe&quot;}, &quot;crtOverlay&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: false, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Display&quot;}, &quot;fastDice&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: false, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Gameplay&quot;}, &quot;turnLimit&quot;: {&quot;editor&quot;: &quot;int&quot;, &quot;default&quot;: 10, &quot;min&quot;: 4, &quot;max&quot;: 15, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;House rules&quot;}}">
+class Component extends DCLogic {
+  state = {
+    ready: false, screen: 'home', game: null, captainMode: 'human',
+    helpOpen: false, hasSave: false,
+    curtain: null,
+    captainCtx: 'peek',
+    pendingMatches: [],
+    dice: null,
+    overlayQueue: [], overlay: null,
+    selectedProc: null, selectedNode: null, logOpen: false,
+    debriefStep: 0, ignitedNode: null,
+    manualMode: false, manualVal: '', killChainOpen: false,
+  };
+
+  _globes = {};
+
+  componentDidMount() {
+    Promise.all([import('./engine.js'), import('./game-data.js')]).then(([E, D]) => {
+      this.E = E; this.D = D;
+      E.RULES.turns = this.props.turnLimit ?? 10;
+      let hasSave = false;
+      try { hasSave = !!localStorage.getItem('cyberoutbreak_globe_save'); } catch (e) {}
+      this.setState({ ready: true, hasSave });
+    });
+  }
+
+  componentDidUpdate() { this.syncGlobe('board'); this.syncGlobe('debrief'); }
+  componentWillUnmount() { this.destroyGlobe('board'); this.destroyGlobe('debrief'); }
+
+  save() {
+    try {
+      if (this.state.game) localStorage.setItem('cyberoutbreak_globe_save',
+        JSON.stringify({ game: this.state.game, captainMode: this.state.captainMode }));
+    } catch (e) {}
+  }
+
+  // ================= GLOBE (amCharts 5) =================
+  boardGlobeRef = (el) => { if (el) this.initGlobe('board', el); else this.destroyGlobe('board'); };
+  debriefGlobeRef = (el) => { if (el) this.initGlobe('debrief', el); else this.destroyGlobe('debrief'); };
+
+  initGlobe(mode, el) {
+    const existing = this._globes[mode];
+    if (existing && existing.el === el && existing.root) return;
+    this.destroyGlobe(mode);
+    this._globes[mode] = { el };
+    const tryBuild = () => {
+      const slot = this._globes[mode];
+      if (!slot || slot.el !== el || !el.isConnected) return;
+      if (!(window.am5 && window.am5map && window.am5geodata_worldLow)) {
+        slot.pending = setTimeout(tryBuild, 120);
+        return;
+      }
+      this.buildGlobe(mode, el);
+    };
+    tryBuild();
+  }
+
+  buildGlobe(mode, el) {
+    const am5 = window.am5, am5map = window.am5map;
+    const root = am5.Root.new(el);
+    let startX = 70, startY = -18;
+    if (mode === 'debrief' && this.state.game && this.E) {
+      const h = this.state.game.hidden[this.state.debriefStep];
+      if (h) { const n = this.E.nodeById(h.nodeId); startX = -n.lng; startY = -n.lat; }
+    }
+    const chart = root.container.children.push(am5map.MapChart.new(root, {
+      panX: 'rotateX', panY: 'rotateY',
+      projection: window.d3 && false ? null : am5map.geoOrthographic(),
+      rotationX: startX, rotationY: startY,
+      paddingTop: 18, paddingBottom: 18, paddingLeft: 18, paddingRight: 18,
+    }));
+
+    // Sea / globe ground
+    const bgSeries = chart.series.push(am5map.MapPolygonSeries.new(root, {}));
+    bgSeries.mapPolygons.template.setAll({ fill: am5.color(0x10131f), fillOpacity: 1, strokeOpacity: 0 });
+    bgSeries.data.push({ geometry: am5map.getGeoRectangle(90, 180, -90, -180) });
+
+    // Continents
+    const polySeries = chart.series.push(am5map.MapPolygonSeries.new(root, {
+      geoJSON: window.am5geodata_worldLow, exclude: ['AQ'],
+    }));
+    polySeries.mapPolygons.template.setAll({
+      fill: am5.color(0x2b2e42), stroke: am5.color(0x161826), strokeWidth: 0.5,
+      interactive: false,
+    });
+
+    // Network links
+    const linkSeries = chart.series.push(am5map.MapLineSeries.new(root, {}));
+    linkSeries.mapLines.template.setAll({ stroke: am5.color(0x9397ab), strokeOpacity: 0.28, strokeWidth: 1 });
+
+    // Attack chain
+    const attackSeries = chart.series.push(am5map.MapLineSeries.new(root, {}));
+    attackSeries.mapLines.template.setAll({
+      stroke: am5.color(0xe28b90), strokeOpacity: 0.95, strokeWidth: 2, strokeDasharray: [5, 4],
+    });
+
+    // Server points
+    const self = this;
+    const pointSeries = chart.series.push(am5map.MapPointSeries.new(root, {}));
+    pointSeries.bullets.push((r, series, dataItem) => {
+      const d = dataItem.dataContext;
+      const container = am5.Container.new(root, {});
+      if (d.pulse) {
+        const halo = container.children.push(am5.Circle.new(root, {
+          radius: d.r, fill: am5.color(d.color), fillOpacity: 0.5, centerX: am5.p50, centerY: am5.p50,
+        }));
+        halo.animate({ key: 'scale', from: 1, to: 3, duration: 1700, loops: Infinity });
+        halo.animate({ key: 'opacity', from: 0.5, to: 0, duration: 1700, loops: Infinity });
+      }
+      const circle = container.children.push(am5.Circle.new(root, {
+        radius: d.r, fill: am5.color(d.color), stroke: am5.color(d.strokeColor), strokeWidth: 2,
+        tooltipText: d.tip, cursorOverStyle: d.clickable ? 'pointer' : 'default',
+        centerX: am5.p50, centerY: am5.p50,
+      }));
+      if (d.clickable) circle.events.on('click', () => self.setState({ selectedNode: d.id }));
+      container.children.push(am5.Label.new(root, {
+        text: d.label || '', fontSize: 10, fontFamily: 'Inter, sans-serif',
+        fill: am5.color(d.labelColor), centerX: am5.p50, centerY: 0, dy: d.r + 3,
+      }));
+      return am5.Bullet.new(root, { sprite: container });
+    });
+
+    let anim = null;
+    if ((this.props.autoRotate ?? true) && mode === 'board') {
+      anim = chart.animate({ key: 'rotationX', from: 70, to: 430, duration: 110000, loops: Infinity });
+      chart.chartContainer.events.on('pointerdown', () => { if (anim) anim.pause(); });
+      chart.chartContainer.events.on('wheel', () => { if (anim) anim.pause(); });
+    }
+    chart.appear(600, 100);
+
+    this._globes[mode] = { el, root, chart, linkSeries, attackSeries, pointSeries, anim, sig: null };
+    this.syncGlobe(mode, true);
+  }
+
+  destroyGlobe(mode) {
+    const gl = this._globes[mode];
+    if (!gl) return;
+    if (gl.pending) clearTimeout(gl.pending);
+    if (gl.root) gl.root.dispose();
+    delete this._globes[mode];
+  }
+
+  coord(nodeId) { const n = this.E.nodeById(nodeId); return [n.lng, n.lat]; }
+
+  centerGlobeOn(nodeId, mode) {
+    const gl = this._globes[mode || 'board'];
+    if (!gl || !gl.chart || !this.E) return;
+    const n = this.E.nodeById(nodeId);
+    if (gl.anim) gl.anim.pause();
+    gl.chart.animate({ key: 'rotationX', to: -n.lng, duration: 700, easing: window.am5 ? window.am5.ease.out(window.am5.ease.cubic) : undefined });
+    gl.chart.animate({ key: 'rotationY', to: -n.lat, duration: 700, easing: window.am5 ? window.am5.ease.out(window.am5.ease.cubic) : undefined });
+  }
+
+  syncGlobe(mode, force) {
+    const gl = this._globes[mode];
+    if (!gl || !gl.root || !this.E || !this.state.game) return;
+    const g = this.state.game, D = this.D, E = this.E;
+
+    let chainIds;
+    if (mode === 'board') chainIds = g.hidden.filter(h => h.revealed).map(h => h.nodeId);
+    else chainIds = g.hidden.filter((h, i) => i <= this.state.debriefStep).map(h => h.nodeId);
+
+    const sig = JSON.stringify([mode, chainIds, g.highlightNode, mode === 'debrief' ? this.state.debriefStep : 0]);
+    if (!force && gl.sig === sig) return;
+    gl.sig = sig;
+
+    gl.linkSeries.data.setAll(D.WORLD.links.map(([a, b]) => ({
+      geometry: { type: 'LineString', coordinates: [this.coord(a), this.coord(b)] },
+    })));
+
+    const attackLines = [];
+    for (let i = 0; i < chainIds.length - 1; i++) {
+      attackLines.push({ geometry: { type: 'LineString', coordinates: [this.coord(chainIds[i]), this.coord(chainIds[i + 1])] } });
+    }
+    gl.attackSeries.data.setAll(attackLines);
+
+    const pts = D.WORLD.nodes.map(n => {
+      let color = 0x3a3d50, strokeColor = 0x75798c, r = 4.5, pulse = false, labelColor = 0x75798c, label = n.name;
+      if (mode === 'board') {
+        const h = g.hidden.find(x => x.nodeId === n.id && x.revealed);
+        if (h) { color = 0xe28b90; strokeColor = 0xeeb4b8; r = 7; pulse = true; labelColor = 0xf0c3c6; }
+        else if (g.highlightNode === n.id) { color = 0xcbaa6a; strokeColor = 0xcbaa6a; r = 5.5; pulse = true; labelColor = 0xcbaa6a; }
+      } else {
+        const idx = g.hidden.findIndex(h => h.nodeId === n.id);
+        const inChain = idx >= 0 && idx <= this.state.debriefStep;
+        const isStep = idx === this.state.debriefStep;
+        if (inChain) {
+          const revealed = g.hidden[idx].revealed;
+          color = revealed ? 0xe28b90 : 0x6b4449; strokeColor = 0xeeb4b8;
+          r = isStep ? 8 : 6; pulse = isStep; labelColor = 0xf0c3c6;
+        } else { label = ''; }
+      }
+      return {
+        geometry: { type: 'Point', coordinates: [n.lng, n.lat] },
+        id: n.id, name: n.name, label,
+        tip: n.name + ' Â· ' + this.D.SITE_TYPES[n.siteType].label,
+        color, strokeColor, labelColor, r, pulse,
+        clickable: mode === 'board',
+      };
+    });
+    gl.pointSeries.data.setAll(pts);
+  }
+
+  // ================= FLOW =================
+  startGame(mode) {
+    const game = this.E.createGame();
+    this.setState({ game, captainMode: mode, hasSave: true, debriefStep: 0, selectedNode: null, selectedProc: null, overlay: null, overlayQueue: [], dice: null }, () => this.save());
+    if (mode === 'human') {
+      this.setState({
+        screen: 'curtain', captainCtx: 'brief',
+        curtain: { title: 'Pass the device to the Incident Captain', sub: 'The Captain will secretly review the four hidden attack stages and prepare the opening briefing.', cta: 'I am the Captain', to: 'captain' },
+      });
+    } else {
+      this.setState({ screen: 'board' });
+    }
+  }
+
+  curtainContinue = () => {
+    const c = this.state.curtain;
+    this.setState({ curtain: null, screen: c.to === 'captain' ? 'captain' : 'board' }, () => {
+      if (c.to === 'board' && c.thenOverlay) this.pushOverlays(c.thenOverlay);
+    });
+  };
+
+  toCurtain(cfg) { this.setState({ screen: 'curtain', curtain: cfg }); }
+
+  captainExit = () => {
+    this.toCurtain({ title: 'Pass the device back to the Defenders', sub: 'No peeking on the way over.', cta: 'We are the Defenders', to: 'board', thenOverlay: this._afterCaptain || null });
+    this._afterCaptain = null;
+  };
+
+  captainChoose(cardId) {
+    const g = this.state.game;
+    const events = this.E.revealCard(g, cardId, null);
+    this._afterCaptain = this.eventsToOverlays(events);
+    this.setState({ game: g, captainCtx: 'peek', pendingMatches: [] }, () => this.save());
+    this.captainExit();
+  }
+
+  // ---- procedure + dice ----
+  rollNow = () => this.runRoll(null);
+
+  rollActionClick = () => {
+    const n = parseInt(this.state.manualVal, 10);
+    if (n >= 1 && n <= 20) this.runRoll(n);
+    else this.rollNow();
+  };
+
+  toggleManual = () => this.setState({ manualMode: !this.state.manualMode, manualVal: '' });
+
+  manualValChange = (e) => {
+    const v = e.target.value.replace(/[^0-9]/g, '').slice(0, 2);
+    this.setState({ manualVal: v });
+  };
+
+  rollManualConfirm = () => {
+    const n = parseInt(this.state.manualVal, 10);
+    if (!(n >= 1 && n <= 20)) return;
+    this.runRoll(n);
+  };
+
+  runRoll(manualNatural) {
+    const procId = this.state.selectedProc;
+    if (!procId) return;
+    const g = this.state.game;
+    const proc = this.E.cardById(procId);
+    const res = this.E.playProcedure(g, procId, manualNatural);
+    this.save();
+    const roll = res.events.find(e => e.kind === 'roll');
+    this._pending = { events: res.events, matches: res.matches };
+    const fast = this.props.fastDice ?? false;
+    const dice = { shown: '?', natural: roll.natural, mod: roll.mod, total: roll.total, success: roll.success, settled: false, procTitle: proc.title };
+    this.setState({ game: g, selectedProc: null, manualMode: false, manualVal: '', dice });
+    if (manualNatural != null) {
+      // Physical dice already rolled â€” reveal the result immediately, no shake.
+      this.setState({ dice: { ...dice, shown: roll.natural, settled: true } });
+      return;
+    }
+    let ticks = 0, maxTicks = fast ? 5 : 14;
+    this._diceTimer = setInterval(() => {
+      ticks++;
+      if (ticks >= maxTicks) {
+        clearInterval(this._diceTimer);
+        this.setState({ dice: { ...dice, shown: roll.natural, settled: true } });
+      } else {
+        this.setState({ dice: { ...dice, shown: 1 + Math.floor(Math.random() * 20) } });
+      }
+    }, fast ? 60 : 85);
+  }
+
+  diceContinue = () => {
+    const p = this._pending; this._pending = null;
+    this.setState({ dice: null });
+    if (!p) return;
+    if (p.matches.length > 1) {
+      const preEvents = p.events.filter(e => e.kind !== 'roll');
+      this._afterCaptain = this.eventsToOverlays(preEvents.filter(e => e.kind === 'inject'));
+      if (this.state.captainMode === 'auto') {
+        const pickId = p.matches[Math.floor(Math.random() * p.matches.length)].cardId;
+        const events = this.E.revealCard(this.state.game, pickId, null);
+        this.save();
+        this.pushOverlays([...this.eventsToOverlays(events), ...(this._afterCaptain || [])]);
+        this._afterCaptain = null;
+      } else {
+        this.setState({ pendingMatches: p.matches.map(m => m.cardId), captainCtx: 'choose' });
+        this.toCurtain({ title: 'Success! Pass the device to the Incident Captain', sub: 'The procedure matched more than one hidden stage. The Captain chooses which card flips.', cta: 'I am the Captain', to: 'captain' });
+      }
+    } else {
+      this.pushOverlays(this.eventsToOverlays(p.events));
+    }
+  };
+
+  eventsToOverlays(events) {
+    const out = [];
+    for (const e of events) {
+      if (e.kind === 'fail') out.push({ type: 'fail' });
+      if (e.kind === 'noMatch') out.push({ type: 'noMatch' });
+      if (e.kind === 'reveal') out.push({ type: 'reveal', cardId: e.cardId, nodeId: e.nodeId });
+      if (e.kind === 'inject') out.push({ type: 'inject', cardId: e.cardId, trigger: e.trigger, detail: e.detail });
+      if (e.kind === 'turnSkipped') out.push({ type: 'skip', turn: e.turn });
+    }
+    return out;
+  }
+
+  pushOverlays(list) {
+    if (!list || !list.length) { this.checkGameEnd(); return; }
+    const [first, ...rest] = list;
+    if (first.type === 'reveal') this.setState({ ignitedNode: first.nodeId });
+    this.setState({ overlay: first, overlayQueue: rest });
+  }
+
+  ovContinue = () => {
+    const q = this.state.overlayQueue;
+    if (q.length) {
+      const [first, ...rest] = q;
+      if (first.type === 'reveal') this.setState({ ignitedNode: first.nodeId });
+      this.setState({ overlay: first, overlayQueue: rest });
+    } else {
+      this.setState({ overlay: null });
+      this.checkGameEnd();
+    }
+  };
+
+  checkGameEnd() {
+    const g = this.state.game;
+    if (g && g.result) {
+      try { localStorage.removeItem('cyberoutbreak_globe_save'); } catch (e) {}
+      this.setState({ screen: 'debrief', debriefStep: 0, hasSave: false, logOpen: false });
+    }
+  }
+
+  endTurnClick = () => {
+    const g = this.state.game;
+    const events = this.E.endTurn(g);
+    this.save();
+    this.setState({ game: g, selectedNode: null });
+    this.pushOverlays(this.eventsToOverlays(events));
+  };
+
+  // ================= RENDER =================
+  renderVals() {
+    const s = this.state, D = this.D, E = this.E;
+    const base = {
+      isHome: s.screen === 'home' && s.ready, isCurtain: s.screen === 'curtain',
+      isCaptain: s.screen === 'captain', isBoard: s.screen === 'board', isDebrief: s.screen === 'debrief',
+      helpOpen: s.helpOpen, hasSave: s.hasSave, logOpen: s.logOpen,
+      crtOn: this.props.crtOverlay ?? false,
+      boardGlobeRef: this.boardGlobeRef, debriefGlobeRef: this.debriefGlobeRef,
+      newGameHuman: () => this.startGame('human'),
+      newGameAuto: () => this.startGame('auto'),
+      resumeGame: () => {
+        try {
+          const sv = JSON.parse(localStorage.getItem('cyberoutbreak_globe_save'));
+          if (sv && sv.game) this.setState({ game: sv.game, captainMode: sv.captainMode, screen: 'board' });
+        } catch (e) {}
+      },
+      toggleHelp: () => this.setState({ helpOpen: !s.helpOpen }),
+      toggleLog: () => this.setState({ logOpen: !s.logOpen }),
+      quitToHome: () => this.setState({ screen: 'home', logOpen: false, overlay: null, overlayQueue: [], dice: null }),
+      curtainContinue: this.curtainContinue,
+      curtainTitle: s.curtain ? s.curtain.title : '', curtainSub: s.curtain ? s.curtain.sub : '', curtainCta: s.curtain ? s.curtain.cta : '',
+    };
+    if (!s.ready || !this.D) return { ...base, isHome: false };
+    const g = s.game;
+    if (!g) return base;
+
+    const CATS = D.CATEGORIES, ORDER = E.CAT_ORDER;
+
+    // ---- captain view ----
+    const procNames = id => E.cardById(id).title;
+    const captainCards = g.hidden.map((h) => {
+      const c = E.cardById(h.cardId), cat = CATS[c.type], node = E.nodeById(h.nodeId);
+      const choosable = s.captainCtx === 'choose' && s.pendingMatches.includes(h.cardId);
+      return {
+        title: c.title, description: c.description, catLabel: cat.label, icon: cat.icon,
+        headBg: cat.color + '22', headFg: cat.color,
+        nodeName: node.name, detectionNames: c.detection.map(procNames).join(', '),
+        toolNames: (c.tools || []).join(' Â· '),
+        revealed: h.revealed, choosable, opacity: (s.captainCtx === 'choose' && !choosable) ? 0.35 : 1,
+        choose: () => this.captainChoose(h.cardId),
+      };
+    });
+
+    // ---- selected node ----
+    const selNode = s.selectedNode ? E.nodeById(s.selectedNode) : null;
+    let selNodeInfo = '', selNodeInfoColor = '#9397ab';
+    if (selNode) {
+      const h = g.hidden.find(x => x.nodeId === selNode.id && x.revealed);
+      if (h) { const c = E.cardById(h.cardId); selNodeInfo = 'COMPROMISED â€” ' + c.title + ': ' + c.description; selNodeInfoColor = '#eeb4b8'; }
+      else if (g.highlightNode === selNode.id) { selNodeInfo = 'Under scrutiny after the inject. Nothing confirmed hereâ€¦ yet.'; selNodeInfoColor = '#cbaa6a'; }
+      else selNodeInfo = 'No confirmed activity. Status: unknown.';
+    }
+
+    // ---- slots ----
+    const slots = ORDER.map((cat, i) => {
+      const h = g.hidden[i], catC = CATS[cat];
+      const c = h.revealed ? E.cardById(h.cardId) : null;
+      const node = h.revealed ? E.nodeById(h.nodeId) : null;
+      return {
+        catLabel: catC.label, catColor: h.revealed ? catC.color : '#595d6c', icon: catC.icon,
+        title: c ? c.title : 'Â· Â· Â· Â· Â· Â· Â·',
+        titleColor: c ? '#e9e9ed' : '#4a4d59', weight: c ? 500 : 400,
+        sub: c ? 'â—‰ ' + node.name : 'still hidden',
+        bg: c ? catC.color + '14' : 'rgba(12,20,36,0.6)',
+        border: c ? catC.color + '66' : 'rgba(233,233,237,0.10)',
+        cursor: c ? 'pointer' : 'default',
+        onClick: c ? (() => { this.setState({ selectedNode: h.nodeId }); this.centerGlobeOn(h.nodeId, 'board'); }) : (() => {}),
+      };
+    });
+
+    // ---- procedures ----
+    const removedList = g.removed || [];
+    const procCards = D.PROCEDURES.map(p => {
+      const cd = g.cooldowns[p.id] || 0;
+      const established = g.established.includes(p.id);
+      const removed = removedList.includes(p.id);
+      const disabled = cd > 0 || removed || g.playedThisTurn || !!g.result;
+      const selected = s.selectedProc === p.id;
+      return {
+        title: p.title, desc: p.description,
+        modLabel: established ? '+3 EST' : '+0',
+        modColor: established ? '#9184d9' : '#75798c',
+        onCooldown: cd > 0 && !removed, cooldown: cd + (cd === 1 ? ' turn' : ' turns'),
+        removed,
+        bg: selected ? 'rgba(145,132,217,0.1)' : '#232532',
+        border: selected ? '#9184d9' : established ? 'rgba(145,132,217,0.3)' : 'rgba(233,233,237,0.12)',
+        hoverBorder: disabled ? 'rgba(233,233,237,0.12)' : '#9184d9',
+        cursor: disabled ? 'default' : 'pointer',
+        opacity: (g.playedThisTurn && !cd && !removed) ? 0.5 : 1,
+        onSelect: disabled ? (() => {}) : (() => this.setState({ selectedProc: selected ? null : p.id })),
+      };
+    });
+    const selProc = s.selectedProc ? E.cardById(s.selectedProc) : null;
+    const selMod = selProc ? E.procedureMod(g, s.selectedProc) + g.nextRollMod : 0;
+
+    // ---- header ----
+    const turnPips = [];
+    for (let i = 1; i <= E.RULES.turns; i++) {
+      const past = i < g.turn, cur = i === g.turn;
+      turnPips.push({
+        n: i, title: 'Turn ' + i,
+        bg: cur ? '#9184d9' : past ? 'rgba(145,132,217,0.18)' : 'transparent',
+        border: cur ? '#9184d9' : 'rgba(233,233,237,0.2)',
+        fg: cur ? '#161826' : past ? '#9184d9' : '#595d6c',
+      });
+    }
+
+    // ---- dice ----
+    const d = s.dice;
+    const diceVals = d ? {
+      showDice: true, diceProc: 'ROLLING Â· ' + d.procTitle,
+      diceShown: String(d.shown), diceSettled: d.settled,
+      diceColor: d.settled ? (d.success ? '#9184d9' : '#e28b90') : '#e9e9ed',
+      diceStyle: {
+        width: '110px', height: '110px', borderRadius: '18px',
+        background: 'linear-gradient(145deg,#2c2f42,#1d1f2e)',
+        border: '2px solid ' + (d.settled ? (d.success ? '#9184d9' : '#e28b90') : 'rgba(147,151,171,0.4)'),
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontFamily: "'Inter',sans-serif", fontSize: '52px', fontWeight: 500,
+        color: d.settled ? (d.success ? '#9184d9' : '#e28b90') : '#e9e9ed',
+        animation: d.settled ? 'none' : 'diceShake .3s ease infinite',
+      },
+      diceMath: d.natural + ' (natural) ' + (d.mod >= 0 ? '+ ' + d.mod : 'âˆ’ ' + Math.abs(d.mod)) + ' = ' + d.total,
+      diceVerdict: d.success ? 'SUCCESS' : 'FAILURE',
+      diceContinue: this.diceContinue,
+    } : { showDice: false };
+
+    // ---- outcome overlay ----
+    const ov = s.overlay;
+    let ovVals = { showOverlay: false };
+    if (ov) {
+      const cont = this.ovContinue;
+      if (ov.type === 'fail') ovVals = { showOverlay: true, ovKicker: 'Roll failed', ovIcon: 'âœ•', ovBorder: 'rgba(226,139,144,0.5)', ovHeadBg: 'rgba(226,139,144,0.12)', ovHeadFg: '#e28b90', ovTitle: 'Nothing found.', ovBody: 'The procedure came up empty â€” this time. Fail streak: ' + g.failStreak + ' of 3.', ovHasMeta: false, ovHasPrompt: true, ovCta: 'Discussed â€” continue', ovContinue: cont };
+      if (ov.type === 'noMatch') ovVals = { showOverlay: true, ovKicker: 'Clean result', ovIcon: 'â—¯', ovBorder: 'rgba(127,163,224,0.5)', ovHeadBg: 'rgba(127,163,224,0.12)', ovHeadFg: '#7fa3e0', ovTitle: 'The sweep came back clean.', ovBody: 'Good news: that procedure works. Bad news: whatever is out there, it doesn\u2019t leave tracks this tool can see.', ovHasMeta: false, ovHasPrompt: false, ovCta: 'Continue', ovContinue: cont };
+      if (ov.type === 'reveal') {
+        const c = E.cardById(ov.cardId), cat = CATS[c.type], node = E.nodeById(ov.nodeId);
+        ovVals = { showOverlay: true, ovKicker: cat.label + ' revealed', ovIcon: cat.icon, ovBorder: cat.color + '99', ovHeadBg: cat.color + '22', ovHeadFg: cat.color, ovTitle: c.title, ovBody: c.description, ovHasMeta: true, ovMeta: 'â—‰ Located at ' + node.name, ovHasPrompt: false, ovCta: 'To the globe â–¸', ovContinue: cont };
+      }
+      if (ov.type === 'inject') {
+        const c = E.cardById(ov.cardId);
+        ovVals = { showOverlay: true, ovKicker: 'INJECT Â· ' + ov.trigger, ovIcon: 'âš¡', ovBorder: 'rgba(147,151,171,0.6)', ovHeadBg: 'rgba(147,151,171,0.14)', ovHeadFg: '#cfd3e5', ovTitle: c.title, ovBody: c.description, ovHasMeta: !!ov.detail, ovMeta: ov.detail ? 'âš  ' + ov.detail : '', ovHasPrompt: false, ovCta: 'Understood', ovContinue: cont };
+      }
+      if (ov.type === 'skip') ovVals = { showOverlay: true, ovKicker: 'Turn skipped', ovIcon: 'â„', ovBorder: 'rgba(147,151,171,0.5)', ovHeadBg: 'rgba(147,151,171,0.12)', ovHeadFg: '#cfd3e5', ovTitle: 'Turn ' + ov.turn + ' is lost.', ovBody: 'Everyone sat in a conference room instead. The attackers did not.', ovHasMeta: false, ovHasPrompt: false, ovCta: 'Continue', ovContinue: cont };
+    }
+
+    // ---- debrief ----
+    const isWin = g.result === 'win', isPentest = g.result === 'pentest';
+    const debriefCards = ORDER.map((cat, i) => {
+      const h = g.hidden[i], c = E.cardById(h.cardId), catC = CATS[cat], node = E.nodeById(h.nodeId);
+      const active = i === s.debriefStep;
+      return {
+        step: i + 1, catLabel: catC.label, catColor: catC.color,
+        title: c.title, description: c.description, nodeName: node.name,
+        foundLabel: h.revealed ? 'âœ“ FOUND' : 'âœ• MISSED',
+        foundColor: h.revealed ? '#9184d9' : '#e28b90',
+        bg: active ? catC.color + '18' : '#232532',
+        border: active ? catC.color : 'rgba(233,233,237,0.12)',
+      };
+    });
+
+    return {
+      ...base,
+      // captain
+      captainCards,
+      captainIsBrief: s.captainCtx === 'brief', captainIsChoose: s.captainCtx === 'choose',
+      captainSubtitle: s.captainCtx === 'choose' ? 'multi-match decision' : 'the hidden kill chain',
+      captainCanExit: s.captainCtx !== 'choose',
+      captainExitLabel: s.captainCtx === 'brief' ? 'Deliver the briefing â–¸' : 'Return to the Defenders â–¸',
+      captainExit: () => { if (this.state.captainCtx === 'brief') this.setState({ captainCtx: 'peek' }); this.captainExit(); },
+      briefText: g.brief,
+      // board
+      turnPips, turnLabel: Math.min(g.turn, E.RULES.turns) + '/' + E.RULES.turns,
+      streakLabel: 'â—'.repeat(g.failStreak) + 'â—‹'.repeat(Math.max(0, 3 - g.failStreak)),
+      streakColor: g.failStreak >= 2 ? '#e28b90' : '#75798c',
+      hasTempMod: g.nextRollMod !== 0, tempModLabel: (g.nextRollMod > 0 ? '+' : '') + g.nextRollMod,
+      isHumanCaptain: s.captainMode === 'human',
+      peekCaptain: () => { this.setState({ captainCtx: 'peek' }); this.toCurtain({ title: 'Pass the device to the Incident Captain', sub: 'Defenders, look away.', cta: 'I am the Captain', to: 'captain' }); },
+      hasSelectedNode: !!selNode,
+      selNodeName: selNode ? selNode.name : '', selNodeType: selNode ? D.SITE_TYPES[selNode.siteType].label : '',
+      selNodeInfo, selNodeInfoColor,
+      closeNode: () => this.setState({ selectedNode: null }),
+      slots, revealedCount: g.hidden.filter(h => h.revealed).length,
+      procCards,
+      showConfirm: !!selProc && !g.playedThisTurn,
+      confirmTitle: selProc ? selProc.title : '',
+      confirmMod: selMod >= 0 ? '(+' + selMod + ')' : '(' + selMod + ')',
+      rollNow: this.rollNow,
+      rollActionClick: this.rollActionClick,
+      rollBtnLabel: (parseInt(s.manualVal, 10) >= 1 && parseInt(s.manualVal, 10) <= 20) ? 'Use this Roll' : 'ðŸŽ² Roll Dice',
+      toggleKillChain: () => this.setState({ killChainOpen: !s.killChainOpen }),
+      killChainOpen: s.killChainOpen,
+      killChainChevron: s.killChainOpen ? 'â–´' : 'â–¾',
+      cancelSelect: () => this.setState({ selectedProc: null, manualMode: false, manualVal: '' }),
+      manualMode: s.manualMode,
+      manualVal: s.manualVal,
+      manualValChange: this.manualValChange,
+      rollManualConfirm: this.rollManualConfirm,
+      toggleManual: this.toggleManual,
+      showRollButtons: !s.manualMode,
+      manualValidColor: (parseInt(s.manualVal, 10) >= 1 && parseInt(s.manualVal, 10) <= 20) ? '#9184d9' : '#4a4d59',
+      manualValidCursor: (parseInt(s.manualVal, 10) >= 1 && parseInt(s.manualVal, 10) <= 20) ? 'pointer' : 'default',
+      showEndTurn: g.playedThisTurn && !g.result && !s.overlay && !s.dice,
+      endTurnClick: this.endTurnClick,
+      logEntries: g.log.slice().reverse(),
+      // dice + overlays
+      ...diceVals, ...ovVals,
+      // debrief
+      resultTitle: isWin ? 'INCIDENT CONTAINED' : isPentest ? 'IT WAS A PENTEST' : 'BREACH COMPLETE',
+      resultColor: isWin ? '#9184d9' : isPentest ? '#cbaa6a' : '#e28b90',
+      resultSub: isWin ? 'All four attack stages uncovered in ' + Math.min(g.turn, E.RULES.turns) + ' turns. The debrief writes itself.'
+               : isPentest ? 'You were never under attack â€” the CEO hired a red team. Here is how far they got before the reveal.'
+               : (g.loseReason || 'Time ran out.') + ' Here is the kill chain you were up against.',
+      debriefCards,
+      debriefStepLabel: s.debriefStep + 1,
+      debriefPrev: () => { const step = Math.max(0, s.debriefStep - 1); this.setState({ debriefStep: step }, () => this.centerGlobeOn(g.hidden[step].nodeId, 'debrief')); },
+      debriefNext: () => { const step = Math.min(3, s.debriefStep + 1); this.setState({ debriefStep: step }, () => this.centerGlobeOn(g.hidden[step].nodeId, 'debrief')); },
+      playAgain: () => this.startGame(s.captainMode),
+    };
+  }
+}
+</script>
+</body>
+</html>
+
