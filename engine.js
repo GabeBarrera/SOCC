@@ -1,4 +1,4 @@
-// Cyber Outbreak — game engine v2. No DOM. Mutates a state object, returns events.
+// Cyber Outbreak \u2014 game engine v2. No DOM. Mutates a state object, returns events.
 // Adds: removed procedures, revealCategory / loseProcedure / gainProcedure inject effects, pentest ending.
 import { PROCEDURES, ATTACKS, INJECTS, WORLD, CATEGORIES } from './game-data.js';
 
@@ -93,7 +93,7 @@ export function canPlay(state, procId) {
     && !(state.removed || []).includes(procId);
 }
 
-// Play a procedure. Returns { events, matches } — if matches.length > 1 the UI must
+// Play a procedure. Returns { events, matches } \u2014 if matches.length > 1 the UI must
 // call revealCard() with the Captain's choice; if 1 it is auto-revealed.
 export function playProcedure(state, procId, manualNatural) {
   const events = [];
@@ -107,7 +107,7 @@ export function playProcedure(state, procId, manualNatural) {
   state.cooldowns[procId] = RULES.cooldown;
   const proc = cardById(procId);
   events.push({ kind: 'roll', procId, natural, mod, usedTempMod, total, success });
-  state.log.push({ t: state.turn, text: `${proc.title}: rolled ${natural}${mod ? (mod > 0 ? '+' + mod : mod) : ''} = ${total} — ${success ? 'SUCCESS' : 'FAIL'}` });
+  state.log.push({ t: state.turn, text: `${proc.title}: rolled ${natural}${mod ? (mod > 0 ? '+' + mod : mod) : ''} = ${total} \u2014 ${success ? 'SUCCESS' : 'FAIL'}` });
 
   let matches = [];
   if (success) {
@@ -176,7 +176,7 @@ function drawInject(state, trigger) {
       detail = 'The ' + (CATEGORIES[fx.category] ? CATEGORIES[fx.category].label : fx.category) + ' card flips face-up!';
       followUp.push(...revealCard(state, h.cardId, null));
     } else {
-      detail = 'Already revealed — the decoys confirm what you knew.';
+      detail = 'Already revealed \u2014 the decoys confirm what you knew.';
     }
   }
   if (fx.kind === 'loseProcedure') {

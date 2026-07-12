@@ -1,49 +1,49 @@
-// Cyber Outbreak — card deck integrated from uploads/cards.xlsx + world data with real coordinates.
+// Cyber Outbreak \u2014 card deck integrated from uploads/cards.xlsx + world data with real coordinates.
 
 export const CATEGORIES = {
-  initial:     { id: 'initial',     label: 'Initial Compromise', color: '#e28b90', icon: '◈' },
-  pivot:       { id: 'pivot',       label: 'Pivot & Escalate',   color: '#cbaa6a', icon: '⬗' },
-  c2:          { id: 'c2',          label: 'C2 & Exfil',         color: '#c8925a', icon: '⇅' },
-  persistence: { id: 'persistence', label: 'Persistence',        color: '#b78cff', icon: '∞' },
-  procedure:   { id: 'procedure',   label: 'Procedure',          color: '#9184d9', icon: '▣' },
-  inject:      { id: 'inject',      label: 'Inject',             color: '#9aa5b5', icon: '⚡' },
+  initial:     { id: 'initial',     label: 'Initial Compromise', color: '#e28b90', icon: '\u25c8' },
+  pivot:       { id: 'pivot',       label: 'Pivot & Escalate',   color: '#cbaa6a', icon: '\u2b17' },
+  c2:          { id: 'c2',          label: 'C2 & Exfil',         color: '#c8925a', icon: '\u21c5' },
+  persistence: { id: 'persistence', label: 'Persistence',        color: '#b78cff', icon: '\u221e' },
+  procedure:   { id: 'procedure',   label: 'Procedure',          color: '#9184d9', icon: '\u25a3' },
+  inject:      { id: 'inject',      label: 'Inject',             color: '#9aa5b5', icon: '\u26a1' },
 };
 
 export const PROCEDURES = [
   { id: 'p_siem', type: 'procedure', title: 'SIEM Log Analysis',
-    description: 'Query the central log platform for the weird stuff hiding in the noise.',
+    description: 'Query the central log platform for the weird stuff hiding in the noise \u2014 assuming anyone remembered to point every source at it.',
     tools: ['SOF-ELK', 'JPCert Tools Analysis'] },
   { id: 'p_server', type: 'procedure', title: 'Server Analysis',
-    description: 'Pull apart a suspect server: services, logs, users, recent changes.',
+    description: 'Pull apart a suspect server: services, logs, users, recent changes \u2014 and the changelog nobody filled out.',
     tools: ['DeepBlueCLI', 'SANS Analysis Cheat Sheets'] },
   { id: 'p_firewall', type: 'procedure', title: 'Firewall Log Review',
-    description: 'Read the perimeter\u2019s diary: odd destinations, denied-then-allowed patterns.',
+    description: 'Read the perimeter\u2019s diary: odd destinations, denied-then-allowed patterns, and that one rule someone added \u201ctemporarily\u201d in 2019.',
     tools: ['SOF-ELK'] },
-  { id: 'p_netflow', type: 'procedure', title: 'NetFlow / Zeek / RITA Analysis',
-    description: 'Study traffic metadata for beacons, tunnels and long, chatty connections.',
+  { id: 'p_netflow', type: 'procedure', title: 'Network Analysis',
+    description: 'Study traffic metadata for beacons, tunnels and long, chatty connections \u2014 the network never lies, it just talks in a language nobody bothered to learn.',
     tools: ['RITA', 'Security Onion', 'AI-Hunter'] },
   { id: 'p_seg', type: 'procedure', title: 'Internal Segmentation',
-    description: 'Wall off network segments and watch what tries to cross.',
+    description: 'Wall off network segments and watch what tries to cross \u2014 discover, four years late, that everything is on the flat network anyway.',
     tools: ['netsh advfirewall', 'Windows Defender Firewall', 'iptables'] },
   { id: 'p_espa', type: 'procedure', title: 'Endpoint Security Protection Analysis',
-    description: 'Interrogate the AV/EDR console for the detections everyone ignored.',
-    tools: ['Check with your vendor — they miss you and always want to chat.'] },
+    description: 'Interrogate the AV/EDR console for the detections everyone ignored, filed under \u201cinvestigate later,\u201d roughly forever ago.',
+    tools: ['Check with your vendor \u2014 they miss you and always want to chat.'] },
   { id: 'p_ueba', type: 'procedure', title: 'User & Entity Behavior Analytics',
-    description: 'Baseline everyone, then hunt whoever stopped acting like themselves.',
+    description: 'Baseline everyone, then hunt whoever stopped acting like themselves \u2014 turns out that\u2019s also what it looks like when someone finally goes on vacation.',
     tools: ['LogonTracer'] },
   { id: 'p_endpoint', type: 'procedure', title: 'Endpoint Analysis',
-    description: 'Deep-dive a workstation: processes, autoruns, event logs, artifacts.',
+    description: 'Deep-dive a workstation: processes, autoruns, event logs, artifacts, and forty browser toolbars nobody can explain.',
     tools: ['DeepBlueCLI', 'SANS IR Cheat Sheets'] },
   { id: 'p_iso', type: 'procedure', title: 'Isolation',
-    description: 'Cut a suspect host off the network and see what screams. A response move — it finds nothing by itself.',
+    description: 'Cut a suspect host off the network and see what screams \u2014 usually the finance intern, never the attacker. A response move; it finds nothing by itself.',
     tools: ['Switch and Router Commands'] },
   { id: 'p_crisis', type: 'procedure', title: 'Crisis Management',
-    description: 'Brief the execs, prep notifications, keep the org from panicking. Vital — but it detects nothing.',
+    description: 'Brief the execs, prep notifications, keep the org from panicking with a slide titled \u201cWe Have This Under Control.\u201d Vital \u2014 but it detects nothing.',
     tools: ['A good notification strategy'] },
 ];
 
 export const ATTACKS = [
-  // — Initial Compromise —
+  // \u2014 Initial Compromise \u2014
   { id: 'ic_phish', type: 'initial', title: 'Phish',
     description: 'A convincing email, a poisoned link, a harvested credential. The oldest trick still works.',
     detection: ['p_firewall', 'p_espa'],
@@ -105,9 +105,9 @@ export const ATTACKS = [
     siteTypes: ['cloud', 'office'],
     brief: 'A wave of logins with valid passwords but all the wrong browsers hit {node}.' },
 
-  // — Pivot & Escalate —
+  // \u2014 Pivot & Escalate \u2014
   { id: 'pe_spray', type: 'pivot', title: 'Internal Password Spray',
-    description: 'The spray moves inside — one password against every internal account.',
+    description: 'The spray moves inside \u2014 one password against every internal account.',
     detection: ['p_ueba', 'p_siem'],
     tools: ['DomainPasswordSpray'],
     siteTypes: ['hq', 'office', 'datacenter', 'cloud', 'soc', 'factory'] },
@@ -137,12 +137,12 @@ export const ATTACKS = [
     tools: ["PowerSploit's PowerUp", 'Meterpreter post-exploitation scripts'],
     siteTypes: ['hq', 'office', 'factory'] },
   { id: 'pe_poison', type: 'pivot', title: 'Broadcast / Multicast Protocol Poisoning',
-    description: 'Responder answers LLMNR, NBT-NS and mDNS lookups — and collects hashes all day.',
+    description: 'Responder answers LLMNR, NBT-NS and mDNS lookups \u2014 and collects hashes all day.',
     detection: ['p_ueba', 'p_firewall'],
     tools: ['Responder', 'CredDefense Toolkit (defense)'],
     siteTypes: ['hq', 'office', 'factory'] },
 
-  // — C2 & Exfil —
+  // \u2014 C2 & Exfil \u2014
   { id: 'ce_http', type: 'c2', title: 'HTTP as Exfil',
     description: 'Your data leaves in plain HTTP, blending into everyday web noise.',
     detection: ['p_netflow'],
@@ -174,7 +174,7 @@ export const ATTACKS = [
     tools: ['Cobalt Strike'],
     siteTypes: ['hq', 'datacenter', 'cloud'] },
 
-  // — Persistence —
+  // \u2014 Persistence \u2014
   { id: 'ps_malware', type: 'persistence', title: 'Malicious Service / Just Malware',
     description: 'A new service with an official-sounding name restarts the implant on every boot.',
     detection: ['p_espa', 'p_endpoint'],
@@ -186,7 +186,7 @@ export const ATTACKS = [
     tools: ['PowerSploit', 'InvisiMole'],
     siteTypes: ['hq', 'office'] },
   { id: 'ps_driver', type: 'persistence', title: 'Malicious Driver',
-    description: 'Kernel-level persistence — the rootkit sits below everything you trust.',
+    description: 'Kernel-level persistence \u2014 the rootkit sits below everything you trust.',
     detection: ['p_espa', 'p_endpoint'],
     tools: ['Pasam', 'Wingbird', 'SeaDuke', 'ROCKBOOT', 'Alureon'],
     siteTypes: ['datacenter', 'factory'] },
@@ -224,16 +224,16 @@ export const ATTACKS = [
 
 export const INJECTS = [
   { id: 'in_honey', type: 'inject', title: 'Honeypots Deployed',
-    description: 'Good news — the decoys were live, and something touched them. The Pivot & Escalate card is shown to the table.',
+    description: 'Good news \u2014 the decoys were live, and something touched them. The Pivot & Escalate card is shown to the table.',
     effect: { kind: 'revealCategory', category: 'pivot' } },
   { id: 'in_pentest', type: 'inject', title: 'It Was a Pentest',
-    description: 'Ha! You were never under attack. The CEO hired an external firm to run an unannounced red team. Bittersweet: no breach — but you were compromised.',
+    description: 'Ha! You were never under attack. The CEO hired an external firm to run an unannounced red team. Bittersweet: no breach \u2014 but you were compromised.',
     effect: { kind: 'endsGame', result: 'pentest' } },
   { id: 'in_pastebin', type: 'inject', title: 'Data Uploaded to Pastebin',
     description: 'Internal sensitive data just appeared on Pastebin. Your customers are learning about the incident from the media. Bring in Legal and Upper Management.',
     effect: { kind: 'flavor', mapEvent: 'highlightRandom' } },
   { id: 'in_splunk', type: 'inject', title: 'SIEM Analyst Returns from Splunk Training',
-    description: 'Fresh from training and dangerous with a query bar. Training is awesome — you should get some.',
+    description: 'Fresh from training and dangerous with a query bar. Training is awesome \u2014 you should get some.',
     effect: { kind: 'modifier', value: 2, label: '+2 on your next roll' } },
   { id: 'in_takeproc', type: 'inject', title: 'Take One Procedure Card Away',
     description: 'Sometimes procedures fail. Sometimes nobody can find one when it matters most. Nobody\u2019s perfect. Sorry.',
@@ -245,7 +245,7 @@ export const INJECTS = [
     description: 'The one person who pretty much runs the whole IR process is out. Quiet listeners in the back: now is your time. Shine!',
     effect: { kind: 'modifier', value: -2, label: '\u22122 on your next roll' } },
   { id: 'in_bobby', type: 'inject', title: 'Bobby the Intern Kills the System You Are Reviewing',
-    description: 'This. Happens. Far. Too. Often. (No — murder is never okay. Don\u2019t even think it.)',
+    description: 'This. Happens. Far. Too. Often. (No \u2014 murder is never okay. Don\u2019t even think it.)',
     effect: { kind: 'skipTurn' } },
   { id: 'in_legal', type: 'inject', title: 'Legal Takes Your Only Skilled Handler Into a Meeting',
     description: 'The legal team needs your best handler for "Very Important Reasons". They may never come back.',

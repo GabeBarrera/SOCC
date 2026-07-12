@@ -27,7 +27,7 @@
   @keyframes blinkCursor { 50% { opacity: 0; } }
   ::-webkit-scrollbar { display: none; width: 0; height: 0; }
   * { scrollbar-width: none; -ms-overflow-style: none; }
-  /* Responsive layout switches â€” kept minimal, id-scoped, no classes */
+  /* Responsive layout switches &mdash; kept minimal, id-scoped, no classes */
   #killChainDesktopList { display: flex; flex-direction: column; gap: 10px; }
   #killChainMobile { display: none; }
   #rollConfirmBar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
@@ -45,12 +45,12 @@
   <!-- ============ HOME ============ -->
   <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
     <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;gap:0;animation:fadeUp .5s ease both">
-      <div style="font-size:12px;letter-spacing:3px;color:#9184d9;text-transform:uppercase;margin-bottom:14px">Novacore Industries Â· Incident Response Tabletop</div>
+      <div style="font-size:12px;letter-spacing:3px;color:#9184d9;text-transform:uppercase;margin-bottom:14px">Novacore Industries &middot; Incident Response Tabletop</div>
       <h1 style="margin:0;font-size:clamp(38px,7vw,84px);font-weight:500;letter-spacing:-2px;line-height:1.3;text-align:center">SOC<span style="color:#e28b90"> COMMANDER</span></h1>
       <div style="margin-top:36px;font-size:17px;color:#9397ab;text-align:center;max-width:560px;text-wrap:pretty">Four hidden attack stages are loose somewhere on the company's global network. You have ten turns, ten procedures and a d20. Find the kill chain before the attackers finish the job.</div>
       <div style="display:flex;gap:12px;margin-top:36px;flex-wrap:wrap;justify-content:center">
-        <button onClick="{{ newGameHuman }}" style="font-family:'Inter',sans-serif;font-size:16px;font-weight:500;padding:14px 26px;background:transparent;color:#9184d9;border:1px solid #9184d9;border-radius:8px;cursor:pointer;white-space:nowrap" style-hover="background:rgba(145,132,217,0.12)">New Game Â· Human Captain</button>
-        <button onClick="{{ newGameAuto }}" style="font-family:'Inter',sans-serif;font-size:16px;font-weight:500;padding:14px 26px;background:transparent;color:#9184d9;border:1px solid rgba(145,132,217,0.45);border-radius:8px;cursor:pointer" style-hover="border-color:#9184d9;background:rgba(145,132,217,0.08)">New Game Â· Auto Captain</button>
+        <button onClick="{{ newGameHuman }}" style="font-family:'Inter',sans-serif;font-size:16px;font-weight:500;padding:14px 26px;background:transparent;color:#9184d9;border:1px solid #9184d9;border-radius:8px;cursor:pointer;white-space:nowrap" style-hover="background:rgba(145,132,217,0.12)">New Game &middot; Human Captain</button>
+        <button onClick="{{ newGameAuto }}" style="font-family:'Inter',sans-serif;font-size:16px;font-weight:500;padding:14px 26px;background:transparent;color:#9184d9;border:1px solid rgba(145,132,217,0.45);border-radius:8px;cursor:pointer" style-hover="border-color:#9184d9;background:rgba(145,132,217,0.08)">New Game &middot; Auto Captain</button>
         <sc-if value="{{ hasSave }}" hint-placeholder-val="{{ false }}">
           <button onClick="{{ resumeGame }}" style="font-family:'Inter',sans-serif;font-size:16px;font-weight:500;padding:14px 26px;white-space:nowrap;background:transparent;color:#e9e9ed;border:1px solid rgba(147,151,171,0.35);border-radius:8px;cursor:pointer" style-hover="border-color:#9397ab">Resume Game</button>
         </sc-if>
@@ -59,15 +59,15 @@
       <sc-if value="{{ helpOpen }}" hint-placeholder-val="{{ false }}">
         <div style="margin-top:20px;max-width:640px;background:#232532;border:1px solid rgba(233,233,237,0.12);border-radius:12px;padding:24px 28px;font-size:15px;line-height:1.65;color:#b2b6ca;animation:fadeUp .3s ease both">
           <div style="font-weight:500;color:#e9e9ed;margin-bottom:8px">The short version</div>
-          <div>The <b style="color:#e28b90">Incident Captain</b> secretly holds 4 attack cards â€” one per stage of the kill chain â€” each planted at a company site on the globe. Each turn, the <b style="color:#9184d9">Defenders</b> discuss, play <b>one Procedure</b>, and roll a d20.</div>
+          <div>The <b style="color:#e28b90">Incident Captain</b> secretly holds 4 attack cards &mdash; one per stage of the kill chain &mdash; each planted at a company site on the globe. Each turn, the <b style="color:#9184d9">Defenders</b> discuss, play <b>one Procedure</b>, and roll a d20.</div>
           <ul style="margin:12px 0 0;padding-left:20px">
             <li><b>11+ succeeds.</b> Established procedures roll at <b>+3</b>; improvised ones at +0.</li>
-            <li>If the procedure can detect a hidden card, it flips â€” and its site lights up on the globe.</li>
+            <li>If the procedure can detect a hidden card, it flips &mdash; and its site lights up on the globe.</li>
             <li>Played procedures cool down for <b>3 turns</b>. Some injects can remove a procedure entirely.</li>
-            <li>A natural <b>1</b>, natural <b>20</b>, or <b>3 fails in a row</b> draws one of ten Injects. Injects areâ€¦ events.</li>
-            <li>Reveal all 4 cards within <b>10 turns</b> to win. Drag the globe to look around â€” it shows where the attack has reached, nothing more.</li>
+            <li>A natural <b>1</b>, natural <b>20</b>, or <b>3 fails in a row</b> draws one of ten Injects. Injects are&hellip; events.</li>
+            <li>Reveal all 4 cards within <b>10 turns</b> to win. Drag the globe to look around &mdash; it shows where the attack has reached, nothing more.</li>
           </ul>
-          <div style="margin-top:12px;font-size:12px;color:#75798c">Card set loaded from cards.xlsx Â· Inspired by Backdoors &amp; Breaches (Black Hills Information Security).</div>
+          <div style="margin-top:12px;font-size:12px;color:#75798c">Card set loaded from cards.xlsx &middot; Inspired by Backdoors &amp; Breaches (Black Hills Information Security).</div>
         </div>
       </sc-if>
     </div>
@@ -76,7 +76,7 @@
   <!-- ============ CURTAIN ============ -->
   <sc-if value="{{ isCurtain }}" hint-placeholder-val="{{ false }}">
     <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:#111321">
-      <div style="font-size:12px;letter-spacing:3px;color:#e28b90;text-transform:uppercase;margin-bottom:16px;animation:blinkCursor 1.2s step-end infinite">â–  Classified handoff</div>
+      <div style="font-size:12px;letter-spacing:3px;color:#e28b90;text-transform:uppercase;margin-bottom:16px;animation:blinkCursor 1.2s step-end infinite">&#9632; Classified handoff</div>
       <div style="font-size:clamp(28px,5vw,44px);font-weight:500;text-align:center;letter-spacing:-1px">{{ curtainTitle }}</div>
       <div style="margin-top:12px;font-size:16px;color:#9397ab;text-align:center;max-width:420px">{{ curtainSub }}</div>
       <button onClick="{{ curtainContinue }}" style="margin-top:36px;font-family:'Inter',sans-serif;font-size:17px;font-weight:500;padding:16px 40px;background:transparent;color:#e28b90;border:1px solid #e28b90;border-radius:8px;cursor:pointer" style-hover="background:rgba(226,139,144,0.12)">{{ curtainCta }}</button>
@@ -87,13 +87,13 @@
   <sc-if value="{{ isCaptain }}" hint-placeholder-val="{{ false }}">
     <div style="flex:1;display:flex;flex-direction:column;padding:28px clamp(16px,4vw,48px);gap:20px;overflow:auto;background:linear-gradient(180deg,#221a2b 0%, #161826 40%)">
       <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">
-        <div style="font-size:26px;font-weight:500;letter-spacing:-0.5px;color:#e28b90">Incident Captain â€” Eyes Only</div>
+        <div style="font-size:26px;font-weight:500;letter-spacing:-0.5px;color:#e28b90">Incident Captain &mdash; Eyes Only</div>
         <div style="font-size:12px;color:#9397ab">{{ captainSubtitle }}</div>
       </div>
       <sc-if value="{{ captainIsBrief }}" hint-placeholder-val="{{ false }}">
         <div style="background:rgba(226,139,144,0.08);border:1px solid rgba(226,139,144,0.3);border-radius:10px;padding:16px 20px;font-size:15px;line-height:1.6;color:#e8c9cc;max-width:760px">
-          <b>Your opening briefing to the Defenders</b> â€” read it aloud, embellish freely:<br>
-          <span style="color:#f2dfe1">â€œ{{ briefText }}â€</span>
+          <b>Your opening briefing to the Defenders</b> &mdash; read it aloud, embellish freely:<br>
+          <span style="color:#f2dfe1">&ldquo;{{ briefText }}&rdquo;</span>
         </div>
       </sc-if>
       <sc-if value="{{ captainIsChoose }}" hint-placeholder-val="{{ false }}">
@@ -108,11 +108,11 @@
             <div style="padding:14px 16px;display:flex;flex-direction:column;gap:8px;flex:1">
               <div style="font-size:18px;font-weight:500;line-height:1.2">{{ cc.title }}</div>
               <div style="font-size:13.5px;color:#9397ab;line-height:1.5;flex:1">{{ cc.description }}</div>
-              <div style="font-size:11px;color:#9184d9">â—‰ {{ cc.nodeName }}</div>
+              <div style="font-size:11px;color:#9184d9">&#9673; {{ cc.nodeName }}</div>
               <div style="font-size:11px;color:#75798c;line-height:1.5">Detected by: {{ cc.detectionNames }}</div>
               <div style="font-size:10.5px;color:#595d6c;line-height:1.5">Attacker tools: {{ cc.toolNames }}</div>
               <sc-if value="{{ cc.revealed }}" hint-placeholder-val="{{ false }}">
-                <div style="font-size:11px;color:#cbaa6a">âœ“ ALREADY REVEALED</div>
+                <div style="font-size:11px;color:#cbaa6a">&#10003; ALREADY REVEALED</div>
               </sc-if>
               <sc-if value="{{ cc.choosable }}" hint-placeholder-val="{{ false }}">
                 <button onClick="{{ cc.choose }}" style="font-family:'Inter',sans-serif;font-size:14px;font-weight:500;padding:10px;background:transparent;color:#9184d9;border:1px solid #9184d9;border-radius:7px;cursor:pointer" style-hover="background:rgba(145,132,217,0.12)">Reveal this one</button>
@@ -155,7 +155,7 @@
       </div>
 
       <!-- Brief strip -->
-      <div style="padding:8px clamp(12px,3vw,28px);background:rgba(145,132,217,0.05);border-bottom:1px solid rgba(120,160,220,0.08);font-size:12px;color:#9397ab;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">â–¸ SCENARIO: {{ briefText }}</div>
+      <div style="padding:8px clamp(12px,3vw,28px);background:rgba(145,132,217,0.05);border-bottom:1px solid rgba(120,160,220,0.08);font-size:12px;color:#9397ab;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">&#9656; SCENARIO: {{ briefText }}</div>
 
       <!-- Main area: globe + slots -->
       <div style="flex:1;display:flex;gap:16px;padding:16px clamp(12px,3vw,28px);min-height:0;flex-wrap:wrap;align-content:flex-start;overflow:auto">
@@ -171,7 +171,7 @@
               <div style="font-weight:500;font-size:15px">{{ selNodeName }}</div>
               <div style="font-size:11px;color:#9397ab;text-transform:uppercase;letter-spacing:1px">{{ selNodeType }}</div>
               <div style="font-size:13.5px;color:{{ selNodeInfoColor }};flex:1;min-width:180px">{{ selNodeInfo }}</div>
-              <button onClick="{{ closeNode }}" style="font-family:'Inter',sans-serif;font-size:12px;background:none;border:none;color:#9397ab;cursor:pointer" style-hover="color:#e9e9ed">âœ•</button>
+              <button onClick="{{ closeNode }}" style="font-family:'Inter',sans-serif;font-size:12px;background:none;border:none;color:#9397ab;cursor:pointer" style-hover="color:#e9e9ed">&#10005;</button>
             </div>
           </sc-if>
         </div>
@@ -179,7 +179,7 @@
         <!-- Revealed slots -->
         <div id="killChainOuter" style="flex:0 1 250px;min-width:220px;position:relative">
           <div id="killChainDesktopList">
-            <div style="font-size:11px;letter-spacing:2px;color:#75798c;text-transform:uppercase">Kill chain Â· {{ revealedCount }}/4 found</div>
+            <div style="font-size:11px;letter-spacing:2px;color:#75798c;text-transform:uppercase">Kill chain &middot; {{ revealedCount }}/4 found</div>
             <sc-for list="{{ slots }}" as="sl" hint-placeholder-count="4">
               <div onClick="{{ sl.onClick }}" style="background:{{ sl.bg }};border:1px solid {{ sl.border }};border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:3px;cursor:{{ sl.cursor }};min-height:58px" style-hover="border-color:rgba(178,182,202,0.4)">
                 <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:{{ sl.catColor }}">{{ sl.icon }} {{ sl.catLabel }}</div>
@@ -190,7 +190,7 @@
           </div>
           <div id="killChainMobile">
             <button onClick="{{ toggleKillChain }}" style="width:100%;display:flex;align-items:center;gap:10px;background:#232532;border:1px solid rgba(233,233,237,0.15);border-radius:10px;padding:10px 14px;cursor:pointer;font-family:'Inter',sans-serif;color:#e9e9ed" style-hover="border-color:rgba(178,182,202,0.4)">
-              <span style="font-size:11px;letter-spacing:1.5px;color:#75798c;text-transform:uppercase;flex:1;text-align:left">Kill chain Â· {{ revealedCount }}/4</span>
+              <span style="font-size:11px;letter-spacing:1.5px;color:#75798c;text-transform:uppercase;flex:1;text-align:left">Kill chain &middot; {{ revealedCount }}/4</span>
               <div style="display:flex;gap:4px">
                 <sc-for list="{{ slots }}" as="sl" hint-placeholder-count="4">
                   <div style="width:14px;height:14px;border-radius:3px;background:{{ sl.catColor }}"></div>
@@ -216,18 +216,18 @@
       <!-- Procedures dock -->
       <div style="border-top:1px solid rgba(233,233,237,0.10);padding:12px clamp(12px,3vw,28px) 16px;background:rgba(8,14,28,0.7)">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap">
-          <div style="font-size:11px;letter-spacing:2px;color:#75798c;text-transform:uppercase">Procedures â€” play one per turn</div>
+          <div style="font-size:11px;letter-spacing:2px;color:#75798c;text-transform:uppercase">Procedures &mdash; play one per turn</div>
           <div style="flex:1"></div>
           <sc-if value="{{ showConfirm }}" hint-placeholder-val="{{ false }}">
             <div id="rollConfirmBar" style="background:rgba(145,132,217,0.08);border:1px solid rgba(145,132,217,0.4);border-radius:8px;padding:7px 12px;animation:fadeUp .2s ease both">
               <span class="rcb-label" style="font-size:14px">Run <b>{{ confirmTitle }}</b> <span style="color:#cbaa6a">{{ confirmMod }}</span>?</span>
-              <input type="number" min="1" max="20" value="{{ manualVal }}" onChange="{{ manualValChange }}" placeholder="1â€“20" style="width:64px;font-family:'Inter',sans-serif;font-size:14px;padding:7px 8px;background:#161826;color:#e9e9ed;border:1px solid rgba(145,132,217,0.5);border-radius:6px" />
+              <input type="number" min="1" max="20" value="{{ manualVal }}" onChange="{{ manualValChange }}" placeholder="1&ndash;20" style="width:64px;font-family:'Inter',sans-serif;font-size:14px;padding:7px 8px;background:#161826;color:#e9e9ed;border:1px solid rgba(145,132,217,0.5);border-radius:6px" />
               <button onClick="{{ rollActionClick }}" style="font-family:'Inter',sans-serif;font-size:14px;font-weight:500;padding:8px 18px;background:transparent;color:#9184d9;border:1px solid #9184d9;border-radius:6px;cursor:pointer;white-space:nowrap" style-hover="background:rgba(145,132,217,0.12)">{{ rollBtnLabel }}</button>
               <button onClick="{{ cancelSelect }}" style="font-family:'Inter',sans-serif;font-size:12px;background:none;border:none;color:#9397ab;cursor:pointer" style-hover="color:#e9e9ed">cancel</button>
             </div>
           </sc-if>
           <sc-if value="{{ showEndTurn }}" hint-placeholder-val="{{ false }}">
-            <button onClick="{{ endTurnClick }}" style="font-family:'Inter',sans-serif;font-size:15px;font-weight:500;padding:10px 22px;background:transparent;color:#cbaa6a;border:1px solid #cbaa6a;border-radius:7px;cursor:pointer;animation:fadeUp .25s ease both" style-hover="background:rgba(203,170,106,0.15)">END TURN â–¸</button>
+            <button onClick="{{ endTurnClick }}" style="font-family:'Inter',sans-serif;font-size:15px;font-weight:500;padding:10px 22px;background:transparent;color:#cbaa6a;border:1px solid #cbaa6a;border-radius:7px;cursor:pointer;animation:fadeUp .25s ease both" style-hover="background:rgba(203,170,106,0.15)">END TURN &#9656;</button>
           </sc-if>
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:10px">
@@ -239,10 +239,10 @@
               </div>
               <div style="font-size:11.5px;color:#9397ab;line-height:1.4;flex:1">{{ pr.desc }}</div>
               <sc-if value="{{ pr.onCooldown }}" hint-placeholder-val="{{ false }}">
-                <div style="position:absolute;inset:0;background:rgba(6,11,22,0.72);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:1px;color:#9397ab">COOLDOWN Â· {{ pr.cooldown }}</div>
+                <div style="position:absolute;inset:0;background:rgba(6,11,22,0.72);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:1px;color:#9397ab">COOLDOWN &middot; {{ pr.cooldown }}</div>
               </sc-if>
               <sc-if value="{{ pr.removed }}" hint-placeholder-val="{{ false }}">
-                <div style="position:absolute;inset:0;background:rgba(6,11,22,0.82);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:1px;color:#e28b90">âœ• CARD LOST</div>
+                <div style="position:absolute;inset:0;background:rgba(6,11,22,0.82);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:1px;color:#e28b90">&#10005; CARD LOST</div>
               </sc-if>
             </div>
           </sc-for>
@@ -265,8 +265,8 @@
         <div style="flex:1 1 340px;min-width:280px;display:flex;flex-direction:column;gap:10px">
           <div style="display:flex;align-items:center;gap:10px">
             <div style="font-size:11px;letter-spacing:2px;color:#75798c;text-transform:uppercase">Kill chain replay</div>
-            <button onClick="{{ debriefPrev }}" style="font-family:'Inter',sans-serif;font-size:13px;padding:4px 12px;background:transparent;color:#9397ab;border:1px solid rgba(147,151,171,0.3);border-radius:5px;cursor:pointer" style-hover="color:#e9e9ed">â—‚</button>
-            <button onClick="{{ debriefNext }}" style="font-family:'Inter',sans-serif;font-size:13px;padding:4px 12px;background:transparent;color:#9397ab;border:1px solid rgba(147,151,171,0.3);border-radius:5px;cursor:pointer" style-hover="color:#e9e9ed">â–¸</button>
+            <button onClick="{{ debriefPrev }}" style="font-family:'Inter',sans-serif;font-size:13px;padding:4px 12px;background:transparent;color:#9397ab;border:1px solid rgba(147,151,171,0.3);border-radius:5px;cursor:pointer" style-hover="color:#e9e9ed">&#9666;</button>
+            <button onClick="{{ debriefNext }}" style="font-family:'Inter',sans-serif;font-size:13px;padding:4px 12px;background:transparent;color:#9397ab;border:1px solid rgba(147,151,171,0.3);border-radius:5px;cursor:pointer" style-hover="color:#e9e9ed">&#9656;</button>
             <div style="font-size:12px;color:#9397ab">step {{ debriefStepLabel }}/4</div>
           </div>
           <sc-for list="{{ debriefCards }}" as="dc" hint-placeholder-count="4">
@@ -277,7 +277,7 @@
               </div>
               <div style="font-size:16px;font-weight:500">{{ dc.title }}</div>
               <div style="font-size:13px;color:#9397ab;line-height:1.5">{{ dc.description }}</div>
-              <div style="font-size:11px;color:#9184d9">â—‰ {{ dc.nodeName }}</div>
+              <div style="font-size:11px;color:#9184d9">&#9673; {{ dc.nodeName }}</div>
             </div>
           </sc-for>
           <div style="display:flex;gap:10px;margin-top:6px">
@@ -329,7 +329,7 @@
     <div style="position:fixed;top:0;right:0;bottom:0;width:320px;max-width:85vw;background:#232532;border-left:1px solid rgba(233,233,237,0.15);z-index:50;display:flex;flex-direction:column;box-shadow:-12px 0 40px rgba(0,0,0,0.5)">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(233,233,237,0.10)">
         <div style="font-size:12px;letter-spacing:2px;color:#9397ab">TURN LOG</div>
-        <button onClick="{{ toggleLog }}" style="background:none;border:none;color:#9397ab;font-size:16px;cursor:pointer" style-hover="color:#e9e9ed">âœ•</button>
+        <button onClick="{{ toggleLog }}" style="background:none;border:none;color:#9397ab;font-size:16px;cursor:pointer" style-hover="color:#e9e9ed">&#10005;</button>
       </div>
       <div style="flex:1;overflow:auto;padding:12px 18px;display:flex;flex-direction:column;gap:10px">
         <sc-for list="{{ logEntries }}" as="le" hint-placeholder-count="5">
@@ -542,7 +542,7 @@ class Component extends DCLogic {
       return {
         geometry: { type: 'Point', coordinates: [n.lng, n.lat] },
         id: n.id, name: n.name, label,
-        tip: n.name + ' Â· ' + this.D.SITE_TYPES[n.siteType].label,
+        tip: n.name + ' \u00b7 ' + this.D.SITE_TYPES[n.siteType].label,
         color, strokeColor, labelColor, r, pulse,
         clickable: mode === 'board',
       };
@@ -621,7 +621,7 @@ class Component extends DCLogic {
     const dice = { shown: '?', natural: roll.natural, mod: roll.mod, total: roll.total, success: roll.success, settled: false, procTitle: proc.title };
     this.setState({ game: g, selectedProc: null, manualMode: false, manualVal: '', dice });
     if (manualNatural != null) {
-      // Physical dice already rolled â€” reveal the result immediately, no shake.
+      // Physical dice already rolled \u2014 reveal the result immediately, no shake.
       this.setState({ dice: { ...dice, shown: roll.natural, settled: true } });
       return;
     }
@@ -744,7 +744,7 @@ class Component extends DCLogic {
         title: c.title, description: c.description, catLabel: cat.label, icon: cat.icon,
         headBg: cat.color + '22', headFg: cat.color,
         nodeName: node.name, detectionNames: c.detection.map(procNames).join(', '),
-        toolNames: (c.tools || []).join(' Â· '),
+        toolNames: (c.tools || []).join(' \u00b7 '),
         revealed: h.revealed, choosable, opacity: (s.captainCtx === 'choose' && !choosable) ? 0.35 : 1,
         choose: () => this.captainChoose(h.cardId),
       };
@@ -755,8 +755,8 @@ class Component extends DCLogic {
     let selNodeInfo = '', selNodeInfoColor = '#9397ab';
     if (selNode) {
       const h = g.hidden.find(x => x.nodeId === selNode.id && x.revealed);
-      if (h) { const c = E.cardById(h.cardId); selNodeInfo = 'COMPROMISED â€” ' + c.title + ': ' + c.description; selNodeInfoColor = '#eeb4b8'; }
-      else if (g.highlightNode === selNode.id) { selNodeInfo = 'Under scrutiny after the inject. Nothing confirmed hereâ€¦ yet.'; selNodeInfoColor = '#cbaa6a'; }
+      if (h) { const c = E.cardById(h.cardId); selNodeInfo = 'COMPROMISED \u2014 ' + c.title + ': ' + c.description; selNodeInfoColor = '#eeb4b8'; }
+      else if (g.highlightNode === selNode.id) { selNodeInfo = 'Under scrutiny after the inject. Nothing confirmed here\u2026 yet.'; selNodeInfoColor = '#cbaa6a'; }
       else selNodeInfo = 'No confirmed activity. Status: unknown.';
     }
 
@@ -767,9 +767,9 @@ class Component extends DCLogic {
       const node = h.revealed ? E.nodeById(h.nodeId) : null;
       return {
         catLabel: catC.label, catColor: h.revealed ? catC.color : '#595d6c', icon: catC.icon,
-        title: c ? c.title : 'Â· Â· Â· Â· Â· Â· Â·',
+        title: c ? c.title : '\u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7 \u00b7',
         titleColor: c ? '#e9e9ed' : '#4a4d59', weight: c ? 500 : 400,
-        sub: c ? 'â—‰ ' + node.name : 'still hidden',
+        sub: c ? '\u25c9 ' + node.name : 'still hidden',
         bg: c ? catC.color + '14' : 'rgba(12,20,36,0.6)',
         border: c ? catC.color + '66' : 'rgba(233,233,237,0.10)',
         cursor: c ? 'pointer' : 'default',
@@ -817,7 +817,7 @@ class Component extends DCLogic {
     // ---- dice ----
     const d = s.dice;
     const diceVals = d ? {
-      showDice: true, diceProc: 'ROLLING Â· ' + d.procTitle,
+      showDice: true, diceProc: 'ROLLING \u00b7 ' + d.procTitle,
       diceShown: String(d.shown), diceSettled: d.settled,
       diceColor: d.settled ? (d.success ? '#9184d9' : '#e28b90') : '#e9e9ed',
       diceStyle: {
@@ -829,7 +829,7 @@ class Component extends DCLogic {
         color: d.settled ? (d.success ? '#9184d9' : '#e28b90') : '#e9e9ed',
         animation: d.settled ? 'none' : 'diceShake .3s ease infinite',
       },
-      diceMath: d.natural + ' (natural) ' + (d.mod >= 0 ? '+ ' + d.mod : 'âˆ’ ' + Math.abs(d.mod)) + ' = ' + d.total,
+      diceMath: d.natural + ' (natural) ' + (d.mod >= 0 ? '+ ' + d.mod : '\u2212 ' + Math.abs(d.mod)) + ' = ' + d.total,
       diceVerdict: d.success ? 'SUCCESS' : 'FAILURE',
       diceContinue: this.diceContinue,
     } : { showDice: false };
@@ -839,17 +839,17 @@ class Component extends DCLogic {
     let ovVals = { showOverlay: false };
     if (ov) {
       const cont = this.ovContinue;
-      if (ov.type === 'fail') ovVals = { showOverlay: true, ovKicker: 'Roll failed', ovIcon: 'âœ•', ovBorder: 'rgba(226,139,144,0.5)', ovHeadBg: 'rgba(226,139,144,0.12)', ovHeadFg: '#e28b90', ovTitle: 'Nothing found.', ovBody: 'The procedure came up empty â€” this time. Fail streak: ' + g.failStreak + ' of 3.', ovHasMeta: false, ovHasPrompt: true, ovCta: 'Discussed â€” continue', ovContinue: cont };
-      if (ov.type === 'noMatch') ovVals = { showOverlay: true, ovKicker: 'Clean result', ovIcon: 'â—¯', ovBorder: 'rgba(127,163,224,0.5)', ovHeadBg: 'rgba(127,163,224,0.12)', ovHeadFg: '#7fa3e0', ovTitle: 'The sweep came back clean.', ovBody: 'Good news: that procedure works. Bad news: whatever is out there, it doesn\u2019t leave tracks this tool can see.', ovHasMeta: false, ovHasPrompt: false, ovCta: 'Continue', ovContinue: cont };
+      if (ov.type === 'fail') ovVals = { showOverlay: true, ovKicker: 'Roll failed', ovIcon: '\u2715', ovBorder: 'rgba(226,139,144,0.5)', ovHeadBg: 'rgba(226,139,144,0.12)', ovHeadFg: '#e28b90', ovTitle: 'Nothing found.', ovBody: 'The procedure came up empty \u2014 this time. Fail streak: ' + g.failStreak + ' of 3.', ovHasMeta: false, ovHasPrompt: true, ovCta: 'Discussed \u2014 continue', ovContinue: cont };
+      if (ov.type === 'noMatch') ovVals = { showOverlay: true, ovKicker: 'Clean result', ovIcon: '\u25ef', ovBorder: 'rgba(127,163,224,0.5)', ovHeadBg: 'rgba(127,163,224,0.12)', ovHeadFg: '#7fa3e0', ovTitle: 'The sweep came back clean.', ovBody: 'Good news: that procedure works. Bad news: whatever is out there, it doesn\u2019t leave tracks this tool can see.', ovHasMeta: false, ovHasPrompt: false, ovCta: 'Continue', ovContinue: cont };
       if (ov.type === 'reveal') {
         const c = E.cardById(ov.cardId), cat = CATS[c.type], node = E.nodeById(ov.nodeId);
-        ovVals = { showOverlay: true, ovKicker: cat.label + ' revealed', ovIcon: cat.icon, ovBorder: cat.color + '99', ovHeadBg: cat.color + '22', ovHeadFg: cat.color, ovTitle: c.title, ovBody: c.description, ovHasMeta: true, ovMeta: 'â—‰ Located at ' + node.name, ovHasPrompt: false, ovCta: 'To the globe â–¸', ovContinue: cont };
+        ovVals = { showOverlay: true, ovKicker: cat.label + ' revealed', ovIcon: cat.icon, ovBorder: cat.color + '99', ovHeadBg: cat.color + '22', ovHeadFg: cat.color, ovTitle: c.title, ovBody: c.description, ovHasMeta: true, ovMeta: '\u25c9 Located at ' + node.name, ovHasPrompt: false, ovCta: 'To the globe \u25b8', ovContinue: cont };
       }
       if (ov.type === 'inject') {
         const c = E.cardById(ov.cardId);
-        ovVals = { showOverlay: true, ovKicker: 'INJECT Â· ' + ov.trigger, ovIcon: 'âš¡', ovBorder: 'rgba(147,151,171,0.6)', ovHeadBg: 'rgba(147,151,171,0.14)', ovHeadFg: '#cfd3e5', ovTitle: c.title, ovBody: c.description, ovHasMeta: !!ov.detail, ovMeta: ov.detail ? 'âš  ' + ov.detail : '', ovHasPrompt: false, ovCta: 'Understood', ovContinue: cont };
+        ovVals = { showOverlay: true, ovKicker: 'INJECT \u00b7 ' + ov.trigger, ovIcon: '\u26a1', ovBorder: 'rgba(147,151,171,0.6)', ovHeadBg: 'rgba(147,151,171,0.14)', ovHeadFg: '#cfd3e5', ovTitle: c.title, ovBody: c.description, ovHasMeta: !!ov.detail, ovMeta: ov.detail ? '\u26a0 ' + ov.detail : '', ovHasPrompt: false, ovCta: 'Understood', ovContinue: cont };
       }
-      if (ov.type === 'skip') ovVals = { showOverlay: true, ovKicker: 'Turn skipped', ovIcon: 'â„', ovBorder: 'rgba(147,151,171,0.5)', ovHeadBg: 'rgba(147,151,171,0.12)', ovHeadFg: '#cfd3e5', ovTitle: 'Turn ' + ov.turn + ' is lost.', ovBody: 'Everyone sat in a conference room instead. The attackers did not.', ovHasMeta: false, ovHasPrompt: false, ovCta: 'Continue', ovContinue: cont };
+      if (ov.type === 'skip') ovVals = { showOverlay: true, ovKicker: 'Turn skipped', ovIcon: '\u2744', ovBorder: 'rgba(147,151,171,0.5)', ovHeadBg: 'rgba(147,151,171,0.12)', ovHeadFg: '#cfd3e5', ovTitle: 'Turn ' + ov.turn + ' is lost.', ovBody: 'Everyone sat in a conference room instead. The attackers did not.', ovHasMeta: false, ovHasPrompt: false, ovCta: 'Continue', ovContinue: cont };
     }
 
     // ---- debrief ----
@@ -860,7 +860,7 @@ class Component extends DCLogic {
       return {
         step: i + 1, catLabel: catC.label, catColor: catC.color,
         title: c.title, description: c.description, nodeName: node.name,
-        foundLabel: h.revealed ? 'âœ“ FOUND' : 'âœ• MISSED',
+        foundLabel: h.revealed ? '\u2713 FOUND' : '\u2715 MISSED',
         foundColor: h.revealed ? '#9184d9' : '#e28b90',
         bg: active ? catC.color + '18' : '#232532',
         border: active ? catC.color : 'rgba(233,233,237,0.12)',
@@ -874,12 +874,12 @@ class Component extends DCLogic {
       captainIsBrief: s.captainCtx === 'brief', captainIsChoose: s.captainCtx === 'choose',
       captainSubtitle: s.captainCtx === 'choose' ? 'multi-match decision' : 'the hidden kill chain',
       captainCanExit: s.captainCtx !== 'choose',
-      captainExitLabel: s.captainCtx === 'brief' ? 'Deliver the briefing â–¸' : 'Return to the Defenders â–¸',
+      captainExitLabel: s.captainCtx === 'brief' ? 'Deliver the briefing \u25b8' : 'Return to the Defenders \u25b8',
       captainExit: () => { if (this.state.captainCtx === 'brief') this.setState({ captainCtx: 'peek' }); this.captainExit(); },
       briefText: g.brief,
       // board
       turnPips, turnLabel: Math.min(g.turn, E.RULES.turns) + '/' + E.RULES.turns,
-      streakLabel: 'â—'.repeat(g.failStreak) + 'â—‹'.repeat(Math.max(0, 3 - g.failStreak)),
+      streakLabel: '\u25cf'.repeat(g.failStreak) + '\u25cb'.repeat(Math.max(0, 3 - g.failStreak)),
       streakColor: g.failStreak >= 2 ? '#e28b90' : '#75798c',
       hasTempMod: g.nextRollMod !== 0, tempModLabel: (g.nextRollMod > 0 ? '+' : '') + g.nextRollMod,
       isHumanCaptain: s.captainMode === 'human',
@@ -895,10 +895,10 @@ class Component extends DCLogic {
       confirmMod: selMod >= 0 ? '(+' + selMod + ')' : '(' + selMod + ')',
       rollNow: this.rollNow,
       rollActionClick: this.rollActionClick,
-      rollBtnLabel: (parseInt(s.manualVal, 10) >= 1 && parseInt(s.manualVal, 10) <= 20) ? 'Use this Roll' : 'ðŸŽ² Roll Dice',
+      rollBtnLabel: (parseInt(s.manualVal, 10) >= 1 && parseInt(s.manualVal, 10) <= 20) ? 'Use this Roll' : '\ud83c\udfb2 Roll Dice',
       toggleKillChain: () => this.setState({ killChainOpen: !s.killChainOpen }),
       killChainOpen: s.killChainOpen,
-      killChainChevron: s.killChainOpen ? 'â–´' : 'â–¾',
+      killChainChevron: s.killChainOpen ? '\u25b4' : '\u25be',
       cancelSelect: () => this.setState({ selectedProc: null, manualMode: false, manualVal: '' }),
       manualMode: s.manualMode,
       manualVal: s.manualVal,
@@ -917,7 +917,7 @@ class Component extends DCLogic {
       resultTitle: isWin ? 'INCIDENT CONTAINED' : isPentest ? 'IT WAS A PENTEST' : 'BREACH COMPLETE',
       resultColor: isWin ? '#9184d9' : isPentest ? '#cbaa6a' : '#e28b90',
       resultSub: isWin ? 'All four attack stages uncovered in ' + Math.min(g.turn, E.RULES.turns) + ' turns. The debrief writes itself.'
-               : isPentest ? 'You were never under attack â€” the CEO hired a red team. Here is how far they got before the reveal.'
+               : isPentest ? 'You were never under attack \u2014 the CEO hired a red team. Here is how far they got before the reveal.'
                : (g.loseReason || 'Time ran out.') + ' Here is the kill chain you were up against.',
       debriefCards,
       debriefStepLabel: s.debriefStep + 1,
