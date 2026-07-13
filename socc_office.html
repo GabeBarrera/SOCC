@@ -23,7 +23,8 @@
     gap:18px;padding:12px 22px;pointer-events:none;z-index:5;
     border-bottom:1px solid var(--divider);background:rgba(243,242,242,.9);}
   #hud h1{margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:700;
-    font-size:22px;letter-spacing:.04em;}
+    font-size:22px;letter-spacing:.04em;white-space:nowrap;}
+  #hud > div:first-child{flex-shrink:0;}
   #hud .sub{margin:0;font-size:12px;font-style:italic;color:var(--mute);max-width:340px;}
   #hud .spacer{flex:1;}
   #hud .status{display:flex;align-items:center;gap:14px;pointer-events:auto;flex-wrap:wrap;justify-content:flex-end;}
@@ -277,6 +278,8 @@
   <div class="status">
     <div class="stat" id="agentStat">Agent 1/1</div>
     <div class="stat" id="buffStat"></div>
+    <div class="stat" id="heartsRow" style="display:none;gap:4px;"></div>
+    <div class="stat" id="eventsStat" style="display:none;"></div>
     <div class="stat">Turn <b id="turnNum">1</b>/<span id="turnMax">10</span></div>
     <div class="stat" id="streakStat">Streak <b id="streakDots">○○○</b></div>
     <div id="chainpips"></div>
@@ -340,7 +343,7 @@ const floorY = i => GROUND_Y - i*FLOOR_H;
 const ROOF_Y = floorY(4) - (FLOOR_H - SLAB) - SLAB;
 
 const FLOORS = [
-  {name:'INFOSEC', num:'01'}, {name:'IT', num:'02'}, {name:'', num:'03'},
+  {name:'INFOSEC (THE SOC)', num:'01'}, {name:'IT', num:'02'}, {name:'', num:'03'},
   {name:'FINANCE', num:'04'}, {name:'EXECUTIVE', num:'05'},
 ];
 
@@ -367,8 +370,8 @@ function ctext(str,x,y,size,opt={}){
 }
 
 const ENTITIES = [];
-function registerEntity(type, x, y, w){
-  const floor = Math.round((GROUND_Y - y)/FLOOR_H);
+function registerEntity(type, x, y, w, floorOverride){
+  const floor = (floorOverride!=null) ? floorOverride : Math.round((GROUND_Y - y)/FLOOR_H);
   const key = type+':'+x+':'+floor;
   let e = ENTITIES.find(e=>e.key===key);
   if(!e){ e = {key, type, x, y, w, floor, id: ENTITIES.length}; ENTITIES.push(e); }
@@ -436,19 +439,21 @@ function serverRack(x,y,h=110){
   }
   registerEntity('rack', x, y, 46);
 }
-function plant(x,y,s=1){
+function plant(x,y,s=1,floor){
   rect(x-9*s, y-16*s, 18*s, 16*s, '#9a7d5e', C.ink);
   ctx.strokeStyle='#6f7d6a'; ctx.lineWidth=2.5*s;
   for(const a of [-0.5,-0.15,0.2,0.55]){
     ctx.beginPath(); ctx.moveTo(x, y-14*s);
     ctx.quadraticCurveTo(x+a*36*s, y-34*s, x+a*52*s, y-52*s); ctx.stroke();
   }
+  registerEntity('plant', x, y, 18*s, floor);
 }
-function poster(x,y,label,glyph){
+function poster(x,y,label,glyph,floor){
   rect(x, y, 66, 84, C.paper, C.ink);
   ctext(glyph, x+33, y+42, 30, {align:'center', color:C.accent});
   line(x+12, y+56, x+54, y+56, C.line, 1);
   ctext(label, x+33, y+72, 11, {align:'center', body:true, color:C.mute});
+  registerEntity('poster', x, y, 66, floor);
 }
 function whiteboard(x,y){
   rect(x, y, 130, 78, C.paper, C.ink);
@@ -457,29 +462,32 @@ function whiteboard(x,y){
   line(x+14,y+64,x+116,y+64,C.mute,1);
   line(x+14,y+12,x+14,y+64,C.mute,1);
 }
-function filingCabinet(x,y){
+function filingCabinet(x,y,floor){
   rect(x, y-84, 48, 84, C.mute, C.ink);
   for(let i=0;i<3;i++){
     line(x, y-84+28*(i+1), x+48, y-84+28*(i+1), C.ink, 1.2);
     rect(x+16, y-72+28*i, 16, 4, C.ink);
   }
+  registerEntity('cabinet', x, y, 48, floor);
 }
-function safeBox(x,y){
+function safeBox(x,y,floor){
   rect(x, y-64, 62, 64, C.slab, C.ink);
   ctx.strokeStyle=C.accent; ctx.lineWidth=2.5;
   ctx.beginPath(); ctx.arc(x+31, y-32, 13, 0, 7); ctx.stroke();
   ctx.beginPath(); ctx.arc(x+31, y-32, 4, 0, 7); ctx.stroke();
+  registerEntity('safe', x, y, 62, floor);
 }
 function waterCooler(x,y){
   rect(x-8, y-56, 16, 56, C.paper, C.ink);
   ctx.fillStyle='#cfe0e8'; ctx.strokeStyle=C.ink; ctx.lineWidth=1.5;
   ctx.beginPath(); ctx.ellipse(x, y-66, 11, 12, 0, 0, 7); ctx.fill(); ctx.stroke();
 }
-function printer(x,y){
+function printer(x,y,floor){
   rect(x, y-58, 60, 22, C.mute, C.ink);
   rect(x+4, y-36, 52, 36, C.paper, C.ink);
   rect(x+14, y-64, 32, 8, C.paper, C.ink);
   line(x+8,y-18,x+52,y-18,C.ink,1);
+  registerEntity('printer', x, y, 60, floor);
 }
 function execTable(x,y){
   const w=260;
@@ -493,7 +501,7 @@ function execTable(x,y){
   ctx.fillStyle=C.screen; ctx.beginPath();
   ctx.moveTo(lx+6,y-59); ctx.lineTo(lx+9,y-79); ctx.lineTo(lx+35,y-79); ctx.lineTo(lx+35,y-59); ctx.closePath(); ctx.fill();
 }
-function bookshelf(x,y){
+function bookshelf(x,y,floor){
   rect(x, y-118, 86, 118, C.paper, C.ink);
   for(let s=0;s<3;s++){
     const sy=y-118+8+s*36;
@@ -506,6 +514,7 @@ function bookshelf(x,y){
       bx+=bw+3;
     }
   }
+  registerEntity('bookshelf', x, y, 86, floor);
 }
 function ladder(x, ytop, ybot){
   line(x, ytop, x, ybot, C.accentDeep, 3);
@@ -517,13 +526,14 @@ function window_(x,y){
   line(x+22, y, x+22, y+60, C.mute, 1);
   line(x, y+30, x+44, y+30, C.mute, 1);
 }
-function lockPoster(x,y){
+function lockPoster(x,y,floor){
   rect(x, y, 66, 84, C.paper, C.ink);
   ctx.strokeStyle=C.accent; ctx.lineWidth=3;
   ctx.beginPath(); ctx.arc(x+33, y+30, 11, Math.PI, 0); ctx.stroke();
   rect(x+18, y+30, 30, 24, C.accent);
   line(x+12, y+66, x+54, y+66, C.line, 1);
   ctext('ZERO TRUST', x+33, y+78, 10, {align:'center', body:true, color:C.mute});
+  registerEntity('poster', x, y, 66, floor);
 }
 
 function drawFloorRoom(i){
@@ -533,8 +543,9 @@ function drawFloorRoom(i){
   line(BX, fy-1, BX+BW, fy-1, C.line, 1);
   ctext(FLOORS[i].num, BX-70, top+110, 88, {color:'rgba(182,130,53,0.55)', weight:500, align:'center'});
   if(FLOORS[i].name){
-    ctext(FLOORS[i].name, BX+150, top+52, 26, {weight:600, spacing:'0.18em', color:C.slab});
-    line(BX+150, top+62, BX+150+FLOORS[i].name.length*15, top+62, C.accent, 1.5);
+    const nx = BX + (FLOORS[i].nameX ?? 150);
+    ctext(FLOORS[i].name, nx, top+52, 26, {weight:600, spacing:'0.18em', color:C.slab});
+    line(nx, top+62, nx+FLOORS[i].name.length*15, top+62, C.accent, 1.5);
   }
 }
 
@@ -549,7 +560,7 @@ function drawBuilding(){
   ctext('THE OFFICE TOWER', BX+BW/2, ROOF_Y-20, 30, {align:'center', weight:600, spacing:'0.14em'});
   line(BX-14, ROOF_Y, BX-14, GROUND_Y+SLAB, C.slab, 6);
   line(BX+BW+14, ROOF_Y, BX+BW+14, GROUND_Y+SLAB, C.slab, 6);
-  for(const L of LADDERS){ ladder(L.x, floorY(L.f+1)+SLAB, floorY(L.f)); }
+  for(const L of LADDERS){ ladder(L.x, floorY(L.f+1)+SLAB, floorY(L.f)); registerEntity('ladder', L.x, floorY(L.f), LADDER_W, L.f); }
 
   // Floor 1 — InfoSec + breakroom
   {
@@ -559,7 +570,7 @@ function drawBuilding(){
     ctext('BREAKROOM', bwx+24, y-(FLOOR_H-SLAB)+44, 18, {spacing:'0.2em', color:C.mute, weight:600});
     fridge(bwx+40, y);
     coffeeTable(bwx+140, y);
-    plant(bwx+280, y, 1);
+    plant(bwx+280, y, 1, 0);
     person(bwx+330, y, C.shirtD, C.skin2, false);
     terminal(BX+320, y);
     // InfoSec staff; extra players displace them (2nd -> middle desk, 3rd -> CISO)
@@ -575,9 +586,8 @@ function drawBuilding(){
       e.ciso = d.ciso && !removed;
       e.playerHome = removed;
     }
-    serverRack(BX+120, y, 118);
-    lockPoster(BX+880, y-(FLOOR_H-SLAB)+34);
-    ctext('SOC MONITORING', BX+320, y-108, 13, {body:true, italic:true, color:C.mute});
+    serverRack(BX+40, y, 118);
+    lockPoster(BX+880, y-(FLOOR_H-SLAB)+34, 0);
   }
 
   // Floor 2 — IT
@@ -588,7 +598,7 @@ function drawBuilding(){
     workstation(BX+620, y, C.shirtD, C.skin);
     serverRack(BX+840, y, 100);
     serverRack(BX+900, y, 118);
-    printer(BX+1030, y);
+    printer(BX+1030, y, 1);
     ctx.strokeStyle=C.mute; ctx.lineWidth=2;
     ctx.beginPath(); ctx.moveTo(BX+960, y-8);
     ctx.bezierCurveTo(BX+1000,y-40,BX+960,y-60,BX+1010,y-30); ctx.stroke();
@@ -603,19 +613,22 @@ function drawBuilding(){
   // Floor 3 — HR & Marketing
   {
     const y = floorY(2);
+    const top = y-(FLOOR_H-SLAB);
     const mid = BX + BW/2;
-    ctext('HR', BX+120, y-(FLOOR_H-SLAB)+52, 22, {weight:600, spacing:'0.16em', color:C.slab});
+    ctext('HR', BX+150, top+52, 26, {weight:600, spacing:'0.18em', color:C.slab});
+    line(BX+150, top+62, BX+150+'HR'.length*15, top+62, C.accent, 1.5);
     workstation(BX+220, y, C.shirtC, C.skin);
     workstation(BX+400, y, C.shirtD, C.skin2);
     workstation(BX+580, y, C.shirtA, C.skin3);
-    poster(BX+120, y-84, 'BE KIND', '♥');
-    plant(BX+700, y, 1.1);
-    line(mid, y-(FLOOR_H-SLAB)+16, mid, y, C.line, 2);
-    ctext('MARKETING', mid+40, y-(FLOOR_H-SLAB)+52, 22, {weight:600, spacing:'0.16em', color:C.slab});
+    poster(BX+40, top+70, 'BE KIND', '♥', 2);
+    plant(BX+700, y, 1.1, 2);
+    line(mid, top+16, mid, y, C.line, 2);
+    ctext('MARKETING', mid+40, top+52, 26, {weight:600, spacing:'0.18em', color:C.slab});
+    line(mid+40, top+62, mid+40+'MARKETING'.length*15, top+62, C.accent, 1.5);
     workstation(mid+130, y, C.shirtB, C.skin3);
     workstation(mid+310, y, C.shirtA, C.skin);
-    whiteboard(mid+470, y-(FLOOR_H-SLAB)+34);
-    ctext('Q3 CAMPAIGN', mid+470+65, y-(FLOOR_H-SLAB)+34+92, 12, {align:'center', body:true, color:C.mute});
+    whiteboard(mid+470, top+34);
+    ctext('Q3 CAMPAIGN', mid+470+65, top+34+92, 12, {align:'center', body:true, color:C.mute});
     waterCooler(mid+700, y);
   }
 
@@ -625,11 +638,11 @@ function drawBuilding(){
     workstation(BX+300, y, C.shirtA, C.skin2);
     workstation(BX+480, y, C.shirtC, C.skin3);
     workstation(BX+660, y, C.shirtB, C.skin);
-    filingCabinet(BX+880, y);
-    filingCabinet(BX+940, y);
-    safeBox(BX+1060, y);
-    poster(BX+1220, y-(FLOOR_H-SLAB)+34, 'MARKETS', '↗');
-    plant(BX+1380, y, 1);
+    filingCabinet(BX+880, y, 3);
+    filingCabinet(BX+940, y, 3);
+    safeBox(BX+1060, y, 3);
+    poster(BX+1220, y-(FLOOR_H-SLAB)+34, 'MARKETS', '↗', 3);
+    plant(BX+1380, y, 1, 3);
   }
 
   // Floor 5 — Executive
@@ -637,15 +650,15 @@ function drawBuilding(){
     const y = floorY(4);
     execTable(BX+620, y);
     person(BX+560, y, C.slab, C.skin);
+    registerEntity('ceo', BX+560, y, 40, 4);
     person(BX+700, y, C.shirtA, C.skin2);
     person(BX+800, y, C.shirtD, C.skin3);
     person(BX+900, y, C.shirtB, C.skin);
-    bookshelf(BX+1000, y);
-    plant(BX+300, y, 1.4);
-    plant(BX+1200, y, 1.2);
+    bookshelf(BX+1000, y, 4);
+    plant(BX+300, y, 1.4, 4);
+    plant(BX+1200, y, 1.2, 4);
     window_(BX+180, y-100); window_(BX+240, y-100);
     window_(BX+1320, y-152); window_(BX+1380, y-152);
-    ctext('corner office, quiet hours', BX+620, y-120, 15, {body:true, italic:true, color:C.mute});
   }
 }
 
@@ -653,7 +666,7 @@ const mapCanvas = document.createElement('canvas');
 mapCanvas.width = W; mapCanvas.height = H;
 
 /* ---- players ---- */
-function makeChar(x, floor){ return {x, y:floorY(floor), vx:0, vy:0, w:22, h:52, onGround:true, onLadder:false, face:1}; }
+function makeChar(x, floor){ return {x, y:floorY(floor), vx:0, vy:0, w:22, h:52, onGround:true, onLadder:false, face:1, turnActivity:null}; }
 let players = [ makeChar(BX+220,0) ];
 let active = 0;
 let player = players[0];
@@ -807,7 +820,8 @@ function drawEntityMarker(g, e, hot){
   const cx = e.x + e.w/2;
   const my = e.y - (e.type==='rack'?134:e.type==='exec'?96:114) + Math.sin(performance.now()/600 + e.id)*3;
   const isCaller = caller && e.key===caller.key;
-  if(!settings.markers && !hot && !isCaller && !e.ciso) return;
+  const ev = (numPlayers>1 && game && game.events) ? game.events.find(x=>!x.done && x.entityKey===e.key) : null;
+  if(!settings.markers && !hot && !isCaller && !e.ciso && !ev) return;
   g.save();
   if(hot){
     g.strokeStyle=C.accent; g.lineWidth=2; g.setLineDash([6,4]);
@@ -815,9 +829,13 @@ function drawEntityMarker(g, e, hot){
     g.strokeRect(e.x-10, e.y-bh, e.w+20, bh+6);
     g.setLineDash([]);
   }
-  g.fillStyle = isCaller ? C.salmon : e.ciso ? C.accentDeep : 'rgba(182,130,53,0.85)';
+  const markerColor = ev ? (ev.type==='malware'?C.salmon:ev.type==='emails'?'#5f7d6a':C.accentDeep) : isCaller ? C.salmon : e.ciso ? C.accentDeep : 'rgba(182,130,53,0.85)';
+  g.fillStyle = markerColor;
   g.beginPath(); g.moveTo(cx,my-7); g.lineTo(cx-6,my); g.lineTo(cx,my+7); g.lineTo(cx+6,my); g.closePath(); g.fill();
-  if(e.ciso){ g.fillStyle=C.accentDeep; g.font="700 13px 'Cormorant Garamond', serif"; g.textAlign='center'; g.fillText('CISO', cx, my-14); g.textAlign='left'; }
+  if(ev){
+    const glyph = ev.type==='malware' ? '\u26a0' : ev.type==='emails' ? '\u2709' : '\u2605';
+    g.fillStyle=markerColor; g.font="700 15px 'Cormorant Garamond', serif"; g.textAlign='center'; g.fillText(glyph, cx, my-14); g.textAlign='left';
+  } else if(e.ciso){ g.fillStyle=C.accentDeep; g.font="700 13px 'Cormorant Garamond', serif"; g.textAlign='center'; g.fillText('CISO', cx, my-14); g.textAlign='left'; }
   g.restore();
 }
 function drawCaller(g){
@@ -917,11 +935,54 @@ const ENTITY_PROCS = {
   userdesk: ['p_endpoint','p_iso'],
   exec:     ['p_crisis'],
 };
-const ENTITY_LABEL = { terminal:'Analysis Terminal', rack:'Server Rack', userdesk:'Employee Desk', exec:'Executive Office', coffee:'Coffee Machine', fridge:'Fridge' };
-const ENTITY_KICKER = { terminal:'InfoSec workstation', rack:'Server infrastructure', userdesk:'On-site interview', exec:'Fifth floor', coffee:'Breakroom', fridge:'Breakroom' };
+const ENTITY_LABEL = { terminal:'Analysis Terminal', rack:'Server Rack', userdesk:'Employee Desk', exec:'Executive Office', coffee:'Coffee Machine', fridge:'Fridge',
+  printer:'Printer', cabinet:'Filing Cabinet', bookshelf:'Bookshelf', poster:'Poster', safe:'Safe', plant:'Plant', ladder:'Ladder', ceo:'The CEO' };
+const ENTITY_KICKER = { terminal:'InfoSec workstation', rack:'Server infrastructure', userdesk:'On-site interview', exec:'Fifth floor', coffee:'Breakroom', fridge:'Breakroom',
+  printer:'IT floor', cabinet:'Finance floor', bookshelf:'Executive floor', poster:'Office decor', safe:'Finance floor', plant:'Office decor', ladder:'Stairwell', ceo:'Executive floor' };
+
+const MALWARE_TYPES = ['rack','userdesk','terminal','printer','cabinet','bookshelf','poster','safe','plant','ladder'];
+const ENTITY_TO_MALWARE_LABEL = { rack:'server', userdesk:'computer', terminal:'computer', printer:'printer', cabinet:'filing cabinet', bookshelf:'bookshelf', poster:'poster', safe:'safe', plant:'plant', ladder:'ladder' };
+const MALWARE_FUNNY = {
+  server: v => v==='Malware' ? 'You unplug the server. IT sends a strongly worded email about "the incident with the CRM."' : 'Turns out it was just compiling. It will be compiling for the rest of the fiscal year.',
+  computer: v => v==='Malware' ? "You wipe the machine. It was actually running the CEO's fantasy football league." : "Clean bill of health \u2014 the seventeen open tabs are apparently 'for research'.",
+  printer: v => v==='Malware' ? 'You unplug the printer. It was mid-jam, not mid-hack. It forgives you, eventually.' : 'Not malware \u2014 just three years of unclaimed print jobs achieving sentience.',
+  'filing cabinet': v => v==='Malware' ? 'You seal the cabinet in evidence tape. Inside: expired birthday cake receipts, nothing more.' : 'Clean. The squeaky drawer was never a cry for help, just a squeaky drawer.',
+  bookshelf: v => v==='Malware' ? 'You quarantine the bookshelf. A copy of "The Phoenix Project" falls out, unharmed.' : "Not malware \u2014 someone alphabetized it wrong, that's the whole incident.",
+  poster: v => v==='Malware' ? 'You take down the motivational poster. Somehow, morale improves.' : 'Clean \u2014 it really is just a QR code to a survey nobody fills out.',
+  safe: v => v==='Malware' ? "You crack the safe open for inspection. Inside: petty cash and one Rubik's Cube." : 'Not malware \u2014 the safe was just left slightly ajar by Finance. Again.',
+  plant: v => v==='Malware' ? 'You isolate the plant. It was never connected to anything. It is, in fact, a plant.' : 'Clean bill of health. The plant remains blissfully offline.',
+  ladder: v => v==='Malware' ? 'You cordon off the ladder. Facilities is furious \u2014 the ladder was not, technically, ever online.' : 'Not malware. It is a ladder. It has always been a ladder.',
+};
+const EMAIL_SUBJECTS = [
+  {from:'"IT Support"', subj:'URGENT: Re-verify your password now'},
+  {from:'Dana (Finance)', subj:'Re: Q3 numbers'},
+  {from:'Unknown Sender', subj:'You have won a free cruise!!!'},
+  {from:'HR', subj:'Reminder: benefits enrollment closes Friday'},
+  {from:'"Prince Aliyu"', subj:'A confidential business proposal'},
+  {from:'Marcus (Marketing)', subj:'Q3 campaign assets attached'},
+  {from:'"Amazon Security"', subj:'Your account has been locked'},
+  {from:'Facilities', subj:'Elevator 2 out of service'},
+  {from:'"IT Support"', subj:'Action required: mailbox almost full'},
+  {from:'Priya (HR)', subj:'Org chart update'},
+  {from:'No-Reply', subj:'Your invoice #88213 is overdue'},
+  {from:'"CEO" (spoofed)', subj:'Are you available? Need a favor'},
+  {from:'Tom (IT)', subj:'Patch Tuesday reminder'},
+  {from:'"LinkedIn"', subj:'5 people viewed your profile'},
+  {from:'Alicia (Legal)', subj:'NDA needs your signature'},
+  {from:'"Delivery Notice"', subj:'Your package could not be delivered'},
+  {from:'Chen (Finance)', subj:'Expense report questions'},
+  {from:'"Microsoft 365"', subj:'Unusual sign-in activity detected'},
+  {from:'Rosa (Marketing)', subj:'Photos from the team offsite'},
+  {from:'"Support Desk"', subj:'Your ticket #4471 has been updated'},
+  {from:'Kevin (Sales)', subj:'Can you approve this by EOD?'},
+  {from:'"Docusign"', subj:'Document awaiting your signature'},
+  {from:'Nadia (HR)', subj:'Reminder: mandatory training due'},
+  {from:'"Zoom"', subj:'Your recording is ready to view'},
+];
 
 const NAMES = ['Dana','Marcus','Priya','Tom','Alicia','Chen','Rosa','Kevin','Nadia','Sam','Grace','Omar','Elena','Rahul'];
 const rand = a => a[Math.floor(Math.random()*a.length)];
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function deptFor(e){
   if(e.floor===1) return 'IT';
   if(e.floor===2) return (e.x < BX+BW/2) ? 'HR' : 'Marketing';
@@ -961,6 +1022,43 @@ function initialCall(){ return OFFICE_CALLS[game.hidden[0].cardId] || {call:'Som
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function floorName(f){ return ['InfoSec floor','IT floor','HR / Marketing floor','Finance floor','Executive floor'][f] || 'building'; }
 
+function getMalwarePool(){
+  return ENTITIES.filter(e => MALWARE_TYPES.includes(e.type) && !(caller && e.key===caller.key) && !e.ciso);
+}
+function spawnEvents(count){
+  const list = [];
+  const used = new Set();
+  let execAvailable = ENTITIES.some(e=>e.type==='ceo');
+  let emailAvailable = true;
+  let guard = 0;
+  while(list.length < count && guard < count*20){
+    guard++;
+    const options = ['malware'];
+    if(execAvailable) options.push('exec');
+    if(emailAvailable) options.push('emails');
+    const type = rand(options);
+    if(type==='exec'){
+      const ent = ENTITIES.find(e=>e.type==='ceo');
+      if(!ent) continue;
+      list.push({ id:'ev'+Date.now()+'_'+list.length+Math.random().toString(36).slice(2), type:'exec', entityKey:ent.key, done:false });
+      execAvailable = false;
+    } else if(type==='emails'){
+      const pool = ENTITIES.filter(e=> e.floor===0 && (e.type==='terminal'||e.type==='userdesk') && !e.playerHome && !used.has(e.key));
+      const ent = pool.length ? rand(pool) : ENTITIES.find(e=>e.type==='terminal');
+      if(!ent) continue;
+      list.push({ id:'ev'+Date.now()+'_'+list.length+Math.random().toString(36).slice(2), type:'emails', entityKey:ent.key, done:false });
+      used.add(ent.key); emailAvailable = false;
+    } else {
+      const pool = getMalwarePool().filter(e=>!used.has(e.key));
+      if(!pool.length) continue;
+      const ent = rand(pool);
+      list.push({ id:'ev'+Date.now()+'_'+list.length+Math.random().toString(36).slice(2), type:'malware', entityKey:ent.key, objType:ENTITY_TO_MALWARE_LABEL[ent.type]||'object', done:false });
+      used.add(ent.key);
+    }
+  }
+  return list;
+}
+
 /* ---------- lifecycle ---------- */
 function newGame(n){
   numPlayers = Math.max(1, Math.min(3, n || numPlayers || 1));
@@ -975,6 +1073,8 @@ function newGame(n){
   const ce = pool[Math.floor(Math.random()*pool.length)] || ENTITIES.find(e=>e.type==='userdesk');
   caller = { key: ce.key, name: rand(NAMES), dept: deptFor(ce), inquired:false };
   game.log = [{ t:0, text:`${caller.name} (${caller.dept}) called in an incident.` }];
+  if(numPlayers>1){ game.hearts = 3; game.events = spawnEvents(numPlayers===2?2:4); }
+  else { game.hearts = null; game.events = []; }
   try{ localStorage.setItem('socc_last_mode','office'); }catch(e){}
   save(); refreshHUD(); showCall();
 }
@@ -1052,6 +1152,8 @@ function showCall(){
 /* ---------- entity panel ---------- */
 function openEntity(e){
   if(game.result) return;
+  const activeEvent = (numPlayers>1 && game.events) ? game.events.find(ev=>!ev.done && ev.entityKey===e.key) : null;
+  if(activeEvent){ handleEventEntity(e, activeEvent); return; }
   if(e.type==='coffee'){ openCoffee(); return; }
   if(e.type==='fridge'){ openFridge(); return; }
 
@@ -1077,6 +1179,10 @@ function openEntity(e){
   let listHtml;
   if(game.playedThisTurn){
     listHtml = `<p class="field-note">Your team has already run a procedure this turn. End the turn to continue.</p>`;
+  } else if(numPlayers>1 && players[active].turnActivity==='event'){
+    listHtml = `<p class="field-note">This agent already took on a random task this turn \u2014 end the turn to continue.</p>`;
+  } else if(!procs.length){
+    listHtml = `<p class="field-note">Nothing here needs attention right now.</p>`;
   } else {
     listHtml = `<div class="proc-list">` + procs.map(pid=>{
       const p = E.cardById(pid);
@@ -1111,6 +1217,121 @@ function cisoClue(){
     if(!h.revealed){ const c = E.cardById(h.cardId); const pid = (c.detection||[])[0]; if(pid) return E.cardById(pid).title; }
   }
   return null;
+}
+
+/* ---------- random events (multiplayer) ---------- */
+let activeEventCtx = null;
+function handleEventEntity(e, ev){
+  const p = players[active];
+  if(p.turnActivity==='procedure'){
+    infoModal('Assignment locked', "Can't take this on", 'This agent already ran a procedure this turn \u2014 task assignments reset next turn.');
+    return;
+  }
+  p.turnActivity = 'event';
+  save();
+  if(ev.type==='malware') openMalwarePopup(ev);
+  else if(ev.type==='emails') openEmailsMinigame(ev);
+  else if(ev.type==='exec') openExecMeeting(ev);
+}
+function openMalwarePopup(ev){
+  activeEventCtx = ev;
+  closeableModal = true;
+  setModal(`
+    <div class="m-head"><span class="m-kicker">\u26a0 Object flagged</span><button class="m-x" data-act="close">\u2715</button></div>
+    <div class="m-body">
+      <p class="m-title sm">Possible Malware: this ${esc(ev.objType)}</p>
+      <p class="m-desc">Someone flagged this ${esc(ev.objType)} as possibly infected. Take a look and make the call.</p>
+      <div class="m-actions">
+        <button class="btn primary" data-malware="yes">Malware</button>
+        <button class="btn" data-malware="no">Not Malware</button>
+      </div>
+    </div>`);
+  bind();
+}
+function resolveMalware(verdictKey){
+  const ev = activeEventCtx; if(!ev || ev.done) return;
+  const verdict = verdictKey==='yes' ? 'Malware' : 'Not Malware';
+  ev.done = true; save(); refreshHUD();
+  const fn = MALWARE_FUNNY[ev.objType];
+  const msg = fn ? fn(verdict) : 'Handled.';
+  infoModal('Malware Triage \u2014 Resolved', `${verdict} confirmed`, msg);
+}
+function openEmailsMinigame(ev){
+  closeModal();
+  modalOpen = true;
+  miniHost.style.display = 'flex';
+  miniHost.innerHTML = '';
+  const total = 20;
+  const pool = [];
+  while(pool.length < total){ pool.push(...EMAIL_SUBJECTS); }
+  const subjects = shuffle(pool).slice(0, total);
+  let remaining = total;
+  miniHost.innerHTML = `
+    <div class="mini-screen">
+      <div class="mini-bar">
+        <div class="mini-title">Inbox \u2014 InfoSec Triage</div>
+        <div class="mini-hint">Reply or Delete each message to clear the backlog.</div>
+        <div class="mini-status">Remaining <span class="mv" id="emailsLeft">${total}</span></div>
+        <button class="mini-quit" id="emailsQuit">Abort \u2715</button>
+      </div>
+      <div class="mini-area" id="emailsArea" style="overflow:auto;padding:10px 18px;"></div>
+    </div>`;
+  const area = miniHost.querySelector('#emailsArea');
+  subjects.forEach(m=>{
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:14px;padding:12px 14px;border-bottom:1px solid #232838;';
+    row.innerHTML = `<div style="flex:1;min-width:0">
+        <div style="font-weight:600;color:#dfe4ea;font-size:14px">${esc(m.from)}</div>
+        <div style="font-size:13px;color:#8b94a6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(m.subj)}</div>
+      </div>
+      <button class="mini-btn" style="padding:6px 14px;font-size:13px" data-emailact="reply">Reply</button>
+      <button class="mini-btn" style="padding:6px 14px;font-size:13px;background:#3a4152;color:#dfe4ea" data-emailact="delete">Delete</button>`;
+    row.querySelectorAll('button').forEach(b=> b.onclick = ()=>{
+      row.remove(); remaining--;
+      const t = miniHost.querySelector('#emailsLeft'); if(t) t.textContent = remaining;
+      if(remaining<=0) finish();
+    });
+    area.appendChild(row);
+  });
+  const quitBtn = miniHost.querySelector('#emailsQuit');
+  if(quitBtn) quitBtn.onclick = ()=> abort();
+  function finish(){
+    miniHost.style.display='none'; miniHost.innerHTML=''; modalOpen=false;
+    ev.done = true; save(); refreshHUD();
+    infoModal('Inbox Zero', 'Emails cleared', 'All twenty messages handled \u2014 replies sent, spam deleted, chain letters unforwarded.');
+  }
+  function abort(){ miniHost.style.display='none'; miniHost.innerHTML=''; modalOpen=false; refreshHUD(); }
+}
+function openExecMeeting(ev){
+  activeEventCtx = ev;
+  closeableModal = true;
+  setModal(`
+    <div class="m-head"><span class="m-kicker">Fifth floor \u00b7 executive briefing</span><button class="m-x" data-act="close">\u2715</button></div>
+    <div class="m-body">
+      <p class="m-title sm">The CEO waves you over.</p>
+      <p class="m-desc">\u201cWalk me through where we are. Give it to me straight \u2014 or don't, I suppose.\u201d</p>
+      <div class="choice">
+        <button data-execchoice="reassure"><span><span class="ct">Reassure Management</span></span></button>
+        <button data-execchoice="training"><span><span class="ct">Give Training</span></span></button>
+        <button data-execchoice="honest"><span><span class="ct">Be Honest About Where The Problems Really Come From</span></span></button>
+      </div>
+    </div>`);
+  bind();
+}
+function resolveExec(choice){
+  const ev = activeEventCtx; if(!ev || ev.done) return;
+  if(choice==='honest'){
+    ev.done = true;
+    game.result = 'lose';
+    game.loseReason = 'You told the CEO the truth about where the problems really come from. You were right. You are also no longer needed here.';
+    save(); closeModal(); showDebrief();
+    return;
+  }
+  ev.done = true; save(); refreshHUD();
+  const msg = choice==='reassure'
+    ? '\u201cSee\u2014\u201d the CEO beams, \u201cI told the board it was handled.\u201d Somewhere, a risk register quietly updates itself to green.'
+    : '\u201cTraining. Yes. Very proactive,\u201d the CEO nods solemnly. A mandatory forty-minute video is scheduled for the whole company, replacing lunch.';
+  infoModal('Executive Briefing', choice==='reassure' ? 'Reassured' : 'Trained', msg);
 }
 
 function openCoffee(){
@@ -1633,8 +1854,19 @@ function showOverlay(o){
 }
 
 function endTurn(){
+  if(numPlayers>1 && game.hearts!=null && !game.result){
+    const incomplete = (game.events||[]).filter(ev=>!ev.done).length;
+    if(incomplete>0){
+      game.hearts = Math.max(0, game.hearts-1);
+      game.log.push({ t:game.turn, text:`${incomplete} task${incomplete>1?'s':''} left unresolved \u2014 a heart is lost (${game.hearts}/3).` });
+      if(game.hearts<=0){ game.result='lose'; game.loseReason='Unresolved tasks piled up until the floor was overwhelmed.'; }
+    }
+  }
+  if(game.result){ save(); checkEnd(); return; }
   const events = E.endTurn(game);
   game.coffeeThisTurn = false;
+  players.forEach(p=> p.turnActivity = null);
+  if(numPlayers>1 && !game.result){ game.events = spawnEvents(numPlayers===2?2:4); }
   save();
   ovQueue = eventsToOverlays(events);
   if(ovQueue.length) nextOverlay();
@@ -1689,6 +1921,10 @@ function showCaseFile(){
       ${caller.inquired?`<div class="aside"><b>Symptom:</b> “${esc(oc.symptom)}”</div>`:`<p class="field-note">Visit ${esc(caller.name)}'s desk to inquire about symptoms.</p>`}
       <div class="subhead">Team &amp; buffs</div>
       <p class="m-desc" style="font-size:14px">Agents: ${players.length} · Coffee: ${game.coffeeCups||0}/4 (+${(game.coffeeCups||0)*25}% speed)${game.fridgeUsed?' · fridge used':''}${game.nextRollMod?` · next roll ${game.nextRollMod>0?'+':''}${game.nextRollMod}`:''}</p>
+      ${(numPlayers>1 && game.events && game.events.length) ? `<div class="subhead">Active tasks this turn</div><div class="proc-list">` + game.events.map(ev=>{
+        const label = ev.type==='malware' ? `Malware check: ${ev.objType}` : ev.type==='emails' ? 'Clear the inbox' : 'Meet with the CEO';
+        return `<div class="proc" style="cursor:default;${ev.done?'opacity:.5':''}"><span><span class="pt">${esc(label)}</span></span><span class="pm ${ev.done?'est':'no'}">${ev.done?'✓ done':'pending'}</span></div>`;
+      }).join('') + `</div>` : ''}
       <div class="subhead">Log</div>
       <div class="log">${log}</div>
     </div>`);
@@ -1761,7 +1997,9 @@ function bind(entity){
   });
   modal.querySelectorAll('[data-players]').forEach(el=> el.onclick = ()=> newGame(parseInt(el.dataset.players,10)));
   modal.querySelectorAll('[data-mini]').forEach(el=> el.onclick = ()=> launchMinigame(el.dataset.mini));
-  modal.querySelectorAll('[data-proc]').forEach(el=>{ if(el.disabled) return; el.onclick = ()=> showConfirm(entity, el.dataset.proc); });
+  modal.querySelectorAll('[data-proc]').forEach(el=>{ if(el.disabled) return; el.onclick = ()=>{ if(numPlayers>1) players[active].turnActivity = 'procedure'; showConfirm(entity, el.dataset.proc); }; });
+  modal.querySelectorAll('[data-malware]').forEach(el=>{ el.onclick = ()=> resolveMalware(el.dataset.malware); });
+  modal.querySelectorAll('[data-execchoice]').forEach(el=>{ el.onclick = ()=> resolveExec(el.dataset.execchoice); });
   modal.querySelectorAll('[data-roll]').forEach(el=>{
     el.onclick = ()=>{ const inp = modal.querySelector('#manualVal'); const n = inp ? parseInt(inp.value,10) : NaN; runRoll(el.dataset.roll, (n>=1&&n<=20)?n:null); };
   });
@@ -1796,6 +2034,21 @@ function refreshHUD(){
   document.getElementById('streakDots').textContent = '●'.repeat(fs)+'○'.repeat(Math.max(0,3-fs));
   document.getElementById('streakStat').style.color = fs>=2 ? 'var(--salmon)' : '';
   document.getElementById('agentStat').textContent = `Agent ${active+1}/${players.length}`;
+  const heartsEl = document.getElementById('heartsRow');
+  if(heartsEl){
+    if(numPlayers>1 && game.hearts!=null){
+      heartsEl.style.display='flex';
+      heartsEl.innerHTML = Array.from({length:3},(_,i)=>`<span style="font-size:17px;color:${i<game.hearts?'var(--salmon)':'var(--divider)'}">\u2665</span>`).join('');
+    } else heartsEl.style.display='none';
+  }
+  const eventsEl = document.getElementById('eventsStat');
+  if(eventsEl){
+    if(numPlayers>1 && game.events && game.events.length){
+      const done = game.events.filter(ev=>ev.done).length;
+      eventsEl.style.display='';
+      eventsEl.textContent = `Tasks ${done}/${game.events.length}`;
+    } else eventsEl.style.display='none';
+  }
   const cups = game.coffeeCups||0;
   let buff = cups>0 ? `☕ ${cups}/4` : '';
   if(game.nextRollMod) buff += (buff?' · ':'') + `⚡ ${game.nextRollMod>0?'+':''}${game.nextRollMod}`;
@@ -1828,9 +2081,12 @@ function refreshKillChain(){
 function updateFloatingUI(){
   if(nearEntity && !modalOpen && game && !game.result){
     const isCaller = caller && nearEntity.key===caller.key;
-    const label = isCaller ? `${caller.name}'s Desk` : nearEntity.ciso ? "CISO's Desk" : ENTITY_LABEL[nearEntity.type];
+    const ev = (numPlayers>1 && game.events) ? game.events.find(x=>!x.done && x.entityKey===nearEntity.key) : null;
+    let label;
+    if(ev){ label = ev.type==='malware' ? `\u26a0 Check the ${ev.objType}` : ev.type==='emails' ? '\u2709 Clear the inbox' : '\u2605 Meet the CEO'; }
+    else label = isCaller ? `${caller.name}'s Desk` : nearEntity.ciso ? "CISO's Desk" : ENTITY_LABEL[nearEntity.type];
     promptEl.style.display='flex';
-    promptEl.innerHTML = (isMobile ? '' : `<span class="key">E</span> `) + `<span>${esc(label)}${isCaller?' · caller':''}</span>`;
+    promptEl.innerHTML = (isMobile ? '' : `<span class="key">E</span> `) + `<span>${esc(label)}${(isCaller&&!ev)?' · caller':''}</span>`;
   } else {
     promptEl.style.display='none';
   }
