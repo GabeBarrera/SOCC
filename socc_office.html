@@ -55,10 +55,11 @@
     border-radius:8px;cursor:pointer;box-shadow:0 8px 26px rgba(0,0,0,.22);}
   #endTurnBtn:hover{background:rgba(182,130,53,.1);}
 
-  /* pull-out kill-chain tab */
-  #kcDrawer{position:fixed;top:88px;right:0;z-index:8;display:flex;align-items:flex-start;
+  /* pull-out tabs (kill chain, tasks) */
+  #drawersWrap{position:fixed;top:88px;right:0;z-index:8;display:flex;flex-direction:column;align-items:flex-end;gap:10px;}
+  .pulldrawer{display:flex;align-items:flex-start;position:relative;overflow:visible;
     transform:translateX(300px);transition:transform .32s cubic-bezier(.3,.8,.3,1);}
-  #kcDrawer.open{transform:translateX(0);}
+  .pulldrawer.open{transform:translateX(0);}
   #kcHandle{align-self:flex-start;margin-top:8px;writing-mode:vertical-rl;
     background:var(--accent);color:#241a08;border:none;padding:18px 9px;cursor:pointer;
     font-family:'Cormorant Garamond',serif;font-weight:700;letter-spacing:.2em;font-size:14px;
@@ -67,6 +68,23 @@
   #kcPanel{width:300px;max-height:calc(100vh - 108px);overflow:auto;background:var(--paper);
     border:1px solid var(--divider);border-left:3px solid var(--accent);
     padding:16px 16px 20px;box-shadow:-10px 8px 34px rgba(0,0,0,.16);}
+  #tasksHandle{align-self:flex-start;margin-top:0;writing-mode:vertical-rl;
+    background:var(--salmon);color:#fff;border:none;padding:18px 9px;cursor:pointer;
+    font-family:'Cormorant Garamond',serif;font-weight:700;letter-spacing:.2em;font-size:14px;
+    border-radius:9px 0 0 9px;box-shadow:-4px 4px 16px rgba(0,0,0,.2);text-transform:uppercase;
+    display:flex;flex-direction:column;align-items:center;gap:6px;}
+  #tasksHandle:hover{filter:brightness(.88);}
+  .drawer-badge{writing-mode:horizontal-tb;background:rgba(255,255,255,.9);color:var(--salmon);
+    font-family:'Cormorant Garamond',serif;font-weight:700;font-size:12px;border-radius:50%;
+    width:20px;height:20px;display:flex;align-items:center;justify-content:center;}
+  #tasksPanel{width:300px;max-height:calc(100vh - 108px);overflow:auto;background:var(--paper);
+    border:1px solid var(--divider);border-left:3px solid var(--salmon);
+    padding:16px 16px 20px;box-shadow:-10px 8px 34px rgba(0,0,0,.16);}
+  .task-item{display:flex;align-items:flex-start;gap:12px;text-align:left;width:100%;
+    padding:12px 14px;background:#fff;border:1px solid var(--divider);border-radius:9px;cursor:pointer;
+    font-family:'Lora',serif;transition:border-color .15s,background .15s;margin-bottom:8px;}
+  .task-item:hover{border-color:var(--salmon);background:rgba(176,82,79,.06);}
+  .task-item.done{opacity:.5;cursor:default;}
   .kc-h{font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:.14em;
     text-transform:uppercase;color:var(--accentDeep);margin-bottom:14px;}
   .kc-card{border:1px solid var(--divider);border-radius:11px;padding:13px 15px;margin-bottom:11px;background:#fff;}
@@ -359,7 +377,6 @@
 
 <div id="centerHud">
   <div class="stat" id="heartsRow" style="display:none;gap:4px;"></div>
-  <div class="stat" id="eventsStat" style="display:none;"></div>
   <div class="stat" style="font-weight:700">Turn <b id="turnNum">1</b>/<span id="turnMax">10</span></div>
   <div class="stat" id="streakStat">Streak <b id="streakDots">○○○</b></div>
   <div id="chainpips"></div>
@@ -371,12 +388,21 @@
 <div id="prompt"></div>
 <button id="endTurnBtn">End the Turn ▸</button>
 
-<div id="kcDrawer">
-  <button id="kcHandle">◈ Kill Chain</button>
-  <div id="kcPanel">
-    <div class="kc-h" style="margin-bottom:4px;font-weight:700;color:var(--salmon)">Turns Left: <span id="kcTurnsLeft">0</span></div>
-    <div class="kc-h">Kill chain · <span id="kcCount">0</span>/4 found</div>
-    <div id="kcCards"></div>
+<div id="drawersWrap">
+  <div id="kcDrawer" class="pulldrawer">
+    <button id="kcHandle">◈ Kill Chain</button>
+    <div id="kcPanel">
+      <div class="kc-h" style="margin-bottom:4px;font-weight:700;color:var(--salmon)">Turns Left: <span id="kcTurnsLeft">0</span></div>
+      <div class="kc-h">Kill chain · <span id="kcCount">0</span>/4 found</div>
+      <div id="kcCards"></div>
+    </div>
+  </div>
+  <div id="tasksDrawer" class="pulldrawer" style="display:none;">
+    <button id="tasksHandle">✦ Tasks <span class="drawer-badge" id="tasksBadge">0</span></button>
+    <div id="tasksPanel">
+      <div class="kc-h">Active tasks · <span id="tasksCount">0</span> pending</div>
+      <div id="tasksList"></div>
+    </div>
   </div>
 </div>
 
@@ -678,7 +704,6 @@ function drawFloorRoom(i){
   const top = fy - (FLOOR_H - SLAB);
   rect(BX, top, BW, FLOOR_H - SLAB, C.wall);
   line(BX, fy-1, BX+BW, fy-1, C.line, 1);
-  ctext(FLOORS[i].num, BX-70, top+110, 88, {color:'rgba(182,130,53,0.55)', weight:500, align:'center'});
   if(FLOORS[i].name){
     const nx = BX + (FLOORS[i].nameX ?? 150);
     ctext(FLOORS[i].name, nx, top+52, 26, {weight:600, spacing:'0.18em', color:C.slab});
@@ -735,9 +760,7 @@ function drawBuilding(){
     serverRack(BX+840, y, 100);
     serverRack(BX+900, y, 118);
     printer(BX+1030, y, 1);
-    ctx.strokeStyle=C.mute; ctx.lineWidth=2;
-    ctx.beginPath(); ctx.moveTo(BX+960, y-8);
-    ctx.bezierCurveTo(BX+1000,y-40,BX+960,y-60,BX+1010,y-30); ctx.stroke();
+    filingCabinet(BX+968, y, 1);
     { const px=BX+1180, py=y-(FLOOR_H-SLAB)+34, pw=112, ph=96;
       rect(px, py, pw, ph, C.paper, C.ink);
       ctext('⟳', px+pw/2, py+48, 34, {align:'center', color:C.accent});
@@ -794,7 +817,7 @@ function drawBuilding(){
     plant(BX+300, y, 1.4, 4);
     plant(BX+1200, y, 1.2, 4);
     window_(BX+180, y-100, 4); window_(BX+240, y-100, 4);
-    window_(BX+1320, y-152, 4); window_(BX+1380, y-152, 4);
+    window_(BX+1320, y-100, 4); window_(BX+1380, y-100, 4);
   }
 }
 
@@ -831,7 +854,9 @@ function toWorld(e){
 }
 function entityAt(wx, wy){
   for(const d of ENTITIES){
-    if(wx >= d.x-18 && wx <= d.x+d.w+18 && wy >= d.y-124 && wy <= d.y+8) return d;
+    const hangs = HANG_H[d.type];
+    const inBox = hangs!=null ? (wy >= d.y-10 && wy <= d.y+hangs+10) : (wy >= d.y-124 && wy <= d.y+8);
+    if(wx >= d.x-18 && wx <= d.x+d.w+18 && inBox) return d;
   }
   return null;
 }
@@ -952,17 +977,23 @@ function drawChar(g, p, isActive, idx){
   }
 }
 
+const HANG_H = { poster:84, window:60 };
 function drawEntityMarker(g, e, hot){
   const cx = e.x + e.w/2;
-  const my = e.y - (e.type==='rack'?134:e.type==='exec'?96:114) + Math.sin(performance.now()/600 + e.id)*3;
+  const hangs = HANG_H[e.type];
+  const my = hangs!=null ? e.y - 18 + Math.sin(performance.now()/600 + e.id)*3
+    : e.y - (e.type==='rack'?134:e.type==='exec'?96:114) + Math.sin(performance.now()/600 + e.id)*3;
   const isCaller = caller && e.key===caller.key;
   const ev = (numPlayers>1 && game && game.events) ? game.events.find(x=>!x.done && x.entityKey===e.key) : null;
   if(!settings.markers && !hot && !isCaller && !e.ciso && !ev) return;
   g.save();
   if(hot){
     g.strokeStyle=C.accent; g.lineWidth=2; g.setLineDash([6,4]);
-    const bh = e.type==='rack'?122:e.type==='exec'?60:100;
-    g.strokeRect(e.x-10, e.y-bh, e.w+20, bh+6);
+    if(hangs!=null){ g.strokeRect(e.x-10, e.y-6, e.w+20, hangs+12); }
+    else{
+      const bh = e.type==='rack'?122:e.type==='exec'?60:100;
+      g.strokeRect(e.x-10, e.y-bh, e.w+20, bh+6);
+    }
     g.setLineDash([]);
   }
   const markerColor = ev ? (ev.type==='malware'?C.salmon:ev.type==='emails'?'#5f7d6a':ev.type==='physec'?C.accent:ev.type==='followup'?C.shirtD:C.accentDeep) : isCaller ? C.salmon : e.ciso ? C.accentDeep : 'rgba(182,130,53,0.85)';
@@ -1179,41 +1210,45 @@ function spawnEvents(count){
   const used = new Set();
   let execAvailable = ENTITIES.some(e=>e.type==='ceo');
   let emailAvailable = true;
-  let guard = 0;
-  while(list.length < count && guard < count*20){
-    guard++;
-    const options = ['malware','physec','followup'];
+  // Each iteration only offers types that currently have a valid candidate, so a
+  // temporarily-empty pool can no longer silently burn through a retry budget and
+  // leave the game short of the events it's supposed to spawn.
+  while(list.length < count){
+    const emailPool = ENTITIES.filter(e=> e.floor===0 && (e.type==='terminal'||e.type==='userdesk') && !e.playerHome && !e.noEvents && !used.has(e.key));
+    const emailFallback = ENTITIES.find(e=>e.type==='userdesk' && e.floor===0 && !e.noEvents);
+    const physecPool = getPhysecPool().filter(e=>!used.has(e.key));
+    const followupPool = getFollowupPool().filter(e=>!used.has(e.key));
+    const malwarePool = getMalwarePool().filter(e=>!used.has(e.key));
+
+    const options = [];
     if(execAvailable) options.push('exec');
-    if(emailAvailable) options.push('emails');
+    if(emailAvailable && (emailPool.length || emailFallback)) options.push('emails');
+    if(physecPool.length) options.push('physec');
+    if(followupPool.length) options.push('followup');
+    if(malwarePool.length) options.push('malware');
+    if(!options.length) break; // genuinely no candidates left in any category
+
     const type = rand(options);
+    const mkId = ()=> 'ev'+Date.now()+'_'+list.length+Math.random().toString(36).slice(2);
     if(type==='exec'){
       const ent = ENTITIES.find(e=>e.type==='ceo');
-      if(!ent) continue;
-      list.push({ id:'ev'+Date.now()+'_'+list.length+Math.random().toString(36).slice(2), type:'exec', entityKey:ent.key, done:false });
+      list.push({ id:mkId(), type:'exec', entityKey:ent.key, done:false });
       execAvailable = false;
     } else if(type==='emails'){
-      const pool = ENTITIES.filter(e=> e.floor===0 && (e.type==='terminal'||e.type==='userdesk') && !e.playerHome && !e.noEvents && !used.has(e.key));
-      const ent = pool.length ? rand(pool) : ENTITIES.find(e=>e.type==='userdesk' && e.floor===0 && !e.noEvents);
-      if(!ent) continue;
-      list.push({ id:'ev'+Date.now()+'_'+list.length+Math.random().toString(36).slice(2), type:'emails', entityKey:ent.key, done:false });
+      const ent = emailPool.length ? rand(emailPool) : emailFallback;
+      list.push({ id:mkId(), type:'emails', entityKey:ent.key, done:false });
       used.add(ent.key); emailAvailable = false;
     } else if(type==='physec'){
-      const pool = getPhysecPool().filter(e=>!used.has(e.key));
-      if(!pool.length) continue;
-      const ent = rand(pool);
-      list.push({ id:'ev'+Date.now()+'_'+list.length+Math.random().toString(36).slice(2), type:'physec', entityKey:ent.key, objType:ENTITY_TO_PHYSEC_LABEL[ent.type]||'object', done:false });
+      const ent = rand(physecPool);
+      list.push({ id:mkId(), type:'physec', entityKey:ent.key, objType:ENTITY_TO_PHYSEC_LABEL[ent.type]||'object', done:false });
       used.add(ent.key);
     } else if(type==='followup'){
-      const pool = getFollowupPool().filter(e=>!used.has(e.key));
-      if(!pool.length) continue;
-      const ent = rand(pool);
-      list.push({ id:'ev'+Date.now()+'_'+list.length+Math.random().toString(36).slice(2), type:'followup', entityKey:ent.key, employeeName: rand(NAMES), dept: deptFor(ent), done:false });
+      const ent = rand(followupPool);
+      list.push({ id:mkId(), type:'followup', entityKey:ent.key, employeeName: rand(NAMES), dept: deptFor(ent), done:false });
       used.add(ent.key);
     } else {
-      const pool = getMalwarePool().filter(e=>!used.has(e.key));
-      if(!pool.length) continue;
-      const ent = rand(pool);
-      list.push({ id:'ev'+Date.now()+'_'+list.length+Math.random().toString(36).slice(2), type:'malware', entityKey:ent.key, objType:ENTITY_TO_MALWARE_LABEL[ent.type]||'object', done:false });
+      const ent = rand(malwarePool);
+      list.push({ id:mkId(), type:'malware', entityKey:ent.key, objType:ENTITY_TO_MALWARE_LABEL[ent.type]||'object', done:false });
       used.add(ent.key);
     }
   }
@@ -2496,6 +2531,8 @@ hamMenu.querySelectorAll('[data-menu]').forEach(el=>{
   };
 });
 document.getElementById('kcHandle').onclick = ()=> document.getElementById('kcDrawer').classList.toggle('open');
+document.getElementById('tasksHandle').onclick = ()=> document.getElementById('tasksDrawer').classList.toggle('open');
+document.querySelectorAll('.pulldrawer').forEach(d=>{ d.style.height = d.querySelector('button').offsetHeight+'px'; });
 endTurnBtn.onclick = ()=> endTurn();
 
 /* ---------- HUD ---------- */
@@ -2513,14 +2550,7 @@ function refreshHUD(){
       heartsEl.innerHTML = Array.from({length:3},(_,i)=>`<span style="font-size:17px;color:${i<game.hearts?'var(--salmon)':'var(--divider)'}">\u2665</span>`).join('');
     } else heartsEl.style.display='none';
   }
-  const eventsEl = document.getElementById('eventsStat');
-  if(eventsEl){
-    if(numPlayers>1 && game.events && game.events.length){
-      const done = game.events.filter(ev=>ev.done).length;
-      eventsEl.style.display='';
-      eventsEl.textContent = `Tasks ${done}/${game.events.length}`;
-    } else eventsEl.style.display='none';
-  }
+  refreshTasksPanel();
   const cups = game.coffeeCups||0;
   let buff = cups>0 ? `☕ ${cups}/4` : '';
   if(game.nextRollMod) buff += (buff?' · ':'') + `⚡ ${game.nextRollMod>0?'+':''}${game.nextRollMod}`;
@@ -2534,6 +2564,37 @@ function refreshHUD(){
     pips.appendChild(d);
   });
   refreshKillChain();
+}
+function taskLabel(ev){
+  return ev.type==='malware' ? `Malware check: ${ev.objType}` : ev.type==='emails' ? 'Clear the inbox' : ev.type==='exec' ? 'Meet with the CEO' : ev.type==='physec' ? `Security check: ${ev.objType}` : `Follow-up: ${ev.employeeName}`;
+}
+function goToTask(ev){
+  const ent = ENTITIES.find(e=>e.key===ev.entityKey);
+  if(!ent) return;
+  document.getElementById('tasksDrawer').classList.remove('open');
+  if(modalOpen) closeModal();
+  target = {x: ent.x + ent.w/2, floor: ent.floor, entity: ent};
+}
+function refreshTasksPanel(){
+  const drawer = document.getElementById('tasksDrawer');
+  if(!drawer) return;
+  const events = (numPlayers>1 && game && game.events) ? game.events : [];
+  if(!events.length){ drawer.style.display='none'; return; }
+  drawer.style.display='flex';
+  drawer.style.height = drawer.querySelector('button').offsetHeight+'px';
+  const pending = events.filter(ev=>!ev.done).length;
+  document.getElementById('tasksBadge').textContent = pending;
+  document.getElementById('tasksCount').textContent = pending;
+  const list = document.getElementById('tasksList');
+  list.innerHTML = events.map(ev=>`
+    <div class="task-item ${ev.done?'done':''}" data-task-id="${ev.id}">
+      <span><span class="pt" style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;line-height:1.15">${esc(taskLabel(ev))}</span></span>
+      <span class="pm ${ev.done?'est':'no'}" style="margin-left:auto;font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;white-space:nowrap">${ev.done?'\u2713 done':'\u25b8 go'}</span>
+    </div>`).join('');
+  list.querySelectorAll('.task-item').forEach(el=>{
+    const ev = events.find(x=>x.id===el.dataset.taskId);
+    if(ev && !ev.done) el.onclick = ()=> goToTask(ev);
+  });
 }
 function refreshKillChain(){
   if(!game) return;
