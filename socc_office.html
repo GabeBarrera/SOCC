@@ -1111,7 +1111,7 @@ const EMAIL_SUBJECTS = [
   {from:'"CEO" (spoofed)', subj:'Are you available? Need a favor'},
   {from:'Tom (IT)', subj:'Patch Tuesday reminder'},
   {from:'"LinkedIn"', subj:'5 people viewed your profile'},
-  {from:'Alicia (Legal)', subj:'NDA needs your signature'},
+  {from:'Alice (Legal)', subj:'NDA needs your signature'},
   {from:'"Delivery Notice"', subj:'Your package could not be delivered'},
   {from:'Chen (Finance)', subj:'Expense report questions'},
   {from:'"Microsoft 365"', subj:'Unusual sign-in activity detected'},
@@ -1123,7 +1123,7 @@ const EMAIL_SUBJECTS = [
   {from:'"Zoom"', subj:'Your recording is ready to view'},
 ];
 
-const NAMES = ['Dana','Marcus','Priya','Tom','Alicia','Chen','Rosa','Kevin','Nadia','Sam','Grace','Omar','Elena','Rahul'];
+const NAMES = ['Dana','Marcus','Priya','Tom','Alice','Chen','Rosa','Kevin','Nadia','Sam','Grace','Omar','Elena','Rahul'];
 const rand = a => a[Math.floor(Math.random()*a.length)];
 function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function deptFor(e){
