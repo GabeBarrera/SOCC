@@ -28,9 +28,11 @@
   #hud .sub{margin:0;font-size:12px;font-style:italic;color:var(--mute);max-width:340px;}
   #hud .spacer{flex:1;}
   #hud .status{display:flex;align-items:center;gap:14px;pointer-events:auto;flex-wrap:wrap;justify-content:flex-end;}
-  #hud .stat{font-family:'Cormorant Garamond',serif;font-size:15px;letter-spacing:.06em;
+  .stat{font-family:'Cormorant Garamond',serif;font-size:15px;letter-spacing:.06em;
     text-transform:uppercase;color:var(--slab);white-space:nowrap;}
-  #hud .stat b{color:var(--accentDeep);font-weight:700;}
+  .stat b{color:var(--accentDeep);font-weight:700;}
+  #centerHud{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:5;
+    display:flex;align-items:center;gap:14px;pointer-events:auto;flex-wrap:wrap;justify-content:center;}
   #chainpips{display:flex;gap:5px;}
   #chainpips .pip{width:15px;height:15px;border:1.5px solid var(--divider);border-radius:3px;background:transparent;}
   .topbtn{pointer-events:auto;font-family:'Cormorant Garamond',serif;font-size:14px;
@@ -267,6 +269,72 @@
     padding:10px 22px;background:#c9a24e;color:#241a08;border:none;border-radius:8px;cursor:pointer;}
   .mini-btn:hover{background:#d8b463;}
   .mini-btn:disabled{opacity:.4;cursor:default;}
+
+  /* segmentation */
+  .seg-track{position:absolute;inset:0;}
+  .seg-gate{position:absolute;left:16px;right:16px;height:16px;margin-top:-8px;cursor:pointer;z-index:2;}
+  .seg-gate::before{content:'';position:absolute;left:0;right:0;top:50%;height:3px;margin-top:-1.5px;background:#b0524f;border-radius:2px;transition:background .12s;}
+  .seg-gate:hover::before{background:#c76b68;}
+  .seg-gate.open::before{background:#5f7d6a;}
+  .seg-gate.open:hover::before{background:#75957f;}
+  .seg-gate-lbl{position:absolute;right:0;top:-21px;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:#8b94a6;background:#12141d;padding:2px 8px;border-radius:4px;white-space:nowrap;}
+  .seg-gate.open .seg-gate-lbl{color:#8fb39a;}
+  .seg-banner{position:absolute;left:50%;top:9%;transform:translateX(-50%);text-align:center;z-index:3;}
+  .seg-ip-preview{font-family:'Courier New',monospace;font-size:19px;color:#c9a24e;background:#0c0e15;
+    border:1px solid #2c3140;border-radius:8px;padding:9px 18px;white-space:nowrap;}
+  .seg-count{font-size:12px;color:#8b94a6;margin-top:7px;letter-spacing:.03em;}
+  .seg-ip{position:absolute;left:50%;top:0;transform:translate(-50%,0);font-family:'Courier New',monospace;font-size:15px;
+    background:#0c0e15;border:1px solid #3a4152;border-radius:6px;padding:6px 13px;color:#dfe4ea;white-space:nowrap;
+    transition:border-color .2s,background .2s;z-index:1;}
+  .seg-ip.good{border-color:#5f7d6a;background:rgba(95,125,106,.28);}
+  .seg-ip.bad{border-color:#b0524f;background:rgba(176,82,79,.38);}
+
+  /* endpoint task manager */
+  .mini-area.endpoint{background:radial-gradient(circle at 30% 20%,#171a24,#0a0c12 70%);}
+  .endpoint-desktop{position:absolute;inset:0;padding:18px;}
+  .taskwin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(700px,92%);
+    background:#171a24;border:1px solid #2c3140;border-radius:10px;box-shadow:0 20px 50px rgba(0,0,0,.5);overflow:hidden;}
+  .taskwin-bar{display:flex;align-items:center;gap:8px;padding:9px 14px;background:#1e2230;border-bottom:1px solid #2c3140;
+    font-family:'Cormorant Garamond',serif;font-size:15px;letter-spacing:.05em;color:#c9a24e;}
+  .taskwin-cols{display:grid;grid-template-columns:1fr 70px 60px 90px;gap:6px;padding:8px 14px;font-size:11px;
+    text-transform:uppercase;letter-spacing:.06em;color:#8b94a6;border-bottom:1px solid #232838;}
+  .task-row{display:grid;grid-template-columns:1fr 70px 60px 90px;gap:6px;padding:9px 14px;font-size:14px;
+    color:#dfe4ea;cursor:pointer;border-bottom:1px solid #1e2230;transition:background .1s;align-items:center;}
+  .task-row:hover{background:rgba(201,162,78,.09);}
+  .task-row .tn{display:flex;align-items:center;gap:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .task-row .tn .ic{font-size:16px;}
+  .task-row.hit-good{background:rgba(95,125,106,.35);}
+  .task-row.hit-bad{background:rgba(176,82,79,.4);}
+  .taskwin-list{max-height:340px;overflow:auto;}
+
+  /* UEBA */
+  .mini-area.ueba{background:radial-gradient(circle at 70% 15%,#181c28,#0a0c12 70%);display:flex;}
+  .ueba-desktop{flex:1;position:relative;padding:26px;}
+  .ueba-icon{width:96px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;user-select:none;}
+  .ueba-icon .glyph{font-size:44px;filter:drop-shadow(0 3px 5px rgba(0,0,0,.5));}
+  .ueba-icon .lbl{font-size:11.5px;color:#c7cedb;text-align:center;line-height:1.25;background:rgba(10,12,18,.4);border-radius:4px;padding:1px 4px;}
+  .ueba-doc{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(480px,88%);max-height:82%;
+    overflow:auto;background:#f4f0e6;color:#2a271f;border-radius:8px;box-shadow:0 24px 60px rgba(0,0,0,.55);}
+  .ueba-doc-bar{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;
+    padding:10px 16px;background:#e7e1d0;border-bottom:1px solid #cfc7ae;font-family:'Cormorant Garamond',serif;font-size:15px;letter-spacing:.04em;}
+  .ueba-doc-x{background:none;border:none;font-size:18px;cursor:pointer;color:#6b665f;}
+  .ueba-doc-x:hover{color:#201f1d;}
+  .ueba-doc-body{padding:16px 20px 22px;font-family:'Lora',Georgia,serif;font-size:14px;line-height:1.7;}
+  .ueba-doc-body h4{margin:0 0 2px;font-family:'Cormorant Garamond',serif;font-size:20px;letter-spacing:.03em;color:#4a3f22;}
+  .ueba-doc-body .role{font-style:italic;color:#6b665f;margin:0 0 14px;}
+  .ueba-doc-body dt{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:#8a7f5e;margin-top:10px;}
+  .ueba-doc-body dd{margin:2px 0 0;}
+  .ueba-alert{width:280px;flex:none;background:#12141d;border-left:1px solid #2c3140;padding:18px;display:flex;flex-direction:column;gap:12px;}
+  .ueba-alert-h{font-family:'Cormorant Garamond',serif;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#e0a58f;}
+  .ueba-alert-body{font-size:13.5px;line-height:1.65;color:#c7cedb;background:#0c0e15;border:1px solid #2c3140;border-radius:8px;padding:12px 14px;flex:1;overflow:auto;}
+  .ueba-alert-body b{color:#c9a24e;}
+  .ueba-verdict-btns{display:flex;gap:8px;}
+  .btn-sus,.btn-ben{flex:1;font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;letter-spacing:.04em;
+    padding:10px 6px;border-radius:8px;cursor:pointer;border:1.5px solid;}
+  .btn-sus{background:rgba(176,82,79,.14);border-color:#b0524f;color:#e0a58f;}
+  .btn-sus:hover{background:rgba(176,82,79,.3);}
+  .btn-ben{background:rgba(95,125,106,.14);border-color:#5f7d6a;color:#8fb39a;}
+  .btn-ben:hover{background:rgba(95,125,106,.3);}
 </style>
 </head>
 <body>
@@ -276,14 +344,7 @@
   </div>
   <div class="spacer"></div>
   <div class="status">
-    <div class="stat" id="agentStat">Agent 1/1</div>
     <div class="stat" id="buffStat"></div>
-    <div class="stat" id="heartsRow" style="display:none;gap:4px;"></div>
-    <div class="stat" id="eventsStat" style="display:none;"></div>
-    <div class="stat">Turn <b id="turnNum">1</b>/<span id="turnMax">10</span></div>
-    <div class="stat" id="streakStat">Streak <b id="streakDots">○○○</b></div>
-    <div id="chainpips"></div>
-    <button class="topbtn" id="caseBtn">Case File</button>
     <div id="menuWrap">
       <button class="topbtn" id="hamBtn" aria-label="Menu">☰</button>
       <div id="hamMenu">
@@ -296,6 +357,15 @@
   </div>
 </div>
 
+<div id="centerHud">
+  <div class="stat" id="heartsRow" style="display:none;gap:4px;"></div>
+  <div class="stat" id="eventsStat" style="display:none;"></div>
+  <div class="stat" style="font-weight:700">Turn <b id="turnNum">1</b>/<span id="turnMax">10</span></div>
+  <div class="stat" id="streakStat">Streak <b id="streakDots">○○○</b></div>
+  <div id="chainpips"></div>
+  <button class="topbtn" id="caseBtn">Case File</button>
+</div>
+
 <canvas id="game"></canvas>
 
 <div id="prompt"></div>
@@ -304,6 +374,7 @@
 <div id="kcDrawer">
   <button id="kcHandle">◈ Kill Chain</button>
   <div id="kcPanel">
+    <div class="kc-h" style="margin-bottom:4px;font-weight:700;color:var(--salmon)">Turns Left: <span id="kcTurnsLeft">0</span></div>
     <div class="kc-h">Kill chain · <span id="kcCount">0</span>/4 found</div>
     <div id="kcCards"></div>
   </div>
@@ -378,11 +449,12 @@ function registerEntity(type, x, y, w, floorOverride){
   return e;
 }
 
-function desk(x,y,facing=1){
+function desk(x,y,facing=1,noMonitor){
   const dw=110, dh=46;
   rect(x, y-dh-4, dw, 6, C.dark);
   line(x+6, y-dh+2, x+6, y, C.dark, 3);
   line(x+dw-6, y-dh+2, x+dw-6, y, C.dark, 3);
+  if(noMonitor) return;
   const mx = facing===1 ? x+dw-46 : x+8;
   rect(mx, y-dh-34, 38, 26, C.dark);
   rect(mx+3, y-dh-31, 32, 20, C.screen);
@@ -410,7 +482,64 @@ function person(x,y,shirt,skin,seated=true){
   }
 }
 function workstation(x,y,shirt,skin){ desk(x,y,1); person(x-8,y,shirt,skin); registerEntity('userdesk', x, y, 110); }
-function terminal(x,y){ desk(x,y,1); registerEntity('terminal', x, y, 110); }
+function crtScreen(sx,sy,sw,sh){
+  rect(sx,sy,sw,sh,'#23271f');
+  const lines=3;
+  for(let i=0;i<lines;i++){
+    const ly = sy+4+i*((sh-8)/(lines-1||1));
+    const lw = sw*0.3+((i*37)%(sw*0.4));
+    line(sx+4, ly, sx+4+lw, ly, '#5fbf6f', 1);
+  }
+}
+function terminal(x,y,tower){
+  const dw=110, dh=46;
+  if(tower){
+    desk(x,y,1,true);
+    const mx = x+38;
+    rect(mx, y-dh-34, 38, 26, C.dark);
+    crtScreen(mx+3, y-dh-31, 32, 20);
+    line(mx+19, y-dh-8, mx+19, y-dh-4, C.dark, 3);
+    rect(mx+12, y-dh-5, 14, 2, C.dark);
+    rect(x+30, y-dh-6, 26, 3, C.mute);
+
+    const vx=x+82, vw=26, vh=40;
+    rect(vx, y-dh-4-vh, vw, vh, C.dark);
+    crtScreen(vx+3, y-dh-1-vh, vw-6, vh-6);
+    line(vx+vw/2, y-dh-4, vx+vw/2, y-dh+2, C.dark, 3);
+    rect(vx+vw/2-7, y-dh+1, 14, 2, C.dark);
+  } else {
+    desk(x,y,1);
+  }
+  const e = registerEntity('terminal', x, y, 110);
+  if(tower){ e.noEvents = true; drawPcTower(x,y); }
+  return e;
+}
+function drawPcTower(x,y){
+  const dw=110, dh=46;
+  const mx = x+dw-46;
+  const monitorCenterX = mx+19, monitorBottomY = y-dh-4;
+  const tx = x+18, tw=20, th=34, ty = y-th;
+  const ox = x+58, ow=14, oh=10, oy = y-oh;
+
+  ctx.strokeStyle=C.mute; ctx.lineWidth=1.5;
+  ctx.beginPath();
+  ctx.moveTo(tx+tw/2, ty+4);
+  ctx.bezierCurveTo(tx+tw/2, ty-14, monitorCenterX-6, monitorBottomY+10, monitorCenterX, monitorBottomY);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(tx+tw, ty+th-6);
+  ctx.lineTo(ox+2, oy+oh/2);
+  ctx.stroke();
+
+  rect(tx, ty, tw, th, C.dark, C.ink);
+  for(let i=0;i<3;i++){ line(tx+4, ty+th-8-i*6, tx+tw-4, ty+th-8-i*6, C.slabLite, 1); }
+  ctx.fillStyle=C.accent; ctx.fillRect(tx+tw/2-1.5, ty+6, 3, 3);
+
+  rect(ox, oy, ow, oh, C.wall, C.ink);
+  ctx.fillStyle=C.dark;
+  ctx.beginPath(); ctx.arc(ox+4, oy+oh/2, 1.4, 0, 7); ctx.fill();
+  ctx.beginPath(); ctx.arc(ox+ow-4, oy+oh/2, 1.4, 0, 7); ctx.fill();
+}
 
 function fridge(x,y){
   rect(x, y-96, 52, 96, C.paper, C.ink);
@@ -477,6 +606,13 @@ function safeBox(x,y,floor){
   ctx.beginPath(); ctx.arc(x+31, y-32, 4, 0, 7); ctx.stroke();
   registerEntity('safe', x, y, 62, floor);
 }
+function door(x,y,floor){
+  const dw=54, dh=104;
+  rect(x, y-dh, dw, dh, C.slabLite, C.ink);
+  rect(x+6, y-dh+6, dw-12, dh-12, C.paper, C.ink);
+  ctx.fillStyle=C.dark; ctx.beginPath(); ctx.arc(x+dw-15, y-dh/2, 3, 0, 7); ctx.fill();
+  registerEntity('door', x, y, dw, floor);
+}
 function waterCooler(x,y){
   rect(x-8, y-56, 16, 56, C.paper, C.ink);
   ctx.fillStyle='#cfe0e8'; ctx.strokeStyle=C.ink; ctx.lineWidth=1.5;
@@ -521,10 +657,11 @@ function ladder(x, ytop, ybot){
   line(x+LADDER_W, ytop, x+LADDER_W, ybot, C.accentDeep, 3);
   for(let y=ytop+10;y<ybot-4;y+=18) line(x, y, x+LADDER_W, y, C.accentDeep, 2.5);
 }
-function window_(x,y){
+function window_(x,y,floor){
   rect(x, y, 44, 60, '#e5ecef', C.mute);
   line(x+22, y, x+22, y+60, C.mute, 1);
   line(x, y+30, x+44, y+30, C.mute, 1);
+  registerEntity('window', x, y, 44, floor);
 }
 function lockPoster(x,y,floor){
   rect(x, y, 66, 84, C.paper, C.ink);
@@ -556,8 +693,6 @@ function drawBuilding(){
   for(let i=0;i<5;i++) drawFloorRoom(i);
   for(let i=0;i<5;i++) rect(BX-14, floorY(i), BW+28, SLAB, C.slab);
   rect(BX-14, ROOF_Y, BW+28, SLAB, C.slab);
-  rect(BX+BW/2-190, ROOF_Y-54, 380, 54, C.paper, C.ink);
-  ctext('THE OFFICE TOWER', BX+BW/2, ROOF_Y-20, 30, {align:'center', weight:600, spacing:'0.14em'});
   line(BX-14, ROOF_Y, BX-14, GROUND_Y+SLAB, C.slab, 6);
   line(BX+BW+14, ROOF_Y, BX+BW+14, GROUND_Y+SLAB, C.slab, 6);
   for(const L of LADDERS){ ladder(L.x, floorY(L.f+1)+SLAB, floorY(L.f)); registerEntity('ladder', L.x, floorY(L.f), LADDER_W, L.f); }
@@ -572,7 +707,8 @@ function drawBuilding(){
     coffeeTable(bwx+140, y);
     plant(bwx+280, y, 1, 0);
     person(bwx+330, y, C.shirtD, C.skin2, false);
-    terminal(BX+320, y);
+    door(bwx+400, y, 0);
+    terminal(BX+320, y, true);
     // InfoSec staff; extra players displace them (2nd -> middle desk, 3rd -> CISO)
     const infosec = [
       {x:BX+500, shirt:C.shirtC, skin:C.skin3, removeAt:2, ciso:false},
@@ -657,8 +793,8 @@ function drawBuilding(){
     bookshelf(BX+1000, y, 4);
     plant(BX+300, y, 1.4, 4);
     plant(BX+1200, y, 1.2, 4);
-    window_(BX+180, y-100); window_(BX+240, y-100);
-    window_(BX+1320, y-152); window_(BX+1380, y-152);
+    window_(BX+180, y-100, 4); window_(BX+240, y-100, 4);
+    window_(BX+1320, y-152, 4); window_(BX+1380, y-152, 4);
   }
 }
 
@@ -810,8 +946,8 @@ function drawChar(g, p, isActive, idx){
   g.strokeStyle=C.ink; g.lineWidth=1; g.stroke();
   g.fillStyle=C.paper; g.fillRect(x-4+3*face, y-46, 6, 8);
   if(isActive && players.length>1){
-    const ay = y-88 + Math.sin(performance.now()/300)*3;
-    g.fillStyle=C.accent;
+    const ay = y-98 + Math.sin(performance.now()/300)*3;
+    g.fillStyle=body;
     g.beginPath(); g.moveTo(x, ay+8); g.lineTo(x-6, ay); g.lineTo(x+6, ay); g.closePath(); g.fill();
   }
 }
@@ -829,11 +965,11 @@ function drawEntityMarker(g, e, hot){
     g.strokeRect(e.x-10, e.y-bh, e.w+20, bh+6);
     g.setLineDash([]);
   }
-  const markerColor = ev ? (ev.type==='malware'?C.salmon:ev.type==='emails'?'#5f7d6a':C.accentDeep) : isCaller ? C.salmon : e.ciso ? C.accentDeep : 'rgba(182,130,53,0.85)';
+  const markerColor = ev ? (ev.type==='malware'?C.salmon:ev.type==='emails'?'#5f7d6a':ev.type==='physec'?C.accent:ev.type==='followup'?C.shirtD:C.accentDeep) : isCaller ? C.salmon : e.ciso ? C.accentDeep : 'rgba(182,130,53,0.85)';
   g.fillStyle = markerColor;
   g.beginPath(); g.moveTo(cx,my-7); g.lineTo(cx-6,my); g.lineTo(cx,my+7); g.lineTo(cx+6,my); g.closePath(); g.fill();
   if(ev){
-    const glyph = ev.type==='malware' ? '\u26a0' : ev.type==='emails' ? '\u2709' : '\u2605';
+    const glyph = ev.type==='malware' ? '\u26a0' : ev.type==='emails' ? '\u2709' : ev.type==='physec' ? '\uD83D\uDD12' : ev.type==='followup' ? '\uD83D\uDC64' : '\u2605';
     g.fillStyle=markerColor; g.font="700 15px 'Cormorant Garamond', serif"; g.textAlign='center'; g.fillText(glyph, cx, my-14); g.textAlign='left';
   } else if(e.ciso){ g.fillStyle=C.accentDeep; g.font="700 13px 'Cormorant Garamond', serif"; g.textAlign='center'; g.fillText('CISO', cx, my-14); g.textAlign='left'; }
   g.restore();
@@ -936,8 +1072,8 @@ const ENTITY_PROCS = {
   exec:     ['p_crisis'],
 };
 const ENTITY_LABEL = { terminal:'Analysis Terminal', rack:'Server Rack', userdesk:'Employee Desk', exec:'Executive Office', coffee:'Coffee Machine', fridge:'Fridge',
-  printer:'Printer', cabinet:'Filing Cabinet', bookshelf:'Bookshelf', poster:'Poster', safe:'Safe', plant:'Plant', ladder:'Ladder', ceo:'The CEO' };
-const ENTITY_KICKER = { terminal:'InfoSec workstation', rack:'Server infrastructure', userdesk:'On-site interview', exec:'Fifth floor', coffee:'Breakroom', fridge:'Breakroom',
+  printer:'Printer', cabinet:'Filing Cabinet', bookshelf:'Bookshelf', poster:'Poster', safe:'Safe', plant:'Plant', ladder:'Ladder', ceo:'The CEO', door:'Door', window:'Window' };
+const ENTITY_KICKER = { terminal:'InfoSec workstation', rack:'Server infrastructure', userdesk:'On-site interview', exec:'Fifth floor', coffee:'Breakroom', fridge:'Breakroom', door:'Breakroom', window:'Executive floor',
   printer:'IT floor', cabinet:'Finance floor', bookshelf:'Executive floor', poster:'Office decor', safe:'Finance floor', plant:'Office decor', ladder:'Stairwell', ceo:'Executive floor' };
 
 const MALWARE_TYPES = ['rack','userdesk','terminal','printer','cabinet','bookshelf','poster','safe','plant','ladder'];
@@ -952,6 +1088,13 @@ const MALWARE_FUNNY = {
   safe: v => v==='Malware' ? "You crack the safe open for inspection. Inside: petty cash and one Rubik's Cube." : 'Not malware \u2014 the safe was just left slightly ajar by Finance. Again.',
   plant: v => v==='Malware' ? 'You isolate the plant. It was never connected to anything. It is, in fact, a plant.' : 'Clean bill of health. The plant remains blissfully offline.',
   ladder: v => v==='Malware' ? 'You cordon off the ladder. Facilities is furious \u2014 the ladder was not, technically, ever online.' : 'Not malware. It is a ladder. It has always been a ladder.',
+};
+const PHYSEC_TYPES = ['door','safe','window'];
+const ENTITY_TO_PHYSEC_LABEL = { door:'door', safe:'safe', window:'window' };
+const PHYSEC_FUNNY = {
+  door: k => k==='inspect' ? 'You give the breakroom door a firm once-over. The lock engages fine \u2014 the real vulnerability is that everyone props it open with a chair.' : 'You pick the lock in four seconds flat. Facilities is impressed. You are now banned from the breakroom fridge, out of spite.',
+  safe: k => k==='inspect' ? "You check the safe's hinges and dial. Solid. The sticky note with the combination taped beside it, less so." : 'You crack the safe open in your pen test. Inside: petty cash, a stress ball, and a note asking you to please stop doing this.',
+  window: k => k==='inspect' ? 'You check the window latch. Locked, dusty, and structurally judgmental of your life choices.' : 'You pop the window open from outside in under a minute. Someone on the floor above waves, unbothered.',
 };
 const EMAIL_SUBJECTS = [
   {from:'"IT Support"', subj:'URGENT: Re-verify your password now'},
@@ -1023,7 +1166,13 @@ function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 function floorName(f){ return ['InfoSec floor','IT floor','HR / Marketing floor','Finance floor','Executive floor'][f] || 'building'; }
 
 function getMalwarePool(){
-  return ENTITIES.filter(e => MALWARE_TYPES.includes(e.type) && !(caller && e.key===caller.key) && !e.ciso);
+  return ENTITIES.filter(e => MALWARE_TYPES.includes(e.type) && !(caller && e.key===caller.key) && !e.ciso && !e.noEvents);
+}
+function getPhysecPool(){
+  return ENTITIES.filter(e => PHYSEC_TYPES.includes(e.type));
+}
+function getFollowupPool(){
+  return ENTITIES.filter(e => e.type==='userdesk' && e.floor!==0 && !e.playerHome && !(caller && e.key===caller.key));
 }
 function spawnEvents(count){
   const list = [];
@@ -1033,7 +1182,7 @@ function spawnEvents(count){
   let guard = 0;
   while(list.length < count && guard < count*20){
     guard++;
-    const options = ['malware'];
+    const options = ['malware','physec','followup'];
     if(execAvailable) options.push('exec');
     if(emailAvailable) options.push('emails');
     const type = rand(options);
@@ -1043,11 +1192,23 @@ function spawnEvents(count){
       list.push({ id:'ev'+Date.now()+'_'+list.length+Math.random().toString(36).slice(2), type:'exec', entityKey:ent.key, done:false });
       execAvailable = false;
     } else if(type==='emails'){
-      const pool = ENTITIES.filter(e=> e.floor===0 && (e.type==='terminal'||e.type==='userdesk') && !e.playerHome && !used.has(e.key));
-      const ent = pool.length ? rand(pool) : ENTITIES.find(e=>e.type==='terminal');
+      const pool = ENTITIES.filter(e=> e.floor===0 && (e.type==='terminal'||e.type==='userdesk') && !e.playerHome && !e.noEvents && !used.has(e.key));
+      const ent = pool.length ? rand(pool) : ENTITIES.find(e=>e.type==='userdesk' && e.floor===0 && !e.noEvents);
       if(!ent) continue;
       list.push({ id:'ev'+Date.now()+'_'+list.length+Math.random().toString(36).slice(2), type:'emails', entityKey:ent.key, done:false });
       used.add(ent.key); emailAvailable = false;
+    } else if(type==='physec'){
+      const pool = getPhysecPool().filter(e=>!used.has(e.key));
+      if(!pool.length) continue;
+      const ent = rand(pool);
+      list.push({ id:'ev'+Date.now()+'_'+list.length+Math.random().toString(36).slice(2), type:'physec', entityKey:ent.key, objType:ENTITY_TO_PHYSEC_LABEL[ent.type]||'object', done:false });
+      used.add(ent.key);
+    } else if(type==='followup'){
+      const pool = getFollowupPool().filter(e=>!used.has(e.key));
+      if(!pool.length) continue;
+      const ent = rand(pool);
+      list.push({ id:'ev'+Date.now()+'_'+list.length+Math.random().toString(36).slice(2), type:'followup', entityKey:ent.key, employeeName: rand(NAMES), dept: deptFor(ent), done:false });
+      used.add(ent.key);
     } else {
       const pool = getMalwarePool().filter(e=>!used.has(e.key));
       if(!pool.length) continue;
@@ -1232,6 +1393,54 @@ function handleEventEntity(e, ev){
   if(ev.type==='malware') openMalwarePopup(ev);
   else if(ev.type==='emails') openEmailsMinigame(ev);
   else if(ev.type==='exec') openExecMeeting(ev);
+  else if(ev.type==='physec') openPhysecPopup(ev);
+  else if(ev.type==='followup') openFollowupPopup(ev);
+}
+function openPhysecPopup(ev){
+  activeEventCtx = ev;
+  closeableModal = true;
+  setModal(`
+    <div class="m-head"><span class="m-kicker">\uD83D\uDD12 Physical security sweep</span><button class="m-x" data-act="close">\u2715</button></div>
+    <div class="m-body">
+      <p class="m-title sm">Assess this ${esc(ev.objType)}</p>
+      <p class="m-desc">Facilities flagged this ${esc(ev.objType)} for a physical security assessment. How do you want to check it?</p>
+      <div class="m-actions">
+        <button class="btn primary" data-physec="inspect">Visually Inspect</button>
+        <button class="btn" data-physec="pentest">Ad-hoc Pen Test</button>
+      </div>
+    </div>`);
+  bind();
+}
+function resolvePhysec(choiceKey){
+  const ev = activeEventCtx; if(!ev || ev.done) return;
+  const choice = choiceKey==='inspect' ? 'Visually Inspect' : 'Ad-hoc Pen Test';
+  ev.done = true; save(); refreshHUD();
+  const fn = PHYSEC_FUNNY[ev.objType];
+  const msg = fn ? fn(choiceKey) : 'Handled.';
+  infoModal('Physical Security \u2014 Assessed', choice, msg);
+}
+function openFollowupPopup(ev){
+  activeEventCtx = ev;
+  closeableModal = true;
+  setModal(`
+    <div class="m-head"><span class="m-kicker">Follow-up \u00b7 high-risk user</span><button class="m-x" data-act="close">\u2715</button></div>
+    <div class="m-body">
+      <p class="m-title sm">${esc(ev.employeeName)} (${esc(ev.dept)}) keeps tripping the same alert.</p>
+      <p class="m-desc">Time for the talk. How do you want to handle it?</p>
+      <div class="choice">
+        <button data-followup="gentle"><span><span class="ct">Gentle Reminder</span></span></button>
+        <button data-followup="consequences"><span><span class="ct">Initiate Consequences</span></span></button>
+      </div>
+    </div>`);
+  bind();
+}
+function resolveFollowup(choiceKey){
+  const ev = activeEventCtx; if(!ev || ev.done) return;
+  ev.done = true; save(); refreshHUD();
+  const msg = choiceKey==='gentle'
+    ? `\u201cOh! Right, sorry, I'll stop clicking those,\u201d ${ev.employeeName} says, already opening another one out of habit.`
+    : `\u201cConsequences? For clicking a link?\u201d ${ev.employeeName} says, visibly rehearsing their appeal to HR before you've even finished the sentence.`;
+  infoModal('Follow-Up Complete', choiceKey==='gentle' ? 'Gentle Reminder given' : 'Consequences initiated', msg);
 }
 function openMalwarePopup(ev){
   activeEventCtx = ev;
@@ -1457,6 +1666,7 @@ let miniCleanup = null;
 const MINIGAMES = {
   p_siem:'siem', p_server:'server', p_firewall:'wordsearch',
   p_netflow:'wordsearch', p_iso:'smash', p_crisis:'crisis',
+  p_seg:'segmentation', p_espa:'endpoint', p_endpoint:'endpoint', p_ueba:'ueba',
 };
 const MINI_INTRO = {
   siem:{ name:'SIEM Triage', body:'Events flood the console one at a time. Drag email and fish into the trash bin; grab the dynamite (Purge) and click it on viruses and cookies; grab the fire (Reset) and click it on keys and machines. Clear eight before three mistakes.' },
@@ -1464,6 +1674,9 @@ const MINI_INTRO = {
   wordsearch:{ name:'Log Scan', body:'A word hides inside one row of the log dump, jumping to a new row every five seconds. Click the row it is in — three times in under thirty seconds.' },
   smash:{ name:'Containment', body:'Five machines hang off the compromised host. Your pointer is a hammer — click each machine until it shatters. Smash all five in twenty seconds.' },
   crisis:{ name:'The Memo', body:'Write the notification memo. It must contain the exact phrases "Dear Management" and "From InfoSec", reach at least 250 characters, and be submitted inside thirty seconds.' },
+  segmentation:{ name:'Internal Segmentation', body:'Addresses drift down through three closed gates. Click a gate to open it. Gate 1 opens for addresses starting with 0 or an even number, Gate 2 also needs the address to end in an odd number, Gate 3 opens only for IPv6. One wrong call ends the drill — sort all five.' },
+  endpoint:{ name:'Task Manager', body:'Seven processes are running. Six are real. One is obviously, embarrassingly fake — end that one, five times running.' },
+  ueba:{ name:'Behavior Review', body:'Open the baseline file on the desktop, compare it against the alert on the right, then call the activity Suspicious or Benign. Five correct calls needed — one wrong call ends the review.' },
 };
 function hasMinigame(procId){ return !!(settings.miniGames && MINIGAMES[procId]); }
 
@@ -1499,6 +1712,9 @@ function launchMinigame(procId){
   else if(type==='wordsearch') miniWordSearch(api);
   else if(type==='smash') miniSmash(api);
   else if(type==='crisis') miniCrisis(api);
+  else if(type==='segmentation') miniSegmentation(api);
+  else if(type==='endpoint') miniEndpoint(api);
+  else if(type==='ueba') miniUeba(api);
 }
 function endMinigame(){
   if(miniCleanup){ try{ miniCleanup(); }catch(e){} miniCleanup = null; }
@@ -1805,6 +2021,261 @@ function miniCrisis(api){
   function finish(win){ if(ended) return; ended=true; clearInterval(tick); miniCleanup=null; api.done(win); }
 }
 
+/* ---- Internal Segmentation ---- */
+function miniSegmentation(api){
+  const N = 5, WAIT = 5000;
+  let idx = 0, ended = false, correct = 0, raf = null, waitTimer = null;
+  const conditions = [
+    ip => '02468'.includes(ip[0]),
+    ip => '13579'.includes(ip[ip.length-1]),
+    ip => ip.includes(':'),
+  ];
+  const gateLabels = ['Gate 1 \u2014 starts 0 / even','Gate 2 \u2014 also ends odd','Gate 3 \u2014 IPv6 only'];
+  const gatePct = [30, 58, 84];
+  function randIPv4(){ return Array.from({length:4}, ()=>Math.floor(Math.random()*256)).join('.'); }
+  function randIPv6(){ return Array.from({length:8}, ()=>Math.floor(Math.random()*65536).toString(16).padStart(4,'0')).join(':'); }
+  const queue = Array.from({length:N}, ()=> Math.random()<0.5 ? randIPv4() : randIPv6());
+
+  const ui = api.shell({ title:'Internal Segmentation', areaClass:'seg',
+    hint:'Click a gate to open it before the address arrives. Open = let a match through; leave closed to hold the rest.',
+    onAbort:()=>finish(false) });
+  const area = ui.area;
+  area.insertAdjacentHTML('beforeend', `
+    <div class="seg-track">
+      ${gatePct.map((p,i)=>`<div class="seg-gate" data-i="${i}" style="top:${p}%"><span class="seg-gate-lbl">${esc(gateLabels[i])}</span></div>`).join('')}
+    </div>
+    <div class="seg-banner" id="segBanner"></div>`);
+  const gates = [...area.querySelectorAll('.seg-gate')];
+  gates.forEach(g => g.onclick = ()=>{ if(!ended) g.classList.toggle('open'); });
+  function refresh(){ ui.setStatus(`<span>Sorted <span class="mv">${correct}/${N}</span></span>`); }
+  refresh();
+  miniCleanup = ()=>{ if(raf) cancelAnimationFrame(raf); if(waitTimer) clearInterval(waitTimer); };
+
+  function armAddress(){
+    if(ended) return;
+    if(idx >= N) return finish(true);
+    gates.forEach(g => g.classList.remove('open'));
+    const ip = queue[idx];
+    const banner = area.querySelector('#segBanner');
+    banner.innerHTML = `<div class="seg-ip-preview">${esc(ip)}</div><div class="seg-count" id="segCount"></div>`;
+    const t0 = performance.now();
+    waitTimer = setInterval(()=>{
+      const remain = WAIT - (performance.now()-t0);
+      const c = area.querySelector('#segCount'); if(c) c.textContent = 'dropping in ' + Math.max(0,remain/1000).toFixed(1) + 's';
+      if(remain <= 0){ clearInterval(waitTimer); waitTimer = null; banner.innerHTML=''; drop(ip); }
+    }, 80);
+  }
+
+  function drop(ip){
+    if(ended) return;
+    const dur = Math.max(2600, 7000 - idx*1050);
+    const chip = document.createElement('div');
+    chip.className = 'seg-ip'; chip.textContent = ip;
+    area.appendChild(chip);
+    const t0 = performance.now();
+    let gateI = 0;
+    function frame(now){
+      if(ended) return;
+      const p = Math.min(1, (now-t0)/dur);
+      chip.style.top = (p*90) + '%';
+      while(gateI < gatePct.length && p*100 >= gatePct[gateI]){
+        const open = gates[gateI].classList.contains('open');
+        const should = conditions[gateI](ip);
+        if(open !== should){ chip.classList.add('bad'); return finish(false); }
+        if(!should){
+          chip.classList.add('good'); correct++; refresh(); idx++;
+          setTimeout(()=>{ chip.remove(); armAddress(); }, 550);
+          return;
+        }
+        gateI++;
+      }
+      if(p >= 1){
+        chip.classList.add('good'); correct++; refresh(); idx++;
+        setTimeout(()=>{ chip.remove(); armAddress(); }, 250);
+        return;
+      }
+      raf = requestAnimationFrame(frame);
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  armAddress();
+  function finish(win){ if(ended) return; ended = true; if(raf) cancelAnimationFrame(raf); if(waitTimer) clearInterval(waitTimer); miniCleanup = null; api.done(win); }
+}
+
+/* ---- Endpoint Analysis / Endpoint Security Protection Analysis (Task Manager) ---- */
+function miniEndpoint(api){
+  const ROUNDS = 5, TIME = 14000;
+  let round = 0, ended = false, tick = null, start = performance.now();
+  const REAL = ['explorer.exe','svchost.exe','chrome.exe','System','csrss.exe','wininit.exe','spoolsv.exe',
+    'Registry','dwm.exe','lsass.exe','Steam.exe','Discord.exe','OneDrive.exe','Taskmgr.exe','conhost.exe','SearchIndexer.exe','services.exe'];
+  const FAKE = ['toteslegit.exe','definitely-not-malware.exe','hackzor.bat','not_a_virus.scr','ransomw4re.exe',
+    'im_the_admin_trust_me.exe','pinky_promise.exe','free_robux_generator.exe','sneaky_backdoor.exe','trust_me_bro.vbs','h4ck3r_tool.exe'];
+  function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+  const ui = api.shell({ title:'Task Manager', areaClass:'endpoint',
+    hint:'Six of these processes are real. One is very obviously not. End the fake one.',
+    onAbort:()=>finish(false) });
+  const area = ui.area;
+  area.insertAdjacentHTML('beforeend', `<div class="endpoint-desktop"><div class="taskwin">
+      <div class="taskwin-bar">\uD83D\uDDA5\uFE0F Task Manager \u2014 Processes</div>
+      <div class="taskwin-cols"><span>Name</span><span>PID</span><span>CPU</span><span>Memory</span></div>
+      <div class="taskwin-list" id="epList"></div>
+    </div></div>`);
+  const list = area.querySelector('#epList');
+  function refresh(){ ui.setStatus(`<span>Correct <span class="mv">${round}/${ROUNDS}</span></span><span class="mtime" id="epT"></span>`); }
+  refresh();
+  miniCleanup = ()=>{ if(tick) clearInterval(tick); };
+
+  function spawnRound(){
+    if(ended) return;
+    if(round >= ROUNDS) return finish(true);
+    const reals = shuffle(REAL).slice(0,6);
+    const fake = FAKE[Math.floor(Math.random()*FAKE.length)];
+    const procs = shuffle([...reals.map(n=>({n,fake:false})), {n:fake, fake:true}]);
+    list.innerHTML = procs.map((p,i)=>`
+      <div class="task-row" data-i="${i}">
+        <span class="tn"><span class="ic">\u2699\uFE0F</span>${esc(p.n)}</span>
+        <span>${1000+Math.floor(Math.random()*8000)}</span>
+        <span>${(Math.random()*12).toFixed(1)}%</span>
+        <span>${(Math.random()*280+8).toFixed(0)} MB</span>
+      </div>`).join('');
+    [...list.children].forEach((row,i)=>{
+      row.onclick = ()=>{
+        if(ended) return;
+        const isFake = procs[i].fake;
+        row.classList.add(isFake ? 'hit-good' : 'hit-bad');
+        [...list.children].forEach(r=> r.onclick=null);
+        if(isFake){
+          round++; refresh();
+          start = performance.now();
+          setTimeout(spawnRound, 500);
+        } else {
+          setTimeout(()=> finish(false), 400);
+        }
+      };
+    });
+  }
+  spawnRound();
+  tick = setInterval(()=>{
+    const left = TIME - (performance.now()-start);
+    const t = miniHost.querySelector('#epT'); if(t) t.textContent = fmtTime(left);
+    if(left <= 0) finish(false);
+  }, 100);
+  function finish(win){ if(ended) return; ended = true; if(tick) clearInterval(tick); miniCleanup = null; api.done(win); }
+}
+
+/* ---- UEBA ---- */
+function miniUeba(api){
+  const ROUNDS = 5;
+  let round = 0, ended = false, current = null;
+  const NAMES = ['Maria Chen','Devon Ortiz','Priya Nair','Sam Whitfield','Jordan Blake','Elena Petrova','Marcus Cole','Ava Thornton'];
+  const ROLES = ['Accounts Payable Clerk','Field Sales Rep','DevOps Engineer','HR Generalist','Marketing Analyst','IT Support Tech','Legal Counsel','Data Scientist'];
+  const LOCS = ['Austin, TX office','Chicago, IL office','remote \u2014 home office, Denver CO','London, UK office','S\u00e3o Paulo, BR office'];
+  const BAD_LOCS = ['an unrecognized address in Minsk, Belarus','a residential IP in Lagos, Nigeria','a Tor exit node','an unrecognized address in Kyiv region'];
+  const DEVICES = ['company laptop (ThinkPad X1, asset #3382)','company laptop (Dell Latitude, asset #4471)','company desktop (Austin HQ, asset #1190)','company laptop (MacBook Pro, asset #5502)'];
+  const BAD_DEVICES = ['an unmanaged personal Android phone','an unrecognized Windows VM with no asset tag','a personal Chromebook never enrolled in MDM'];
+  const APPSETS = [['Outlook','Excel','SAP Concur'],['Salesforce','Outlook','Zoom'],['GitHub','Slack','AWS Console'],
+    ['Workday','Outlook','Teams'],['HubSpot','Outlook','Canva'],['ServiceNow','Outlook','TeamViewer'],['DocuSign','Outlook','iManage'],['Jupyter','Outlook','Snowflake']];
+  const BAD_APPS = ['an unlisted remote-access tool (AnyDesk)','a mass file-sync client never installed before','an unrecognized VPN client'];
+  const DATA = ['~250 MB/day (email + shared docs)','~600 MB/day (CRM exports, presentations)','~1.8 GB/day (code repos, build artifacts)',
+    '~180 MB/day (HR records)','~900 MB/day (campaign assets)','~150 MB/day (ticket attachments)','~400 MB/day (contract PDFs)','~3.2 GB/day (datasets)'];
+  function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+  function makeProfile(){
+    const startH = 7 + Math.floor(Math.random()*2), startM = pick([0,10,15,30,45]);
+    const endH = 16 + Math.floor(Math.random()*3), endM = pick([0,10,30,45]);
+    const fmt = (h,m)=> `${((h+11)%12)+1}:${String(m).padStart(2,'0')} ${h<12?'AM':'PM'}`;
+    return {
+      name: pick(NAMES), role: pick(ROLES),
+      loginWindow: `${fmt(startH,startM)} \u2013 ${fmt(endH,endM)}`,
+      location: pick(LOCS), device: pick(DEVICES), apps: pick(APPSETS), data: pick(DATA),
+    };
+  }
+  function makeActivity(profile){
+    const suspicious = Math.random() < 0.55;
+    if(!suspicious){
+      const jitterH = 7+Math.floor(Math.random()*10), jitterM = pick([0,5,10,20,35,50]);
+      const fmt = `${((jitterH+11)%12)+1}:${String(jitterM).padStart(2,'0')} ${jitterH<12?'AM':'PM'}`;
+      return { suspicious:false,
+        time: fmt, location: profile.location, device: profile.device,
+        apps: profile.apps.join(', '), data: profile.data };
+    }
+    const anomalies = [];
+    const useBadTime = Math.random()<0.6, useBadLoc = Math.random()<0.5, useBadDev = Math.random()<0.4, useBadApp = Math.random()<0.4, useBadData = Math.random()<0.4;
+    const badHour = pick([1,2,3,4]), badMin = pick([0,15,30,45]);
+    const time = useBadTime ? `${badHour}:${String(badMin).padStart(2,'0')} AM` : profile.loginWindow.split(' \u2013 ')[0];
+    const location = useBadLoc ? pick(BAD_LOCS) : profile.location;
+    const device = useBadDev ? pick(BAD_DEVICES) : profile.device;
+    const apps = useBadApp ? (profile.apps.slice(0,2).join(', ') + ', ' + pick(BAD_APPS)) : profile.apps.join(', ');
+    const data = useBadData ? `${(Math.random()*30+9).toFixed(1)} GB in under an hour` : profile.data;
+    if(!(useBadTime||useBadLoc||useBadDev||useBadApp||useBadData)) return makeActivity(profile); // force at least one
+    return { suspicious:true, time, location, device, apps, data };
+  }
+
+  const ui = api.shell({ title:'UEBA \u2014 Behavior Review', areaClass:'ueba',
+    hint:'Open the baseline file, compare it to the alert, then call it.',
+    onAbort:()=>finish(false) });
+  const area = ui.area;
+  area.insertAdjacentHTML('beforeend', `
+    <div class="ueba-desktop">
+      <div class="ueba-icon" id="uebaDocIcon"><span class="glyph">\uD83D\uDCC4</span><span class="lbl" id="uebaDocLbl">Baseline.docx</span></div>
+    </div>
+    <div class="ueba-alert">
+      <div class="ueba-alert-h">\u26A0 Recent Activity Alert</div>
+      <div class="ueba-alert-body" id="uebaAlertBody"></div>
+      <div class="ueba-verdict-btns">
+        <button class="btn-sus" id="uebaSus">Suspicious</button>
+        <button class="btn-ben" id="uebaBen">Benign</button>
+      </div>
+    </div>`);
+  function refresh(){ ui.setStatus(`<span>Correct <span class="mv">${round}/${ROUNDS}</span></span>`); }
+  refresh();
+
+  function openDoc(profile){
+    if(area.querySelector('.ueba-doc')) return;
+    const doc = document.createElement('div');
+    doc.className = 'ueba-doc';
+    doc.innerHTML = `
+      <div class="ueba-doc-bar"><span>${esc(profile.name)}_Baseline.docx</span><button class="ueba-doc-x" id="uebaDocClose">\u2715</button></div>
+      <div class="ueba-doc-body">
+        <h4>${esc(profile.name)}</h4>
+        <p class="role">${esc(profile.role)} \u2014 established behavior baseline</p>
+        <dl>
+          <dt>Typical login window</dt><dd>${esc(profile.loginWindow)}</dd>
+          <dt>Typical location</dt><dd>${esc(profile.location)}</dd>
+          <dt>Typical device</dt><dd>${esc(profile.device)}</dd>
+          <dt>Typical applications</dt><dd>${esc(profile.apps.join(', '))}</dd>
+          <dt>Typical data usage</dt><dd>${esc(profile.data)}</dd>
+        </dl>
+      </div>`;
+    area.querySelector('.ueba-desktop').appendChild(doc);
+    doc.querySelector('#uebaDocClose').onclick = ()=> doc.remove();
+  }
+
+  function spawnRound(){
+    if(ended) return;
+    if(round >= ROUNDS) return finish(true);
+    const existing = area.querySelector('.ueba-doc'); if(existing) existing.remove();
+    const profile = makeProfile();
+    const activity = makeActivity(profile);
+    current = { profile, activity };
+    area.querySelector('#uebaDocIcon').onclick = ()=> openDoc(profile);
+    area.querySelector('#uebaAlertBody').innerHTML =
+      `<b>${esc(profile.name)}</b> (${esc(profile.role)}) logged in at <b>${esc(activity.time)}</b> from ${esc(activity.location)}, using ${esc(activity.device)}.<br><br>
+       Active in: ${esc(activity.apps)}.<br><br>
+       Data transferred: ${esc(activity.data)}.`;
+  }
+  function verdict(said){
+    if(ended || !current) return;
+    const correct = (said === 'suspicious') === current.activity.suspicious;
+    if(correct){ round++; refresh(); current = null; setTimeout(spawnRound, 300); }
+    else finish(false);
+  }
+  area.querySelector('#uebaSus').onclick = ()=> verdict('suspicious');
+  area.querySelector('#uebaBen').onclick = ()=> verdict('benign');
+  spawnRound();
+  function finish(win){ if(ended) return; ended = true; miniCleanup = null; api.done(win); }
+  miniCleanup = ()=>{};
+}
+
 function eventsToOverlays(events){
   const out=[];
   for(const e of events){
@@ -1922,7 +2393,7 @@ function showCaseFile(){
       <div class="subhead">Team &amp; buffs</div>
       <p class="m-desc" style="font-size:14px">Agents: ${players.length} · Coffee: ${game.coffeeCups||0}/4 (+${(game.coffeeCups||0)*25}% speed)${game.fridgeUsed?' · fridge used':''}${game.nextRollMod?` · next roll ${game.nextRollMod>0?'+':''}${game.nextRollMod}`:''}</p>
       ${(numPlayers>1 && game.events && game.events.length) ? `<div class="subhead">Active tasks this turn</div><div class="proc-list">` + game.events.map(ev=>{
-        const label = ev.type==='malware' ? `Malware check: ${ev.objType}` : ev.type==='emails' ? 'Clear the inbox' : 'Meet with the CEO';
+        const label = ev.type==='malware' ? `Malware check: ${ev.objType}` : ev.type==='emails' ? 'Clear the inbox' : ev.type==='exec' ? 'Meet with the CEO' : ev.type==='physec' ? `Security check: ${ev.objType}` : `Follow-up: ${ev.employeeName}`;
         return `<div class="proc" style="cursor:default;${ev.done?'opacity:.5':''}"><span><span class="pt">${esc(label)}</span></span><span class="pm ${ev.done?'est':'no'}">${ev.done?'✓ done':'pending'}</span></div>`;
       }).join('') + `</div>` : ''}
       <div class="subhead">Log</div>
@@ -2000,6 +2471,8 @@ function bind(entity){
   modal.querySelectorAll('[data-proc]').forEach(el=>{ if(el.disabled) return; el.onclick = ()=>{ if(numPlayers>1) players[active].turnActivity = 'procedure'; showConfirm(entity, el.dataset.proc); }; });
   modal.querySelectorAll('[data-malware]').forEach(el=>{ el.onclick = ()=> resolveMalware(el.dataset.malware); });
   modal.querySelectorAll('[data-execchoice]').forEach(el=>{ el.onclick = ()=> resolveExec(el.dataset.execchoice); });
+  modal.querySelectorAll('[data-physec]').forEach(el=>{ el.onclick = ()=> resolvePhysec(el.dataset.physec); });
+  modal.querySelectorAll('[data-followup]').forEach(el=>{ el.onclick = ()=> resolveFollowup(el.dataset.followup); });
   modal.querySelectorAll('[data-roll]').forEach(el=>{
     el.onclick = ()=>{ const inp = modal.querySelector('#manualVal'); const n = inp ? parseInt(inp.value,10) : NaN; runRoll(el.dataset.roll, (n>=1&&n<=20)?n:null); };
   });
@@ -2033,7 +2506,6 @@ function refreshHUD(){
   const fs = game.failStreak||0;
   document.getElementById('streakDots').textContent = '●'.repeat(fs)+'○'.repeat(Math.max(0,3-fs));
   document.getElementById('streakStat').style.color = fs>=2 ? 'var(--salmon)' : '';
-  document.getElementById('agentStat').textContent = `Agent ${active+1}/${players.length}`;
   const heartsEl = document.getElementById('heartsRow');
   if(heartsEl){
     if(numPlayers>1 && game.hearts!=null){
@@ -2065,6 +2537,8 @@ function refreshHUD(){
 }
 function refreshKillChain(){
   if(!game) return;
+  const tl = document.getElementById('kcTurnsLeft');
+  if(tl) tl.textContent = Math.max(0, E.RULES.turns - Math.min(game.turn, E.RULES.turns) + 1);
   document.getElementById('kcCount').textContent = game.hidden.filter(h=>h.revealed).length;
   const wrap = document.getElementById('kcCards'); wrap.innerHTML='';
   E.CAT_ORDER.forEach((cat,i)=>{
@@ -2083,7 +2557,7 @@ function updateFloatingUI(){
     const isCaller = caller && nearEntity.key===caller.key;
     const ev = (numPlayers>1 && game.events) ? game.events.find(x=>!x.done && x.entityKey===nearEntity.key) : null;
     let label;
-    if(ev){ label = ev.type==='malware' ? `\u26a0 Check the ${ev.objType}` : ev.type==='emails' ? '\u2709 Clear the inbox' : '\u2605 Meet the CEO'; }
+    if(ev){ label = ev.type==='malware' ? `\u26a0 Check the ${ev.objType}` : ev.type==='emails' ? '\u2709 Clear the inbox' : ev.type==='exec' ? '\u2605 Meet the CEO' : ev.type==='physec' ? `\uD83D\uDD12 Assess the ${ev.objType}` : `\uD83D\uDC64 Follow up with ${ev.employeeName}`; }
     else label = isCaller ? `${caller.name}'s Desk` : nearEntity.ciso ? "CISO's Desk" : ENTITY_LABEL[nearEntity.type];
     promptEl.style.display='flex';
     promptEl.innerHTML = (isMobile ? '' : `<span class="key">E</span> `) + `<span>${esc(label)}${(isCaller&&!ev)?' · caller':''}</span>`;
