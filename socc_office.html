@@ -175,6 +175,97 @@
   .subhead{font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:.14em;text-transform:uppercase;
     color:var(--mute);margin:18px 0 2px;}
   .subhead:first-child{margin-top:0;}
+
+  /* ===== mini-games ===== */
+  #miniHost{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;
+    padding:22px;background:rgba(20,19,17,.94);backdrop-filter:blur(3px);}
+  .mini-screen{width:min(980px,95vw);height:min(640px,92vh);display:flex;flex-direction:column;
+    background:#12141d;color:#dfe4ea;border-radius:12px;border:11px solid #26241f;
+    box-shadow:0 0 0 2px #3a3733, 0 30px 70px rgba(0,0,0,.6), inset 0 0 90px rgba(0,0,0,.5);
+    overflow:hidden;font-family:'Lora',Georgia,serif;position:relative;}
+  .mini-screen::after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:2px;
+    background:repeating-linear-gradient(0deg,rgba(255,255,255,.015) 0 2px,transparent 2px 4px);}
+  .mini-bar{display:flex;align-items:center;gap:16px;padding:12px 18px;
+    background:#191c26;border-bottom:1px solid #2c3140;flex:none;z-index:2;}
+  .mini-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;letter-spacing:.08em;
+    text-transform:uppercase;color:#c9a24e;}
+  .mini-hint{font-size:12.5px;font-style:italic;color:#8b94a6;flex:1;line-height:1.35;}
+  .mini-status{font-family:'Cormorant Garamond',serif;font-size:16px;letter-spacing:.04em;color:#dfe4ea;
+    white-space:nowrap;display:flex;gap:14px;align-items:center;}
+  .mini-status .mv{color:#c9a24e;font-weight:700;}
+  .mini-status .mtime{color:#e0a58f;font-weight:700;min-width:52px;text-align:right;}
+  .mini-quit{font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:.06em;text-transform:uppercase;
+    padding:5px 11px;background:transparent;color:#8b94a6;border:1px solid #3a4152;border-radius:6px;cursor:pointer;}
+  .mini-quit:hover{color:#e0a58f;border-color:#e0a58f;}
+  .mini-area{flex:1;position:relative;overflow:hidden;}
+
+  /* SIEM */
+  .siem-item{position:absolute;font-size:46px;cursor:grab;user-select:none;line-height:1;
+    filter:drop-shadow(0 3px 5px rgba(0,0,0,.5));transition:transform .12s;touch-action:none;z-index:3;}
+  .siem-item:active{cursor:grabbing;}
+  .siem-bin{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);text-align:center;
+    font-size:52px;line-height:1;filter:drop-shadow(0 3px 6px rgba(0,0,0,.5));}
+  .siem-bin .lbl{display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8b94a6;margin-top:2px;}
+  .siem-bin.over{transform:translateX(-50%) scale(1.12);}
+  .siem-tools{position:absolute;left:16px;top:16px;display:flex;flex-direction:column;gap:12px;z-index:4;}
+  .siem-tool{font-size:40px;line-height:1;cursor:pointer;padding:8px;border-radius:10px;border:2px solid transparent;
+    background:rgba(255,255,255,.03);text-align:center;transition:border-color .12s,background .12s;}
+  .siem-tool .lbl{display:block;font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:.1em;
+    text-transform:uppercase;color:#8b94a6;}
+  .siem-tool.sel{border-color:#c9a24e;background:rgba(201,162,78,.14);}
+  .siem-legend{position:absolute;right:16px;top:16px;font-size:12px;color:#8b94a6;line-height:1.7;text-align:right;z-index:2;}
+  .siem-flash{position:absolute;inset:0;background:#b0524f;opacity:0;pointer-events:none;z-index:9;}
+
+  /* server grid */
+  .grid16{position:absolute;inset:0;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);
+    gap:12px;padding:26px;}
+  .g16-cell{background:#0a0c12;border:1px solid #2c3140;border-radius:8px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;font-size:52px;transition:transform .1s,background .15s;}
+  .g16-cell:hover{background:#141824;}
+  .g16-cell.open{cursor:default;background:#1a1e2b;}
+  .g16-cell.buff{background:rgba(95,125,106,.25);border-color:#5f7d6a;}
+
+  /* word search */
+  .wordgrid{position:absolute;inset:0;display:flex;flex-direction:column;padding:22px;gap:6px;}
+  .wg-row{flex:1;display:flex;align-items:center;justify-content:center;gap:clamp(6px,1.6vw,20px);
+    font-family:'Courier New',monospace;font-size:clamp(18px,3.4vh,30px);font-weight:700;letter-spacing:.14em;
+    color:#c7cedb;background:#0c0e15;border:1px solid #232838;border-radius:7px;cursor:pointer;
+    transition:background .1s,border-color .1s;}
+  .wg-row:hover{background:#161a26;border-color:#3a4152;}
+  .wg-row.good{background:rgba(95,125,106,.4);border-color:#5f7d6a;}
+  .wg-row.bad{background:rgba(176,82,79,.4);border-color:#b0524f;}
+
+  /* smash */
+  .mini-area.smash{cursor:none;background:radial-gradient(circle at 50% 40%,#1a1e2b,#0c0e15);}
+  .smash-hub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:64px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.6));}
+  .smash-pc{position:absolute;transform:translate(-50%,-50%);font-size:52px;cursor:none;user-select:none;
+    filter:drop-shadow(0 3px 5px rgba(0,0,0,.5));transition:transform .05s;}
+  .smash-pc .hp{position:absolute;left:50%;bottom:-14px;transform:translateX(-50%);width:52px;height:6px;
+    background:#2c3140;border-radius:3px;overflow:hidden;}
+  .smash-pc .hp i{display:block;height:100%;background:#5f7d6a;transition:width .08s;}
+  .smash-link{position:absolute;height:2px;background:linear-gradient(90deg,#3a4152,#c9a24e);transform-origin:0 50%;opacity:.5;z-index:0;}
+  .smash-pc,.smash-hub{z-index:2;}
+  .hammer{position:fixed;font-size:40px;pointer-events:none;z-index:60;transform:translate(-30%,-70%) rotate(0deg);transition:transform .06s;}
+  .hammer.whack{transform:translate(-30%,-70%) rotate(-55deg);}
+
+  /* crisis */
+  .crisis-wrap{position:absolute;inset:0;display:flex;flex-direction:column;padding:22px;gap:12px;}
+  .crisis-reqs{display:flex;gap:18px;flex-wrap:wrap;font-size:13.5px;}
+  .crisis-req{display:flex;align-items:center;gap:7px;color:#8b94a6;}
+  .crisis-req .bx{width:18px;height:18px;border:1.5px solid #3a4152;border-radius:5px;display:inline-flex;
+    align-items:center;justify-content:center;font-size:12px;color:transparent;}
+  .crisis-req.ok{color:#8fb39a;}
+  .crisis-req.ok .bx{background:#5f7d6a;border-color:#5f7d6a;color:#fff;}
+  .crisis-ta{flex:1;resize:none;background:#0c0e15;border:1px solid #2c3140;border-radius:8px;color:#dfe4ea;
+    font-family:'Lora',serif;font-size:16px;line-height:1.6;padding:14px 16px;}
+  .crisis-ta:focus{outline:none;border-color:#c9a24e;}
+  .crisis-foot{display:flex;align-items:center;justify-content:space-between;gap:14px;}
+  .crisis-count{font-size:13px;color:#8b94a6;}
+  .crisis-count b{color:#c9a24e;}
+  .mini-btn{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;letter-spacing:.05em;
+    padding:10px 22px;background:#c9a24e;color:#241a08;border:none;border-radius:8px;cursor:pointer;}
+  .mini-btn:hover{background:#d8b463;}
+  .mini-btn:disabled{opacity:.4;cursor:default;}
 </style>
 </head>
 <body>
@@ -216,6 +307,8 @@
 </div>
 
 <div id="backdrop"><div id="modal"></div></div>
+
+<div id="miniHost"></div>
 
 <script type="module">
 import * as E from './engine.js';
@@ -812,7 +905,7 @@ let started = false;
 const isMobile = matchMedia('(pointer: coarse)').matches;
 
 const SETTINGS_KEY = 'socc_office_settings';
-let settings = { fastDice:false, markers:false };
+let settings = { fastDice:false, markers:false, miniGames:false };
 try{ const sv = JSON.parse(localStorage.getItem(SETTINGS_KEY)); if(sv) settings = { ...settings, ...sv }; }catch(e){}
 function saveSettings(){ try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }catch(e){} }
 
@@ -1058,6 +1151,7 @@ function openFridge(){
 /* ---------- confirm + roll ---------- */
 function showConfirm(entity, procId){
   const p = E.cardById(procId);
+  if(hasMinigame(procId)){ showMiniConfirm(entity, procId); return; }
   const mod = E.procedureMod(game, procId) + game.nextRollMod;
   const modLbl = (mod>=0?'+':'−')+Math.abs(mod);
   closeableModal = true;
@@ -1133,6 +1227,363 @@ function diceContinue(){
   }
   ovQueue = list; nextOverlay();
 }
+/* =====================================================================
+   MINI-GAMES
+   ===================================================================== */
+const miniHost = document.getElementById('miniHost');
+let miniCleanup = null;
+
+const MINIGAMES = {
+  p_siem:'siem', p_server:'server', p_firewall:'wordsearch',
+  p_netflow:'wordsearch', p_iso:'smash', p_crisis:'crisis',
+};
+const MINI_INTRO = {
+  siem:{ name:'SIEM Triage', body:'Events flood the console one at a time. Drag email and fish into the trash bin; grab the dynamite (Purge) and click it on viruses and cookies; grab the fire (Reset) and click it on keys and machines. Clear eight before three mistakes.' },
+  server:{ name:'Server Sweep', body:'A demon is hiding behind one of sixteen tiles. You have ten seconds to click the right tile — two tiles grant +3 seconds the instant you open them.' },
+  wordsearch:{ name:'Log Scan', body:'A word hides inside one row of the log dump, jumping to a new row every five seconds. Click the row it is in — three times in under thirty seconds.' },
+  smash:{ name:'Containment', body:'Five machines hang off the compromised host. Your pointer is a hammer — click each machine until it shatters. Smash all five in twenty seconds.' },
+  crisis:{ name:'The Memo', body:'Write the notification memo. It must contain the exact phrases "Dear Management" and "From InfoSec", reach at least 250 characters, and be submitted inside thirty seconds.' },
+};
+function hasMinigame(procId){ return !!(settings.miniGames && MINIGAMES[procId]); }
+
+function showMiniConfirm(entity, procId){
+  const p = E.cardById(procId);
+  const intro = MINI_INTRO[MINIGAMES[procId]];
+  closeableModal = true;
+  setModal(`
+    <div class="m-head"><span class="m-kicker">Field exercise</span>
+      <button class="m-x" data-back="${entity.key}">✕</button></div>
+    <div class="m-body">
+      <p class="m-title sm">${esc(p.title)}</p>
+      <p class="m-desc">${esc(p.description)}</p>
+      <div class="aside"><b>${esc(intro.name)}.</b> ${esc(intro.body)}</div>
+      <div class="m-actions">
+        <button class="btn primary" data-mini="${procId}">Begin exercise ▸</button>
+        <button class="btn ghost" data-back="${entity.key}">Back</button>
+      </div>
+    </div>`);
+  bind(entity);
+}
+
+function launchMinigame(procId){
+  closeModal();
+  modalOpen = true;
+  miniHost.style.display = 'flex';
+  miniHost.innerHTML = '';
+  const done = (success)=>{ endMinigame(); runMinigameResult(procId, !!success); };
+  const api = { done, shell: (opts)=>miniShell(opts) };
+  const type = MINIGAMES[procId];
+  if(type==='siem') miniSiem(api);
+  else if(type==='server') miniServer(api);
+  else if(type==='wordsearch') miniWordSearch(api);
+  else if(type==='smash') miniSmash(api);
+  else if(type==='crisis') miniCrisis(api);
+}
+function endMinigame(){
+  if(miniCleanup){ try{ miniCleanup(); }catch(e){} miniCleanup = null; }
+  miniHost.style.display = 'none';
+  miniHost.innerHTML = '';
+  modalOpen = false;
+}
+function runMinigameResult(procId, success){
+  const proc = E.cardById(procId);
+  const res = E.playProcedure(game, procId, null, { success });
+  save();
+  pending = { events: res.events, matches: res.matches, proc };
+  closeableModal = false;
+  setModal(`
+    <div class="m-body dice-wrap">
+      <div class="m-kicker" style="margin-bottom:8px">Exercise · ${esc(proc.title)}</div>
+      <div class="dice ${success?'win':'lose'}" style="font-size:52px">${success?'✓':'✕'}</div>
+      <div class="dice-verdict" style="color:${success?'var(--green)':'var(--salmon)'};margin-top:8px">${success?'SUCCESS':'FAILURE'}</div>
+      <div class="dice-math">${success?'Exercise cleared — the procedure runs.':'The exercise failed — nothing detected this turn.'}</div>
+      <div class="m-actions" style="justify-content:center"><button class="btn primary" data-act="dicecontinue">Continue ▸</button></div>
+    </div>`);
+  bind();
+}
+
+/* shared shell — returns {area, setStatus, flash} and wires the Abort button */
+function miniShell(opts){
+  miniHost.innerHTML = `
+    <div class="mini-screen">
+      <div class="mini-bar">
+        <div class="mini-title">${esc(opts.title)}</div>
+        <div class="mini-hint">${esc(opts.hint||'')}</div>
+        <div class="mini-status" id="miniStatus"></div>
+        <button class="mini-quit" id="miniQuit">Abort ✕</button>
+      </div>
+      <div class="mini-area${opts.areaClass?' '+opts.areaClass:''}" id="miniArea"></div>
+    </div>`;
+  const area = miniHost.querySelector('#miniArea');
+  const status = miniHost.querySelector('#miniStatus');
+  miniHost.querySelector('#miniQuit').onclick = ()=> opts.onAbort();
+  return {
+    area, status,
+    setStatus(html){ status.innerHTML = html; },
+    flash(color){
+      const f = document.createElement('div'); f.className='siem-flash';
+      f.style.background = color || '#b0524f'; area.appendChild(f);
+      f.animate([{opacity:.5},{opacity:0}], {duration:280}).onfinish = ()=> f.remove();
+    },
+  };
+}
+function fmtTime(ms){ return (Math.max(0,ms)/1000).toFixed(1)+'s'; }
+
+/* ---- SIEM ---- */
+function miniSiem(api){
+  const NEED = 8, MAX_STRIKES = 3, TIME = 45000;
+  let cleared = 0, strikes = 0, tool = null, current = null, ended = false;
+  const start = performance.now();
+  const KINDS = [
+    { e:'📧', act:'trash' }, { e:'🐟', act:'trash' },
+    { e:'🦠', act:'purge' }, { e:'🍪', act:'purge' },
+    { e:'🔑', act:'reset' }, { e:'💻', act:'reset' },
+  ];
+  const ui = api.shell({ title:'SIEM Triage', areaClass:'siem',
+    hint:'Trash email/fish · Purge (🧨) viruses/cookies · Reset (🔥) keys/machines',
+    onAbort:()=>finish(false) });
+  const area = ui.area;
+  area.insertAdjacentHTML('beforeend', `
+    <div class="siem-tools">
+      <div class="siem-tool" data-tool="purge">🧨<span class="lbl">Purge</span></div>
+      <div class="siem-tool" data-tool="reset">🔥<span class="lbl">Reset</span></div>
+    </div>
+    <div class="siem-legend">🗑️ email · fish<br>🧨 virus · cookie<br>🔥 key · machine</div>
+    <div class="siem-bin" id="siemBin">🗑️<span class="lbl">Trash</span></div>`);
+  const bin = area.querySelector('#siemBin');
+  const tools = [...area.querySelectorAll('.siem-tool')];
+  function selectTool(t){ tool = (tool===t)?null:t; tools.forEach(el=>el.classList.toggle('sel', el.dataset.tool===tool)); }
+  tools.forEach(el=> el.onclick = ()=> selectTool(el.dataset.tool));
+  function refresh(){ ui.setStatus(`<span>Cleared <span class="mv">${cleared}/${NEED}</span></span><span>Strikes <span class="mv" style="color:${strikes?'#e0a58f':'#c9a24e'}">${strikes}/${MAX_STRIKES}</span></span><span class="mtime" id="siemT"></span>`); }
+  refresh();
+  function resolve(ok){
+    if(ok){ cleared++; } else { strikes++; ui.flash(); }
+    if(current){ current.remove(); current=null; }
+    refresh();
+    if(cleared>=NEED) return finish(true);
+    if(strikes>=MAX_STRIKES) return finish(false);
+    spawn();
+  }
+  function spawn(){
+    const k = KINDS[Math.floor(Math.random()*KINDS.length)];
+    const el = document.createElement('div');
+    el.className='siem-item'; el.textContent=k.e;
+    const pad=70, w=area.clientWidth-pad*2, h=area.clientHeight-pad*2-90;
+    el.style.left = (pad + Math.random()*w) + 'px';
+    el.style.top  = (pad + Math.random()*h) + 'px';
+    area.appendChild(el); current = el; el._kind = k;
+    let dragging=false, dx=0, dy=0;
+    el.addEventListener('pointerdown', ev=>{
+      ev.preventDefault();
+      if(tool){ // apply held tool
+        const ok = (tool==='purge' && k.act==='purge') || (tool==='reset' && k.act==='reset');
+        selectTool(tool); // deselect
+        resolve(ok);
+        return;
+      }
+      dragging=true; el.setPointerCapture(ev.pointerId);
+      const r=el.getBoundingClientRect(); dx=ev.clientX-r.left-r.width/2; dy=ev.clientY-r.top-r.height/2;
+    });
+    el.addEventListener('pointermove', ev=>{
+      if(!dragging) return;
+      const ar=area.getBoundingClientRect();
+      el.style.left=(ev.clientX-ar.left-dx-el.offsetWidth/2)+'px';
+      el.style.top=(ev.clientY-ar.top-dy-el.offsetHeight/2)+'px';
+      const br=bin.getBoundingClientRect();
+      bin.classList.toggle('over', ev.clientX>br.left&&ev.clientX<br.right&&ev.clientY>br.top&&ev.clientY<br.bottom);
+    });
+    el.addEventListener('pointerup', ev=>{
+      if(!dragging) return; dragging=false; bin.classList.remove('over');
+      const br=bin.getBoundingClientRect();
+      const onBin = ev.clientX>br.left&&ev.clientX<br.right&&ev.clientY>br.top&&ev.clientY<br.bottom;
+      if(onBin) resolve(k.act==='trash');
+    });
+  }
+  spawn();
+  const tick = setInterval(()=>{
+    const t = miniHost.querySelector('#siemT');
+    const left = TIME-(performance.now()-start);
+    if(t) t.textContent = fmtTime(left);
+    if(left<=0) finish(false);
+  }, 100);
+  miniCleanup = ()=> clearInterval(tick);
+  function finish(win){ if(ended) return; ended=true; clearInterval(tick); miniCleanup=null; api.done(win); }
+}
+
+/* ---- Server Analysis ---- */
+function miniServer(api){
+  let ended=false, deadline=performance.now()+10000;
+  const demon = Math.floor(Math.random()*16);
+  const buffs = new Set();
+  while(buffs.size<2){ const n=Math.floor(Math.random()*16); if(n!==demon) buffs.add(n); }
+  const ui = api.shell({ title:'Server Sweep', areaClass:'',
+    hint:'Find the demon behind the tiles before time runs out. Two tiles buy you +3 seconds.',
+    onAbort:()=>finish(false) });
+  const grid=document.createElement('div'); grid.className='grid16'; ui.area.appendChild(grid);
+  for(let i=0;i<16;i++){
+    const c=document.createElement('div'); c.className='g16-cell'; c.dataset.i=i;
+    c.onclick=()=>{
+      if(ended || c.classList.contains('open')) return;
+      c.classList.add('open');
+      if(i===demon){ c.textContent='👿'; return finish(true); }
+      if(buffs.has(i)){ c.classList.add('buff'); c.textContent='⏱️+3'; deadline+=3000; ui.flash('#5f7d6a'); }
+      else c.textContent='·';
+    };
+    grid.appendChild(c);
+  }
+  ui.setStatus('<span class="mtime" id="svT"></span>');
+  const tick=setInterval(()=>{
+    const left=deadline-performance.now();
+    const t=miniHost.querySelector('#svT'); if(t) t.textContent=fmtTime(left);
+    if(left<=0) finish(false);
+  },80);
+  miniCleanup=()=>clearInterval(tick);
+  function finish(win){ if(ended) return; ended=true; clearInterval(tick); miniCleanup=null; api.done(win); }
+}
+
+/* ---- Word Search (firewall / netflow) ---- */
+function miniWordSearch(api){
+  const WORDS=['MALWARE','VIRUS','HACKER'];
+  const word=WORDS[Math.floor(Math.random()*WORDS.length)];
+  const ALPHA='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const COLS=8, ROWS=8, NEED=3, TIME=30000, HOLD=5000;
+  let hits=0, targetRow=-1, ended=false, rows=[];
+  const start=performance.now();
+  const ui=api.shell({ title:'Log Scan', areaClass:'',
+    hint:`Find "${word}" hiding in a row and click that row. It jumps every 5 seconds.`,
+    onAbort:()=>finish(false) });
+  const grid=document.createElement('div'); grid.className='wordgrid'; ui.area.appendChild(grid);
+  for(let r=0;r<ROWS;r++){
+    const row=document.createElement('div'); row.className='wg-row'; row.dataset.r=r;
+    row.onclick=()=>{
+      if(ended) return;
+      if(r===targetRow){ hits++; row.classList.add('good'); refresh();
+        if(hits>=NEED) return finish(true);
+        setTimeout(()=>{ row.classList.remove('good'); place(); }, 180);
+      } else { row.classList.add('bad'); setTimeout(()=>row.classList.remove('bad'),200); }
+    };
+    grid.appendChild(row); rows.push(row);
+  }
+  function rnd(n){ let s=''; for(let i=0;i<n;i++) s+=ALPHA[Math.floor(Math.random()*26)]; return s; }
+  function fillRow(row, withWord){
+    if(withWord){
+      const off=Math.floor(Math.random()*(COLS-word.length+1));
+      let chars=(rnd(off)+word+rnd(COLS-off-word.length)).split('');
+      row.innerHTML=chars.map(c=>`<span>${c}</span>`).join('');
+    } else {
+      row.innerHTML=rnd(COLS).split('').map(c=>`<span>${c}</span>`).join('');
+    }
+  }
+  function place(){
+    targetRow=Math.floor(Math.random()*ROWS);
+    rows.forEach((row,r)=>fillRow(row, r===targetRow));
+    clearTimeout(placeTimer);
+    placeTimer=setTimeout(place, HOLD);
+  }
+  function refresh(){ ui.setStatus(`<span>Found <span class="mv">${hits}/${NEED}</span></span><span class="mtime" id="wsT"></span>`); }
+  let placeTimer=null; refresh(); place();
+  const tick=setInterval(()=>{
+    const left=TIME-(performance.now()-start);
+    const t=miniHost.querySelector('#wsT'); if(t) t.textContent=fmtTime(left);
+    if(left<=0) finish(false);
+  },100);
+  miniCleanup=()=>{ clearInterval(tick); clearTimeout(placeTimer); };
+  function finish(win){ if(ended) return; ended=true; clearInterval(tick); clearTimeout(placeTimer); miniCleanup=null; api.done(win); }
+}
+
+/* ---- Isolation (smash) ---- */
+function miniSmash(api){
+  const TIME=20000, N=5; let smashed=0, ended=false;
+  const ui=api.shell({ title:'Containment', areaClass:'smash',
+    hint:'Your pointer is a hammer — click each machine until it shatters.',
+    onAbort:()=>finish(false) });
+  const area=ui.area;
+  const hub=document.createElement('div'); hub.className='smash-hub'; hub.textContent='🖳'; area.appendChild(hub);
+  const pcs=[];
+  const layout=[[26,26],[74,26],[18,74],[82,74],[50,86]];
+  // draw links + machines once we know size
+  requestAnimationFrame(()=>{
+    const aw=area.clientWidth, ah=area.clientHeight, cx=aw/2, cy=ah/2;
+    for(let i=0;i<N;i++){
+      const px=layout[i][0]/100*aw, py=layout[i][1]/100*ah;
+      const link=document.createElement('div'); link.className='smash-link';
+      const dx=px-cx, dy=py-cy, len=Math.hypot(dx,dy), ang=Math.atan2(dy,dx)*180/Math.PI;
+      link.style.left=cx+'px'; link.style.top=cy+'px'; link.style.width=len+'px'; link.style.transform=`rotate(${ang}deg)`;
+      area.appendChild(link);
+      const pc=document.createElement('div'); pc.className='smash-pc'; pc.textContent='🖥️';
+      pc.style.left=px+'px'; pc.style.top=py+'px';
+      const max=1+Math.floor(Math.random()*25); let hp=max;
+      const bar=document.createElement('div'); bar.className='hp'; bar.innerHTML='<i></i>'; pc.appendChild(bar);
+      const fill=bar.querySelector('i'); fill.style.width='100%';
+      pc.addEventListener('pointerdown', ev=>{
+        ev.preventDefault(); if(pc._dead) return; whack();
+        hp--; pc.style.transform='translate(-50%,-50%) scale(.9)';
+        setTimeout(()=>{ if(!pc._dead) pc.style.transform='translate(-50%,-50%)'; },60);
+        fill.style.width=(hp/max*100)+'%';
+        if(hp<=0){ pc._dead=true; pc.textContent='💥'; bar.style.display='none';
+          setTimeout(()=>pc.textContent='🧨',180); smashed++; refresh();
+          if(smashed>=N) finish(true); }
+      });
+      area.appendChild(pc); pcs.push(pc);
+    }
+  });
+  const hammer=document.createElement('div'); hammer.className='hammer'; hammer.textContent='🔨'; miniHost.appendChild(hammer);
+  function onMove(e){ hammer.style.left=e.clientX+'px'; hammer.style.top=e.clientY+'px'; }
+  function whack(){ hammer.classList.add('whack'); setTimeout(()=>hammer.classList.remove('whack'),90); }
+  window.addEventListener('pointermove', onMove);
+  function refresh(){ ui.setStatus(`<span>Smashed <span class="mv">${smashed}/${N}</span></span><span class="mtime" id="smT"></span>`); }
+  refresh();
+  const start=performance.now();
+  const tick=setInterval(()=>{
+    const left=TIME-(performance.now()-start);
+    const t=miniHost.querySelector('#smT'); if(t) t.textContent=fmtTime(left);
+    if(left<=0) finish(false);
+  },100);
+  miniCleanup=()=>{ clearInterval(tick); window.removeEventListener('pointermove',onMove); hammer.remove(); };
+  function finish(win){ if(ended) return; ended=true; clearInterval(tick); window.removeEventListener('pointermove',onMove); hammer.remove(); miniCleanup=null; api.done(win); }
+}
+
+/* ---- Crisis Management ---- */
+function miniCrisis(api){
+  const TIME=30000, MINLEN=250, P1='Dear Management', P2='From InfoSec';
+  let ended=false;
+  const ui=api.shell({ title:'The Memo', areaClass:'',
+    hint:'Draft the notification memo and submit it before the clock runs out.',
+    onAbort:()=>finish(false) });
+  ui.area.insertAdjacentHTML('beforeend', `
+    <div class="crisis-wrap">
+      <div class="crisis-reqs">
+        <div class="crisis-req" data-req="p1"><span class="bx">✓</span>Contains “${P1}”</div>
+        <div class="crisis-req" data-req="p2"><span class="bx">✓</span>Contains “${P2}”</div>
+        <div class="crisis-req" data-req="len"><span class="bx">✓</span>At least ${MINLEN} characters</div>
+      </div>
+      <textarea class="crisis-ta" id="crisisTA" placeholder="Dear Management, …"></textarea>
+      <div class="crisis-foot">
+        <div class="crisis-count"><b id="crisisN">0</b> / ${MINLEN} characters</div>
+        <button class="mini-btn" id="crisisSubmit" disabled>Submit memo ▸</button>
+      </div>
+    </div>`);
+  const ta=miniHost.querySelector('#crisisTA'), submit=miniHost.querySelector('#crisisSubmit');
+  const reqEls={ p1:miniHost.querySelector('[data-req="p1"]'), p2:miniHost.querySelector('[data-req="p2"]'), len:miniHost.querySelector('[data-req="len"]') };
+  function check(){
+    const v=ta.value, ok1=v.includes(P1), ok2=v.includes(P2), ok3=v.length>=MINLEN;
+    reqEls.p1.classList.toggle('ok',ok1); reqEls.p2.classList.toggle('ok',ok2); reqEls.len.classList.toggle('ok',ok3);
+    miniHost.querySelector('#crisisN').textContent=v.length;
+    submit.disabled=!(ok1&&ok2&&ok3);
+  }
+  ta.addEventListener('input', check); check(); setTimeout(()=>ta.focus(),50);
+  submit.onclick=()=>{ if(!submit.disabled) finish(true); };
+  const start=performance.now();
+  ui.setStatus('<span class="mtime" id="crT"></span>');
+  const tick=setInterval(()=>{
+    const left=TIME-(performance.now()-start);
+    const t=miniHost.querySelector('#crT'); if(t) t.textContent=fmtTime(left);
+    if(left<=0) finish(false);
+  },100);
+  miniCleanup=()=>clearInterval(tick);
+  function finish(win){ if(ended) return; ended=true; clearInterval(tick); miniCleanup=null; api.done(win); }
+}
+
 function eventsToOverlays(events){
   const out=[];
   for(const e of events){
@@ -1276,6 +1727,7 @@ function showSettings(){
     <div class="m-head"><span class="m-kicker">⚙ Settings</span><button class="m-x" data-act="close">✕</button></div>
     <div class="m-body">
       ${row('fastDice','Fast dice','Skip the dice-roll animation and show the result immediately.')}
+      ${row('miniGames','Mini-games','Replace the dice roll with a hands-on exercise for SIEM, server, log, isolation and crisis procedures. Clear the exercise to succeed; every other procedure still rolls a die.')}
       ${row('markers','Show markers','Draw the gold diamonds over interactable objects. The caller and CISO always show.')}
       <div class="m-actions"><button class="btn primary" data-act="close">Done ▸</button></div>
     </div>`);
@@ -1308,6 +1760,7 @@ function bind(entity){
     el.onclick = ()=>{ const k=el.dataset.set; settings[k]=!settings[k]; saveSettings(); showSettings(); };
   });
   modal.querySelectorAll('[data-players]').forEach(el=> el.onclick = ()=> newGame(parseInt(el.dataset.players,10)));
+  modal.querySelectorAll('[data-mini]').forEach(el=> el.onclick = ()=> launchMinigame(el.dataset.mini));
   modal.querySelectorAll('[data-proc]').forEach(el=>{ if(el.disabled) return; el.onclick = ()=> showConfirm(entity, el.dataset.proc); });
   modal.querySelectorAll('[data-roll]').forEach(el=>{
     el.onclick = ()=>{ const inp = modal.querySelector('#manualVal'); const n = inp ? parseInt(inp.value,10) : NaN; runRoll(el.dataset.roll, (n>=1&&n<=20)?n:null); };

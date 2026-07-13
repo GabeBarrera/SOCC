@@ -95,19 +95,23 @@ export function canPlay(state, procId) {
 
 // Play a procedure. Returns { events, matches } \u2014 if matches.length > 1 the UI must
 // call revealCard() with the Captain's choice; if 1 it is auto-revealed.
-export function playProcedure(state, procId, manualNatural) {
+export function playProcedure(state, procId, manualNatural, forced) {
   const events = [];
-  const natural = (manualNatural != null && manualNatural >= 1 && manualNatural <= 20) ? manualNatural : d20();
+  const isMinigame = !!(forced && typeof forced.success === 'boolean');
+  const natural = isMinigame ? null
+    : ((manualNatural != null && manualNatural >= 1 && manualNatural <= 20) ? manualNatural : d20());
   const mod = procedureMod(state, procId) + state.nextRollMod;
   const usedTempMod = state.nextRollMod;
   state.nextRollMod = 0;
-  const total = natural + mod;
-  const success = total >= RULES.successAt;
+  const total = isMinigame ? null : natural + mod;
+  const success = isMinigame ? forced.success : (total >= RULES.successAt);
   state.playedThisTurn = true;
   state.cooldowns[procId] = RULES.cooldown;
   const proc = cardById(procId);
-  events.push({ kind: 'roll', procId, natural, mod, usedTempMod, total, success });
-  state.log.push({ t: state.turn, text: `${proc.title}: rolled ${natural}${mod ? (mod > 0 ? '+' + mod : mod) : ''} = ${total} \u2014 ${success ? 'SUCCESS' : 'FAIL'}` });
+  events.push({ kind: 'roll', procId, natural, mod, usedTempMod, total, success, minigame: isMinigame });
+  state.log.push({ t: state.turn, text: isMinigame
+    ? `${proc.title}: exercise ${success ? 'CLEARED \u2014 SUCCESS' : 'FAILED'}`
+    : `${proc.title}: rolled ${natural}${mod ? (mod > 0 ? '+' + mod : mod) : ''} = ${total} \u2014 ${success ? 'SUCCESS' : 'FAIL'}` });
 
   let matches = [];
   if (success) {
