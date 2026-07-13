@@ -36,11 +36,17 @@
     #killChainMobile { display: block; }
     #killChainOuter { flex: 1 1 100% !important; min-width: 100% !important; }
     #rollConfirmBar > .rcb-label { flex-basis: 100%; }
+    #boardHeader { gap: 8px !important; padding: 10px 12px !important; }
+    #boardHeader .hdr-btn { font-size: 11px !important; padding: 6px 9px !important; }
+    #turnPips { gap: 3px !important; }
+    #turnPips > div { width: 12px !important; height: 12px !important; font-size: 0 !important; }
+    #mainArea { padding: 12px !important; gap: 12px !important; }
+    #procGrid { grid-template-columns: none !important; grid-auto-flow: column; grid-auto-columns: 168px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
   }
 </style>
 </helmet>
 
-<div style="min-height:100vh;background:radial-gradient(1200px 700px at 50% -10%, #1c1f33 0%, #161826 60%);display:flex;flex-direction:column;font-family:'Inter',sans-serif;color:#e9e9ed;overflow:hidden">
+<div style="min-height:100dvh;background:radial-gradient(1200px 700px at 50% -10%, #1c1f33 0%, #161826 60%);display:flex;flex-direction:column;font-family:'Inter',sans-serif;color:#e9e9ed;overflow:hidden">
 
   <!-- ============ HOME ============ -->
   <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
@@ -135,9 +141,9 @@
     <div style="flex:1;display:flex;flex-direction:column;min-height:0">
 
       <!-- Header -->
-      <div style="display:flex;align-items:center;gap:16px;padding:12px clamp(12px,3vw,28px);border-bottom:1px solid rgba(233,233,237,0.10);flex-wrap:wrap">
+      <div id="boardHeader" style="display:flex;align-items:center;gap:16px;padding:12px clamp(12px,3vw,28px);border-bottom:1px solid rgba(233,233,237,0.10);flex-wrap:wrap">
         <div style="font-weight:500;font-size:17px;letter-spacing:-0.3px">SOC<span style="color:#e28b90"> COMMANDER</span></div>
-        <div style="display:flex;align-items:center;gap:5px">
+        <div id="turnPips" style="display:flex;align-items:center;gap:5px">
           <sc-for list="{{ turnPips }}" as="tp" hint-placeholder-count="10">
             <div title="{{ tp.title }}" style="width:16px;height:16px;border-radius:3px;background:{{ tp.bg }};border:1px solid {{ tp.border }};display:flex;align-items:center;justify-content:center;font-size:9px;color:{{ tp.fg }}">{{ tp.n }}</div>
           </sc-for>
@@ -149,17 +155,17 @@
         </sc-if>
         <div style="flex:1"></div>
         <sc-if value="{{ isHumanCaptain }}" hint-placeholder-val="{{ true }}">
-          <button onClick="{{ peekCaptain }}" style="font-family:'Inter',sans-serif;font-size:12px;padding:8px 14px;background:transparent;color:#e28b90;border:1px solid rgba(226,139,144,0.4);border-radius:6px;cursor:pointer" style-hover="background:rgba(226,139,144,0.1)">CAPTAIN VIEW</button>
+          <button class="hdr-btn" onClick="{{ peekCaptain }}" style="font-family:'Inter',sans-serif;font-size:12px;padding:8px 14px;background:transparent;color:#e28b90;border:1px solid rgba(226,139,144,0.4);border-radius:6px;cursor:pointer" style-hover="background:rgba(226,139,144,0.1)">CAPTAIN VIEW</button>
         </sc-if>
-        <button onClick="{{ toggleLog }}" style="font-family:'Inter',sans-serif;font-size:12px;padding:8px 14px;background:transparent;color:#9397ab;border:1px solid rgba(147,151,171,0.3);border-radius:6px;cursor:pointer" style-hover="color:#e9e9ed;border-color:#9397ab">LOG</button>
-        <button onClick="{{ leaveToHome }}" style="font-family:'Inter',sans-serif;font-size:12px;padding:8px 14px;background:transparent;color:#9397ab;border:1px solid rgba(147,151,171,0.3);border-radius:6px;cursor:pointer" style-hover="color:#e9e9ed;border-color:#9397ab">MENU</button>
+        <button class="hdr-btn" onClick="{{ toggleLog }}" style="font-family:'Inter',sans-serif;font-size:12px;padding:8px 14px;background:transparent;color:#9397ab;border:1px solid rgba(147,151,171,0.3);border-radius:6px;cursor:pointer" style-hover="color:#e9e9ed;border-color:#9397ab">LOG</button>
+        <button class="hdr-btn" onClick="{{ leaveToHome }}" style="font-family:'Inter',sans-serif;font-size:12px;padding:8px 14px;background:transparent;color:#9397ab;border:1px solid rgba(147,151,171,0.3);border-radius:6px;cursor:pointer" style-hover="color:#e9e9ed;border-color:#9397ab">MENU</button>
       </div>
 
       <!-- Brief strip -->
       <div style="padding:8px clamp(12px,3vw,28px);background:rgba(145,132,217,0.05);border-bottom:1px solid rgba(120,160,220,0.08);font-size:12px;color:#9397ab;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">&#9656; SCENARIO: {{ briefText }}</div>
 
       <!-- Main area: globe + slots -->
-      <div style="flex:1;display:flex;gap:16px;padding:16px clamp(12px,3vw,28px);min-height:0;flex-wrap:wrap;align-content:flex-start;overflow:auto">
+      <div id="mainArea" style="flex:1;display:flex;gap:16px;padding:16px clamp(12px,3vw,28px);min-height:0;flex-wrap:wrap;align-content:flex-start;overflow:auto">
 
         <!-- Globe -->
         <div style="flex:1 1 520px;min-width:320px;display:flex;flex-direction:column;gap:10px;align-items:center">
@@ -231,7 +237,7 @@
             <button onClick="{{ endTurnClick }}" style="font-family:'Inter',sans-serif;font-size:15px;font-weight:500;padding:10px 22px;background:transparent;color:#cbaa6a;border:1px solid #cbaa6a;border-radius:7px;cursor:pointer;animation:fadeUp .25s ease both" style-hover="background:rgba(203,170,106,0.15)">END TURN &#9656;</button>
           </sc-if>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:10px">
+        <div id="procGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:10px">
           <sc-for list="{{ procCards }}" as="pr" hint-placeholder-count="10">
             <div onClick="{{ pr.onSelect }}" style="position:relative;background:{{ pr.bg }};border:1.5px solid {{ pr.border }};border-radius:10px;padding:10px 12px;cursor:{{ pr.cursor }};opacity:{{ pr.opacity }};display:flex;flex-direction:column;gap:4px;min-height:86px" style-hover="border-color:{{ pr.hoverBorder }}">
               <div style="display:flex;justify-content:space-between;align-items:center;gap:6px">
