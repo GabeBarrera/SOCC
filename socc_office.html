@@ -20,7 +20,7 @@
   *{box-sizing:border-box;}
 
   #hud{position:fixed;top:0;left:0;right:0;display:flex;align-items:baseline;
-    gap:18px;padding:12px 22px;pointer-events:none;z-index:5;
+    gap:18px;padding:12px 22px;pointer-events:none;z-index:10;
     border-bottom:1px solid var(--divider);background:rgba(243,242,242,.9);}
   #hud h1{margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-weight:700;
     font-size:22px;letter-spacing:.04em;white-space:nowrap;}
@@ -28,15 +28,15 @@
   #hud .sub{margin:0;font-size:12px;font-style:italic;color:var(--mute);max-width:340px;}
   #hud .spacer{flex:1;}
   #hud .status{display:flex;align-items:center;gap:14px;pointer-events:auto;flex-wrap:wrap;justify-content:flex-end;}
-  .stat{font-family:'Cormorant Garamond',serif;font-size:15px;letter-spacing:.06em;
-    text-transform:uppercase;color:var(--slab);white-space:nowrap;}
+  .stat{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--ink);white-space:nowrap;}
   .stat b{color:var(--accentDeep);font-weight:700;}
-  #centerHud{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:5;
+  #centerHud{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:11;
     display:flex;align-items:center;gap:14px;pointer-events:auto;flex-wrap:wrap;justify-content:center;}
   #chainpips{display:flex;gap:5px;}
-  #chainpips .pip{width:15px;height:15px;border:1.5px solid var(--divider);border-radius:3px;background:transparent;}
+  #chainpips .pip{width:15px;height:15px;border:1.5px solid var(--slab);border-radius:3px;background:transparent;}
   .topbtn{pointer-events:auto;font-family:'Cormorant Garamond',serif;font-size:14px;
-    letter-spacing:.06em;text-transform:uppercase;padding:6px 13px;background:transparent;
+    letter-spacing:.06em;text-transform:uppercase;padding:6px 13px;background:transparent;white-space:nowrap;
     color:var(--accentDeep);border:1px solid var(--accent);border-radius:6px;cursor:pointer;
     text-decoration:none;transition:background .15s;}
   .topbtn:hover{background:rgba(182,130,53,.12);}
@@ -60,26 +60,37 @@
   .pulldrawer{display:flex;align-items:flex-start;position:relative;overflow:visible;
     transform:translateX(300px);transition:transform .32s cubic-bezier(.3,.8,.3,1);}
   .pulldrawer.open{transform:translateX(0);}
-  #kcHandle{align-self:flex-start;margin-top:8px;writing-mode:vertical-rl;
-    background:var(--accent);color:#241a08;border:none;padding:18px 9px;cursor:pointer;
+  #kcHandle,#tasksHandle,#caseHandle{align-self:flex-start;margin-top:8px;writing-mode:vertical-rl;
+    width:40px;height:172px;box-sizing:border-box;border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
     font-family:'Cormorant Garamond',serif;font-weight:700;letter-spacing:.2em;font-size:14px;
     border-radius:9px 0 0 9px;box-shadow:-4px 4px 16px rgba(0,0,0,.2);text-transform:uppercase;}
+  #kcHandle{background:var(--accent);color:#241a08;}
   #kcHandle:hover{background:var(--accentDeep);color:#fff;}
-  #kcPanel{width:300px;max-height:calc(100vh - 108px);overflow:auto;background:var(--paper);
-    border:1px solid var(--divider);border-left:3px solid var(--accent);
-    padding:16px 16px 20px;box-shadow:-10px 8px 34px rgba(0,0,0,.16);}
-  #tasksHandle{align-self:flex-start;margin-top:0;writing-mode:vertical-rl;
-    background:var(--salmon);color:#fff;border:none;padding:18px 9px;cursor:pointer;
-    font-family:'Cormorant Garamond',serif;font-weight:700;letter-spacing:.2em;font-size:14px;
-    border-radius:9px 0 0 9px;box-shadow:-4px 4px 16px rgba(0,0,0,.2);text-transform:uppercase;
-    display:flex;flex-direction:column;align-items:center;gap:6px;}
+  #kcPanel,#tasksPanel,#casePanel{width:300px;max-height:calc(100vh - 108px);overflow:auto;background:var(--paper);
+    border:1px solid var(--divider);padding:16px 16px 20px;box-shadow:-10px 8px 34px rgba(0,0,0,.16);}
+  #kcPanel{border-left:3px solid var(--accent);}
+  #caseHandle{background:var(--slab);color:var(--paper);}
+  #caseHandle:hover{background:var(--ink);}
+  #casePanel{border-left:3px solid var(--slab);}
+  .info-i{position:relative;display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;flex:none;
+    border-radius:50%;border:1.3px solid var(--mute);color:var(--mute);font-size:11px;font-style:italic;
+    font-family:Georgia,serif;cursor:pointer;text-transform:none;letter-spacing:normal;}
+  .info-i:hover{border-color:var(--accentDeep);color:var(--accentDeep);}
+  .info-tip{position:absolute;top:calc(100% + 7px);left:0;width:220px;background:var(--ink);color:#fff;
+    font-size:12.5px;font-style:normal;font-family:'Lora',serif;line-height:1.45;font-weight:400;
+    padding:9px 11px;border-radius:7px;box-shadow:0 10px 24px rgba(0,0,0,.28);
+    opacity:0;pointer-events:none;transition:opacity .15s;z-index:6;text-transform:none;letter-spacing:normal;}
+  .info-i:hover .info-tip,.info-i.show .info-tip{opacity:1;pointer-events:auto;}
+  #tasksHandle{background:var(--salmon);color:#fff;}
   #tasksHandle:hover{filter:brightness(.88);}
-  .drawer-badge{writing-mode:horizontal-tb;background:rgba(255,255,255,.9);color:var(--salmon);
-    font-family:'Cormorant Garamond',serif;font-weight:700;font-size:12px;border-radius:50%;
-    width:20px;height:20px;display:flex;align-items:center;justify-content:center;}
-  #tasksPanel{width:300px;max-height:calc(100vh - 108px);overflow:auto;background:var(--paper);
-    border:1px solid var(--divider);border-left:3px solid var(--salmon);
-    padding:16px 16px 20px;box-shadow:-10px 8px 34px rgba(0,0,0,.16);}
+  #tasksPanel{border-left:3px solid var(--salmon);}
+  .drawer-badge-outside{position:absolute;top:50%;right:calc(100% + 8px);transform:translateY(-50%);
+    writing-mode:horizontal-tb;background:var(--salmon);color:#fff;
+    font-family:'Cormorant Garamond',serif;font-weight:700;font-size:13px;border-radius:50%;
+    width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 3px 10px rgba(0,0,0,.25);transition:opacity .15s;}
+  .pulldrawer.open .drawer-badge-outside{display:none;}
   .task-item{display:flex;align-items:flex-start;gap:12px;text-align:left;width:100%;
     padding:12px 14px;background:#fff;border:1px solid var(--divider);border-radius:9px;cursor:pointer;
     font-family:'Lora',serif;transition:border-color .15s,background .15s;margin-bottom:8px;}
@@ -94,10 +105,10 @@
   .kc-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;line-height:1.1;margin:6px 0 3px;}
   .kc-sub{font-size:12px;color:var(--mute);font-style:italic;}
 
-  #menuWrap{position:relative;pointer-events:auto;}
+  #menuWrap{position:relative;pointer-events:auto;z-index:100;}
   #hamMenu{position:absolute;top:calc(100% + 6px);right:0;min-width:150px;background:var(--paper);
     border:1px solid var(--divider);border-radius:9px;box-shadow:0 12px 30px rgba(0,0,0,.2);
-    padding:6px;display:none;flex-direction:column;gap:2px;z-index:9;}
+    padding:6px;display:none;flex-direction:column;gap:2px;z-index:100;}
   #hamMenu.open{display:flex;}
   #hamMenu button{font-family:'Cormorant Garamond',serif;font-size:15px;letter-spacing:.04em;
     text-align:left;padding:9px 12px;background:transparent;border:none;border-radius:6px;color:var(--ink);
@@ -363,7 +374,7 @@
     #chainpips .pip{width:12px;height:12px;}
     .topbtn{font-size:12px;padding:5px 9px;}
     #drawersWrap{top:122px;}
-    #kcPanel,#tasksPanel{width:min(300px,84vw);max-height:calc(100vh - 140px);}
+    #kcPanel,#tasksPanel,#casePanel{width:min(300px,84vw);max-height:calc(100vh - 140px);}
     #endTurnBtn{right:12px;bottom:calc(12px + env(safe-area-inset-bottom));font-size:15px;padding:10px 18px;}
     #prompt{bottom:calc(78px + env(safe-area-inset-bottom));font-size:13px;max-width:94vw;}
     .mini-screen{width:96vw;height:min(640px,92vh);border-width:6px;}
@@ -396,9 +407,7 @@
 <div id="centerHud">
   <div class="stat" id="heartsRow" style="display:none;gap:4px;"></div>
   <div class="stat" style="font-weight:700">Turn <b id="turnNum">1</b>/<span id="turnMax">10</span></div>
-  <div class="stat" id="streakStat">Streak <b id="streakDots">○○○</b></div>
   <div id="chainpips"></div>
-  <button class="topbtn" id="caseBtn">Case File</button>
 </div>
 
 <canvas id="game"></canvas>
@@ -411,12 +420,21 @@
     <button id="kcHandle">◈ Kill Chain</button>
     <div id="kcPanel">
       <div class="kc-h" style="margin-bottom:4px;font-weight:700;color:var(--salmon)">Turns Left: <span id="kcTurnsLeft">0</span></div>
+      <div class="kc-h" id="streakStat" style="display:flex;align-items:center;gap:6px;font-weight:700">
+        <span class="info-i" id="streakInfoBtn" tabindex="0">i<span class="info-tip">Fail streak — consecutive procedures that come back empty. Three in a row forces a new lead card into play.</span></span>
+        Streak <b id="streakDots">○○○</b>
+      </div>
       <div class="kc-h">Kill chain · <span id="kcCount">0</span>/4 found</div>
       <div id="kcCards"></div>
     </div>
   </div>
+  <div id="caseDrawer" class="pulldrawer">
+    <button id="caseHandle">☷ Case File</button>
+    <div id="casePanel"><div id="caseFileContent"></div></div>
+  </div>
   <div id="tasksDrawer" class="pulldrawer" style="display:none;">
-    <button id="tasksHandle">✦ Tasks <span class="drawer-badge" id="tasksBadge">0</span></button>
+    <span class="drawer-badge-outside" id="tasksBadge">0</span>
+    <button id="tasksHandle">✦ Tasks</button>
     <div id="tasksPanel">
       <div class="kc-h">Active tasks · <span id="tasksCount">0</span> pending</div>
       <div id="tasksList"></div>
@@ -507,7 +525,8 @@ function desk(x,y,facing=1,noMonitor){
   rect(mx+12, y-dh-5, 14, 2, C.dark);
   rect(facing===1? x+30: x+52, y-dh-6, 26, 3, C.mute);
 }
-function person(x,y,shirt,skin,seated=true){
+function person(x,y,shirt,skin,seated=true,facing=1){
+  if(facing===-1){ ctx.save(); ctx.translate(2*x,0); ctx.scale(-1,1); }
   if(seated){
     rect(x-12, y-34, 24, 4, C.dark);
     line(x, y-30, x, y-8, C.dark, 3);
@@ -524,6 +543,7 @@ function person(x,y,shirt,skin,seated=true){
     line(x-4, y-22, x-4, y, C.slab, 4);
     line(x+4, y-22, x+4, y, C.slab, 4);
   }
+  if(facing===-1){ ctx.restore(); }
 }
 function workstation(x,y,shirt,skin){ desk(x,y,1); person(x-8,y,shirt,skin); registerEntity('userdesk', x, y, 110); }
 function crtScreen(sx,sy,sw,sh){
@@ -590,7 +610,6 @@ function fridge(x,y){
   line(x, y-62, x+52, y-62, C.ink, 1.5);
   line(x+42, y-88, x+42, y-70, C.ink, 2.5);
   line(x+42, y-54, x+42, y-30, C.ink, 2.5);
-  ctext('❄', x+18, y-72, 16, {color:C.accent});
   registerEntity('fridge', x, y, 52);
 }
 function coffeeTable(x,y){
@@ -669,17 +688,33 @@ function printer(x,y,floor){
   line(x+8,y-18,x+52,y-18,C.ink,1);
   registerEntity('printer', x, y, 60, floor);
 }
+function chandelier(cx, floorY){
+  const hookY = floorY-150, barY = floorY-118;
+  line(cx, floorY-172, cx, hookY, C.accentDeep, 2);
+  line(cx-42, hookY, cx+42, hookY, C.accentDeep, 2);
+  line(cx-42, hookY, cx-42, barY, C.accentDeep, 2);
+  line(cx+42, hookY, cx+42, barY, C.accentDeep, 2);
+  line(cx, hookY, cx, barY, C.accentDeep, 2);
+  rect(cx-52, barY, 104, 6, C.accent);
+  [-42,-14,14,42].forEach(dx=>{
+    line(cx+dx, barY+6, cx+dx, barY+22, C.accentDeep, 2);
+    ctx.fillStyle = C.accent;
+    ctx.beginPath(); ctx.arc(cx+dx, barY+28, 7, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = C.accentDeep; ctx.lineWidth=1; ctx.stroke();
+  });
+}
 function execTable(x,y){
   const w=260;
+  chandelier(x + w/2, y);
   registerEntity('exec', x, y, w);
   rect(x, y-52, w, 8, '#4a3826');
   line(x+18,y-44,x+18,y,'#4a3826',5); line(x+w-18,y-44,x+w-18,y,'#4a3826',5);
-  const lx=x+w/2-20;
-  rect(lx, y-56, 40, 4, C.dark);
+  const lx=x+w/2-10;
+  rect(lx, y-56, 20, 2, C.dark);
   ctx.fillStyle=C.dark; ctx.beginPath();
-  ctx.moveTo(lx+2,y-56); ctx.lineTo(lx+6,y-82); ctx.lineTo(lx+38,y-82); ctx.lineTo(lx+38,y-56); ctx.closePath(); ctx.fill();
+  ctx.moveTo(lx+1,y-56); ctx.lineTo(lx+3,y-69); ctx.lineTo(lx+19,y-69); ctx.lineTo(lx+19,y-56); ctx.closePath(); ctx.fill();
   ctx.fillStyle=C.screen; ctx.beginPath();
-  ctx.moveTo(lx+6,y-59); ctx.lineTo(lx+9,y-79); ctx.lineTo(lx+35,y-79); ctx.lineTo(lx+35,y-59); ctx.closePath(); ctx.fill();
+  ctx.moveTo(lx+3,y-57.5); ctx.lineTo(lx+4.5,y-67.5); ctx.lineTo(lx+17.5,y-67.5); ctx.lineTo(lx+17.5,y-57.5); ctx.closePath(); ctx.fill();
 }
 function bookshelf(x,y,floor){
   rect(x, y-118, 86, 118, C.paper, C.ink);
@@ -829,8 +864,8 @@ function drawBuilding(){
     person(BX+560, y, C.slab, C.skin);
     registerEntity('ceo', BX+560, y, 40, 4);
     person(BX+700, y, C.shirtA, C.skin2);
-    person(BX+800, y, C.shirtD, C.skin3);
-    person(BX+900, y, C.shirtB, C.skin);
+    person(BX+800, y, C.shirtD, C.skin3, true, -1);
+    person(BX+900, y, C.shirtB, C.skin, true, -1);
     bookshelf(BX+1000, y, 4);
     plant(BX+300, y, 1.4, 4);
     plant(BX+1200, y, 1.2, 4);
@@ -1123,7 +1158,7 @@ let started = false;
 const isMobile = matchMedia('(pointer: coarse)').matches;
 
 const SETTINGS_KEY = 'socc_office_settings';
-let settings = { fastDice:false, markers:false, miniGames:false };
+let settings = { fastDice:false, markers:false, miniGames:true };
 try{ const sv = JSON.parse(localStorage.getItem(SETTINGS_KEY)); if(sv) settings = { ...settings, ...sv }; }catch(e){}
 function saveSettings(){ try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }catch(e){} }
 
@@ -1235,8 +1270,14 @@ function getMalwarePool(){
 function getPhysecPool(){
   return ENTITIES.filter(e => PHYSEC_TYPES.includes(e.type));
 }
+function getBudgetPool(){
+  return ENTITIES.filter(e => e.type==='safe');
+}
 function getFollowupPool(){
   return ENTITIES.filter(e => e.type==='userdesk' && e.floor!==0 && !e.playerHome && !(caller && e.key===caller.key));
+}
+function randomTaskCount(){
+  return numPlayers===2 ? (2+Math.floor(Math.random()*3)) : (4+Math.floor(Math.random()*3));
 }
 function spawnEvents(count){
   const list = [];
@@ -1252,6 +1293,7 @@ function spawnEvents(count){
     const physecPool = getPhysecPool().filter(e=>!used.has(e.key));
     const followupPool = getFollowupPool().filter(e=>!used.has(e.key));
     const malwarePool = getMalwarePool().filter(e=>!used.has(e.key));
+    const budgetPool = getBudgetPool().filter(e=>!used.has(e.key));
 
     const options = [];
     if(execAvailable) options.push('exec');
@@ -1259,6 +1301,7 @@ function spawnEvents(count){
     if(physecPool.length) options.push('physec');
     if(followupPool.length) options.push('followup');
     if(malwarePool.length) options.push('malware');
+    if(budgetPool.length) options.push('budget');
     if(!options.length) break; // genuinely no candidates left in any category
 
     const type = rand(options);
@@ -1279,6 +1322,10 @@ function spawnEvents(count){
       const ent = rand(followupPool);
       list.push({ id:mkId(), type:'followup', entityKey:ent.key, employeeName: rand(NAMES), dept: deptFor(ent), done:false });
       used.add(ent.key);
+    } else if(type==='budget'){
+      const ent = rand(budgetPool);
+      list.push({ id:mkId(), type:'budget', entityKey:ent.key, done:false });
+      used.add(ent.key);
     } else {
       const ent = rand(malwarePool);
       list.push({ id:mkId(), type:'malware', entityKey:ent.key, objType:ENTITY_TO_MALWARE_LABEL[ent.type]||'object', done:false });
@@ -1293,7 +1340,7 @@ function newGame(n){
   numPlayers = Math.max(1, Math.min(3, n || numPlayers || 1));
   drawScene();                          // rebuild map + entities for this player count
   game = E.createGame();
-  game.coffeeCups = 0; game.coffeeThisTurn = false; game.fridgeUsed = false; game.cisoAsked = false;
+  game.coffeeCups = 0; game.coffeeThisTurn = false; game.fridgeUsed = false; game.cisoAsked = false; game.snackMiniGuarantee = false;
   players = [ makeChar(BX+220, 0) ];
   if(numPlayers>=2) players.push(makeChar(BX+500, 0));
   if(numPlayers>=3) players.push(makeChar(BX+680, 0));
@@ -1302,7 +1349,7 @@ function newGame(n){
   const ce = pool[Math.floor(Math.random()*pool.length)] || ENTITIES.find(e=>e.type==='userdesk');
   caller = { key: ce.key, name: rand(NAMES), dept: deptFor(ce), inquired:false };
   game.log = [{ t:0, text:`${caller.name} (${caller.dept}) called in an incident.` }];
-  if(numPlayers>1){ game.hearts = 3; game.events = spawnEvents(numPlayers===2?2:4); }
+  if(numPlayers>1){ game.hearts = 3; game.events = spawnEvents(randomTaskCount()); }
   else { game.hearts = null; game.events = []; }
   try{ localStorage.setItem('socc_last_mode','office'); }catch(e){}
   save(); refreshHUD(); showCall();
@@ -1463,6 +1510,57 @@ function handleEventEntity(e, ev){
   else if(ev.type==='exec') openExecMeeting(ev);
   else if(ev.type==='physec') openPhysecPopup(ev);
   else if(ev.type==='followup') openFollowupPopup(ev);
+  else if(ev.type==='budget') openBudgetPopup(ev);
+}
+const BUDGET_ITEMS = [
+  { icon:'💵', label:'A crisp $100 bill', funny:'The entire InfoSec budget for the fiscal year. Frame it — you will not see its like again.' },
+  { icon:'🧾', label:'A palette of Monopoly money', funny:'Finance insists it has "the same purchasing power" as the real line item. Community Chest disagrees.' },
+  { icon:'🍭', label:'A ring pop', funny:'Sticky, purple, and technically still worth more than last quarter\u2019s SOC tooling budget.' },
+  { icon:'🕸️', label:'Nothing but dust', funny:'The safe is bone dry. Somewhere, a VP is expensing a "strategy offsite."' },
+];
+function openBudgetPopup(ev){
+  activeEventCtx = ev;
+  closeableModal = true;
+  setModal(`
+    <div class="m-head"><span class="m-kicker">💰 Finance floor · the safe</span><button class="m-x" data-act="close">✕</button></div>
+    <div class="m-body">
+      <p class="m-title sm">Collect InfoSec Budget</p>
+      <p class="m-desc">Someone finally remembered InfoSec has a line item. The combination is on a sticky note taped to the dial — might as well see what's actually in there.</p>
+      <div class="m-actions"><button class="btn primary" data-act="openbudget">Open the safe</button></div>
+    </div>`);
+  bind();
+}
+function launchBudgetMinigame(ev){
+  closeModal();
+  modalOpen = true;
+  miniHost.style.display = 'flex';
+  miniHost.innerHTML = `
+    <div class="mini-screen">
+      <div class="mini-bar">
+        <div class="mini-title">Finance — The Safe</div>
+        <div class="mini-hint">Whatever's in here is officially the InfoSec budget.</div>
+        <button class="mini-quit" id="budgetQuit">Abort ✕</button>
+      </div>
+      <div class="mini-area" id="budgetArea" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:20px;"></div>
+    </div>`;
+  const area = miniHost.querySelector('#budgetArea');
+  miniHost.querySelector('#budgetQuit').onclick = ()=> abort();
+  area.innerHTML = `
+    <div style="font-size:120px;line-height:1;filter:drop-shadow(0 10px 24px rgba(0,0,0,.5))">🔒</div>
+    <button class="mini-btn" id="safeOpenBtn">Open</button>`;
+  area.querySelector('#safeOpenBtn').onclick = ()=> reveal();
+  function reveal(){
+    const item = BUDGET_ITEMS[Math.floor(Math.random()*BUDGET_ITEMS.length)];
+    area.innerHTML = `
+      <div style="font-size:96px;line-height:1;filter:drop-shadow(0 10px 24px rgba(0,0,0,.5))">🔓</div>
+      <div style="font-size:60px;line-height:1">${item.icon}</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:#dfe4ea;text-align:center">${esc(item.label)}</div>
+      <div style="font-size:14.5px;color:#8b94a6;text-align:center;max-width:520px;line-height:1.5;font-style:italic">${esc(item.funny)}</div>
+      <button class="mini-btn" id="budgetContinue">Continue ▸</button>`;
+    area.querySelector('#budgetContinue').onclick = ()=> finish();
+  }
+  function finish(){ miniHost.style.display='none'; miniHost.innerHTML=''; modalOpen=false; ev.done=true; save(); refreshHUD(); }
+  function abort(){ miniHost.style.display='none'; miniHost.innerHTML=''; modalOpen=false; refreshHUD(); }
 }
 function openPhysecPopup(ev){
   activeEventCtx = ev;
@@ -1637,7 +1735,7 @@ function openFridge(){
     <div class="m-head"><span class="m-kicker">Breakroom · fridge</span><button class="m-x" data-act="close">✕</button></div>
     <div class="m-body">
       <p class="m-title sm">Fridge</p>
-      <p class="m-desc">${used?'Picked clean — you already used the fridge this game.':'A leftover sandwich with someone\u2019s name on it. Eating it grants a one-time +3 on your next roll.'}</p>
+      <p class="m-desc">${used?'Picked clean — you already used the fridge this game.':'A leftover sandwich with someone\u2019s name on it. Eating it grants a one-time +10 modifier on your next dice roll \u2014 or a guaranteed success on the next minigame you play, whichever happens first.'}</p>
       <div class="m-actions">
         ${used?'':`<button class="btn primary" data-act="eat">Grab a snack 🥪</button>`}
         <button class="btn ghost" data-act="close">Back</button>
@@ -1674,6 +1772,7 @@ function showConfirm(entity, procId){
 function runRoll(procId, manualNatural){
   const proc = E.cardById(procId);
   const res = E.playProcedure(game, procId, manualNatural);
+  if(game.snackMiniGuarantee) game.snackMiniGuarantee = false;
   save();
   const roll = res.events.find(x=>x.kind==='roll');
   pending = { events: res.events, matches: res.matches, proc };
@@ -1769,6 +1868,12 @@ function showMiniConfirm(entity, procId){
 
 function launchMinigame(procId){
   closeModal();
+  if(game.snackMiniGuarantee){
+    game.snackMiniGuarantee = false; game.nextRollMod = 0;
+    modalOpen = true;
+    runMinigameResult(procId, true, true);
+    return;
+  }
   modalOpen = true;
   miniHost.style.display = 'flex';
   miniHost.innerHTML = '';
@@ -1790,7 +1895,7 @@ function endMinigame(){
   miniHost.innerHTML = '';
   modalOpen = false;
 }
-function runMinigameResult(procId, success){
+function runMinigameResult(procId, success, guaranteed){
   const proc = E.cardById(procId);
   const res = E.playProcedure(game, procId, null, { success });
   save();
@@ -1801,7 +1906,7 @@ function runMinigameResult(procId, success){
       <div class="m-kicker" style="margin-bottom:8px">Exercise · ${esc(proc.title)}</div>
       <div class="dice ${success?'win':'lose'}" style="font-size:52px">${success?'✓':'✕'}</div>
       <div class="dice-verdict" style="color:${success?'var(--green)':'var(--salmon)'};margin-top:8px">${success?'SUCCESS':'FAILURE'}</div>
-      <div class="dice-math">${success?'Exercise cleared — the procedure runs.':'The exercise failed — nothing detected this turn.'}</div>
+      <div class="dice-math">${guaranteed?'That leftover snack made good — exercise cleared automatically.':success?'Exercise cleared — the procedure runs.':'The exercise failed — nothing detected this turn.'}</div>
       <div class="m-actions" style="justify-content:center"><button class="btn primary" data-act="dicecontinue">Continue ▸</button></div>
     </div>`);
   bind();
@@ -2405,7 +2510,7 @@ function endTurn(){
   const events = E.endTurn(game);
   game.coffeeThisTurn = false;
   players.forEach(p=> p.turnActivity = null);
-  if(numPlayers>1 && !game.result){ game.events = spawnEvents(numPlayers===2?2:4); }
+  if(numPlayers>1 && !game.result){ game.events = spawnEvents(randomTaskCount()); }
   save();
   ovQueue = eventsToOverlays(events);
   if(ovQueue.length) nextOverlay();
@@ -2461,8 +2566,7 @@ function showCaseFile(){
       <div class="subhead">Team &amp; buffs</div>
       <p class="m-desc" style="font-size:14px">Agents: ${players.length} · Coffee: ${game.coffeeCups||0}/4 (+${(game.coffeeCups||0)*25}% speed)${game.fridgeUsed?' · fridge used':''}${game.nextRollMod?` · next roll ${game.nextRollMod>0?'+':''}${game.nextRollMod}`:''}</p>
       ${(numPlayers>1 && game.events && game.events.length) ? `<div class="subhead">Active tasks this turn</div><div class="proc-list">` + game.events.map(ev=>{
-        const label = ev.type==='malware' ? `Malware check: ${ev.objType}` : ev.type==='emails' ? 'Clear the inbox' : ev.type==='exec' ? 'Meet with the CEO' : ev.type==='physec' ? `Security check: ${ev.objType}` : `Follow-up: ${ev.employeeName}`;
-        return `<div class="proc" style="cursor:default;${ev.done?'opacity:.5':''}"><span><span class="pt">${esc(label)}</span></span><span class="pm ${ev.done?'est':'no'}">${ev.done?'✓ done':'pending'}</span></div>`;
+        return `<div class="proc" style="cursor:default;${ev.done?'opacity:.5':''}"><span><span class="pt">${esc(taskLabel(ev))}</span></span><span class="pm ${ev.done?'est':'no'}">${ev.done?'✓ done':'pending'}</span></div>`;
       }).join('') + `</div>` : ''}
       <div class="subhead">Log</div>
       <div class="log">${log}</div>
@@ -2525,7 +2629,8 @@ function bind(entity){
       else if(a==='inquire'){ caller.inquired=true; save(); openEntity(callerEntity()); }
       else if(a==='ciso'){ game.cisoAsked=true; save(); openEntity(entity); }
       else if(a==='drink'){ game.coffeeCups=(game.coffeeCups||0)+1; game.coffeeThisTurn=true; save(); refreshHUD(); infoModal('Breakroom','Caffeinated ☕',`Cup ${game.coffeeCups}/4 — movement speed is now +${game.coffeeCups*25}% for the rest of the game.`); }
-      else if(a==='eat'){ game.nextRollMod=(game.nextRollMod||0)+3; game.fridgeUsed=true; save(); refreshHUD(); infoModal('Breakroom','Snack acquired 🥪','Your next roll carries a one-time +3 modifier.'); }
+      else if(a==='eat'){ game.nextRollMod=(game.nextRollMod||0)+10; game.snackMiniGuarantee=true; game.fridgeUsed=true; save(); refreshHUD(); infoModal('Breakroom','Snack acquired 🥪','Your next dice roll carries a one-time +10 modifier — or your next minigame is an automatic win, whichever comes first.'); }
+      else if(a==='openbudget') launchBudgetMinigame(activeEventCtx);
       else if(a==='dicecontinue') diceContinue();
       else if(a==='ovnext') nextOverlay();
       else if(a==='again'){ closeModal(); showIntro(); }
@@ -2549,7 +2654,6 @@ function bind(entity){
   });
 }
 
-document.getElementById('caseBtn').onclick = ()=>{ if(game && !modalOpen) showCaseFile(); };
 const hamMenu = document.getElementById('hamMenu');
 document.getElementById('hamBtn').onclick = (e)=>{ e.stopPropagation(); hamMenu.classList.toggle('open'); };
 document.addEventListener('click', ()=> hamMenu.classList.remove('open'));
@@ -2564,8 +2668,14 @@ hamMenu.querySelectorAll('[data-menu]').forEach(el=>{
   };
 });
 document.getElementById('kcHandle').onclick = ()=> document.getElementById('kcDrawer').classList.toggle('open');
+document.getElementById('caseHandle').onclick = ()=> document.getElementById('caseDrawer').classList.toggle('open');
 document.getElementById('tasksHandle').onclick = ()=> document.getElementById('tasksDrawer').classList.toggle('open');
 document.querySelectorAll('.pulldrawer').forEach(d=>{ d.style.height = d.querySelector('button').offsetHeight+'px'; });
+const streakInfoBtn = document.getElementById('streakInfoBtn');
+if(streakInfoBtn){
+  streakInfoBtn.addEventListener('click', e=>{ e.stopPropagation(); streakInfoBtn.classList.toggle('show'); });
+  document.addEventListener('click', ()=> streakInfoBtn.classList.remove('show'));
+}
 endTurnBtn.onclick = ()=> endTurn();
 promptEl.onclick = ()=> tryInteract(); // tappable on touch screens (no E key)
 
@@ -2585,6 +2695,7 @@ function refreshHUD(){
     } else heartsEl.style.display='none';
   }
   refreshTasksPanel();
+  refreshCaseFile();
   const cups = game.coffeeCups||0;
   let buff = cups>0 ? `☕ ${cups}/4` : '';
   if(game.nextRollMod) buff += (buff?' · ':'') + `⚡ ${game.nextRollMod>0?'+':''}${game.nextRollMod}`;
@@ -2599,8 +2710,45 @@ function refreshHUD(){
   });
   refreshKillChain();
 }
+function refreshCaseFile(){
+  const box = document.getElementById('caseFileContent');
+  if(!box || !game || !caller) return;
+  const oc = initialCall();
+  const ce = callerEntity();
+  const log = game.log.slice().reverse().map(l=>`<div class="le"><b>T${l.t}</b> ${esc(l.text)}</div>`).join('');
+  box.innerHTML = `
+    <div class="kc-h">Case file · Turn ${Math.min(game.turn,E.RULES.turns)}/${E.RULES.turns}</div>
+    <div class="subhead" style="margin-top:0">The call</div>
+    <p class="m-desc">“${esc(oc.call)}”<br><span style="color:var(--mute);font-style:italic">— ${esc(caller.name)}, ${esc(caller.dept)} (${ce?floorName(ce.floor):''})</span></p>
+    ${caller.inquired?`<div class="aside"><b>Symptom:</b> “${esc(oc.symptom)}”</div>`:`<p class="field-note">Visit ${esc(caller.name)}'s desk to inquire about symptoms.</p>`}
+    <div class="subhead">Team &amp; buffs</div>
+    <p class="m-desc" style="font-size:14px">Agents: ${players.length} · Coffee: ${game.coffeeCups||0}/4 (+${(game.coffeeCups||0)*25}% speed)${game.fridgeUsed?' · fridge used':''}${game.nextRollMod?` · next roll ${game.nextRollMod>0?'+':''}${game.nextRollMod}`:''}</p>
+    <div class="subhead">Actions</div>
+    <div class="proc-list" style="gap:8px">
+      <button class="btn" style="width:100%;text-align:left" data-caseact="computer">Use Computer</button>
+      <button class="btn" style="width:100%;text-align:left" data-caseact="server">Check Server</button>
+      <button class="btn" style="width:100%;text-align:left" data-caseact="caller">Visit Caller</button>
+      <button class="btn" style="width:100%;text-align:left" data-caseact="execs">Meet Execs</button>
+    </div>
+    <div class="subhead">Log</div>
+    <div class="log">${log}</div>`;
+  box.querySelectorAll('[data-caseact]').forEach(btn=>{
+    btn.onclick = ()=> goToCaseAction(btn.dataset.caseact);
+  });
+}
+function goToCaseAction(kind){
+  let ent = null;
+  if(kind==='computer') ent = ENTITIES.find(e=>e.type==='userdesk' && e.playerHome);
+  else if(kind==='server') ent = ENTITIES.find(e=>e.type==='rack');
+  else if(kind==='caller') ent = callerEntity();
+  else if(kind==='execs') ent = ENTITIES.find(e=>e.type==='exec');
+  if(!ent) return;
+  document.getElementById('caseDrawer').classList.remove('open');
+  if(modalOpen) closeModal();
+  target = {x: ent.x + ent.w/2, floor: ent.floor, entity: ent};
+}
 function taskLabel(ev){
-  return ev.type==='malware' ? `Malware check: ${ev.objType}` : ev.type==='emails' ? 'Clear the inbox' : ev.type==='exec' ? 'Meet with the CEO' : ev.type==='physec' ? `Security check: ${ev.objType}` : `Follow-up: ${ev.employeeName}`;
+  return ev.type==='malware' ? `Malware check: ${ev.objType}` : ev.type==='emails' ? 'Clear the inbox' : ev.type==='exec' ? 'Meet with the CEO' : ev.type==='physec' ? `Security check: ${ev.objType}` : ev.type==='budget' ? 'Collect InfoSec Budget' : `Follow-up: ${ev.employeeName}`;
 }
 function goToTask(ev){
   const ent = ENTITIES.find(e=>e.key===ev.entityKey);
