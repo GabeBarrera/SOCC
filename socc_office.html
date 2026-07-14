@@ -1667,7 +1667,20 @@ function resolveFollowup(choiceKey){
     if(choiceKey==='emailcheck'){
       infoModal('Follow-Up Complete', '"Did you see my email?"', `${ev.employeeName}'s manager nods gravely, says "on it, top priority," and appears to genuinely mean it \u2014 for about five minutes, after which they forget it ever happened. They never give you an update.`);
     } else {
-      infoModal('Follow-Up Complete', 'Small talk initiated', `Forty-five minutes evaporate discussing a fantasy football trade, a kitchen renovation, and whether the office plant is "actually alive." Good vibes were shared. No work got done.`);
+      const won = Math.random() < 0.3;
+      let msg = `Forty-five minutes evaporate discussing a fantasy football trade, a kitchen renovation, and whether the office plant is "actually alive." Good vibes were shared. No work got done.`;
+      if(won){
+        const unrevealed = game.hidden.filter(h=>!h.revealed);
+        if(unrevealed.length){
+          const pick = rand(unrevealed);
+          E.revealCard(game, pick.cardId, null);
+          save(); refreshHUD(); refreshKillChain();
+          msg = `Somewhere around the kitchen renovation tangent, ${ev.employeeName}'s manager mentions, totally unprompted, that "IT's been weirdly quiet since we let that new vendor remote into the badge system last week, guess they finally figured it out lol." They move on to describing their backsplash tile options. You do not move on. A kill chain stage just reveals itself, handed over free of charge by a man who thinks the biggest security risk in the building is the office plant.`;
+        } else {
+          msg += ` Somewhere in there ${ev.employeeName}'s manager casually name-drops the vendor with badge-system remote access, then immediately pivots back to tile options \u2014 not that it matters, the kill chain's already fully mapped.`;
+        }
+      }
+      infoModal('Follow-Up Complete', won ? 'Small talk initiated \u2014 oversharing achieved' : 'Small talk initiated', msg);
     }
     return;
   }
