@@ -96,6 +96,15 @@
   .kc-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;line-height:1.1;margin:6px 0 3px;}
   .kc-sub{font-size:12px;color:var(--mute);font-style:italic;}
 
+  .tipWrap{position:relative;pointer-events:auto;}
+  .btnTip{position:absolute;top:calc(100% + 8px);right:0;min-width:190px;background:var(--paper);
+    border:1px solid var(--divider);border-radius:8px;padding:9px 12px;font-family:'Cormorant Garamond',serif;
+    font-size:13px;line-height:1.35;color:var(--ink);box-shadow:0 12px 30px rgba(0,0,0,.2);
+    opacity:0;visibility:hidden;transform:translateY(-3px);transition:opacity .12s,transform .12s;
+    z-index:100;pointer-events:none;}
+  .tipWrap:hover .btnTip{opacity:1;visibility:visible;transform:none;}
+  #cyclePlayerBtn{display:flex;align-items:center;justify-content:center;width:32px;height:30px;padding:0;}
+  #cyclePlayerBtn svg{width:17px;height:17px;display:block;}
   #menuWrap{position:relative;pointer-events:auto;z-index:100;}
   #hamMenu{position:absolute;top:calc(100% + 6px);right:0;min-width:150px;background:var(--paper);
     border:1px solid var(--divider);border-radius:9px;box-shadow:0 12px 30px rgba(0,0,0,.2);
@@ -383,6 +392,12 @@
   <div class="spacer"></div>
   <div class="status">
     <div class="stat" id="buffStat"></div>
+    <div class="tipWrap" id="cycleWrap" style="display:none;">
+      <button class="topbtn" id="cyclePlayerBtn" aria-label="Switch player">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="7.5" r="4" fill="currentColor"/><path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7" fill="currentColor"/></svg>
+      </button>
+      <div class="btnTip" id="cycleTip">Switch to the next player</div>
+    </div>
     <div id="menuWrap">
       <button class="topbtn" id="hamBtn" aria-label="Menu">☰</button>
       <div id="hamMenu">
@@ -874,15 +889,17 @@ let active = 0;
 let player = players[0];
 
 const keys = {};
+const WASD_MAP = { w:'ArrowUp', a:'ArrowLeft', s:'ArrowDown', d:'ArrowRight' };
 addEventListener('keydown', e=>{
   if(e.key==='Tab'){ e.preventDefault(); if(!modalOpen && players.length>1){ active=(active+1)%players.length; player=players[active]; target=null; refreshHUD(); } return; }
   if(e.key==='e'||e.key==='E'){ tryInteract(); return; }
+  if(settings.wasd){ const mapped = WASD_MAP[e.key.toLowerCase()]; if(mapped){ if(modalOpen) return; keys[mapped]=true; target=null; if(['ArrowUp','ArrowDown'].includes(mapped)) e.preventDefault(); return; } }
   if(modalOpen) return;
   keys[e.key]=true;
   if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key)) target=null;
   if(['ArrowUp','ArrowDown',' '].includes(e.key)) e.preventDefault();
 });
-addEventListener('keyup', e=>keys[e.key]=false);
+addEventListener('keyup', e=>{ keys[e.key]=false; if(settings.wasd){ const mapped = WASD_MAP[e.key.toLowerCase()]; if(mapped) keys[mapped]=false; } });
 
 let target = null;
 
@@ -1148,7 +1165,7 @@ let started = false;
 const isMobile = matchMedia('(pointer: coarse)').matches;
 
 const SETTINGS_KEY = 'socc_office_settings';
-let settings = { fastDice:false, markers:false, miniGames:true };
+let settings = { fastDice:false, markers:false, miniGames:true, wasd:false };
 try{ const sv = JSON.parse(localStorage.getItem(SETTINGS_KEY)); if(sv) settings = { ...settings, ...sv }; }catch(e){}
 function saveSettings(){ try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }catch(e){} }
 
@@ -1315,7 +1332,8 @@ function spawnEvents(count){
       const empName = namePool.length ? rand(namePool) : rand(NAMES);
       usedFollowupNames.add(empName);
       const variant = rand(['reminder','suspicious','managerhell']);
-      list.push({ id:mkId(), type:'followup', entityKey:ent.key, employeeName: empName, dept: deptFor(ent), variant, done:false });
+      const responseIdx = Math.floor(Math.random()*3);
+      list.push({ id:mkId(), type:'followup', entityKey:ent.key, employeeName: empName, dept: deptFor(ent), variant, responseIdx, done:false });
       used.add(ent.key);
     } else if(type==='budget'){
       const ent = rand(budgetPool);
@@ -1599,7 +1617,7 @@ function openFollowupPopup(ev){
       <div class="m-head"><span class="m-kicker">Follow-up \u00b7 manager hell</span><button class="m-x" data-act="close">\u2715</button></div>
       <div class="m-body">
         <p class="m-title sm">You track down ${ev.employeeName}'s manager about that unanswered email.</p>
-        <p class="m-desc">You finally catch them by the printer. How do you want to handle it?</p>
+        <p class="m-desc">You finally catch them at their desk. How do you want to handle it?</p>
         <div class="choice">
           <button data-followup="emailcheck"><span><span class="ct">"Any update on that email I sent you?"</span></span></button>
           <button data-followup="smalltalk"><span><span class="ct">Initiate Small Talk</span></span></button>
@@ -1626,7 +1644,7 @@ function resolveFollowup(choiceKey){
     if(choiceKey==='ask'){
       infoModal('Follow-Up Complete', 'Politely addressed', `\u201cOh \u2014 oh no, that's not, I was just \u2014\u201d ${ev.employeeName} says, closing eleven tabs at once and opening a spreadsheet with visible shame.`);
     } else {
-      const won = Math.random() < 0.2;
+      const won = Math.random() < 0.3;
       let msg = `You confiscate the computer on the spot. ${ev.employeeName} protests that it was "for research," then quietly asks if they can at least grab their bookmarks first.`;
       if(won){
         const unrevealed = game.hidden.filter(h=>!h.revealed);
@@ -1653,9 +1671,18 @@ function resolveFollowup(choiceKey){
     }
     return;
   }
-  const msg = choiceKey==='gentle'
-    ? `\u201cOh! Right, sorry, I'll stop clicking those,\u201d ${ev.employeeName} says, already opening another one out of habit.`
-    : `\u201cConsequences? For clicking a link?\u201d ${ev.employeeName} says, visibly rehearsing their appeal to HR before you've even finished the sentence. IT confiscates the workstation on the spot and hands over a flip phone from a drawer marked "in case of emergency" and a laptop last updated for Windows Vista. \u201cThis is punitive,\u201d ${ev.employeeName} mutters, trying and failing to open a browser that doesn't exist.`;
+  const GENTLE_RESPONSES = [
+    ev=> `\u201cOh! Right, sorry, I'll stop clicking those,\u201d ${ev.employeeName} says, already opening another one out of habit.`,
+    ev=> `\u201cTotally hear you,\u201d ${ev.employeeName} says, nodding solemnly, then bookmarks the email for \u201clater.\u201d`,
+    ev=> `\u201cConsider me reminded,\u201d ${ev.employeeName} says, then immediately forwards the phishing email to three coworkers asking \u201cis this legit?\u201d`
+  ];
+  const CONSEQUENCES_RESPONSES = [
+    ev=> `\u201cConsequences? For clicking a link?\u201d ${ev.employeeName} says, visibly rehearsing their appeal to HR before you've even finished the sentence. IT confiscates the workstation on the spot and hands over a flip phone from a drawer marked "in case of emergency" and a laptop last updated for Windows Vista. \u201cThis is punitive,\u201d ${ev.employeeName} mutters, trying and failing to open a browser that doesn't exist.`,
+    ev=> `\u201cThis feels excessive,\u201d ${ev.employeeName} says, staring at the loaner laptop that dial-tones when it boots. IT explains, unhelpfully, that \u201caccountability builds character.\u201d`,
+    ev=> `\u201cI have a right to appeal,\u201d ${ev.employeeName} announces to no one in particular, while security escorts them to a mandatory training video that has been playing on loop since 2014.`
+  ];
+  const idx = ev.responseIdx || 0;
+  const msg = choiceKey==='gentle' ? GENTLE_RESPONSES[idx](ev) : CONSEQUENCES_RESPONSES[idx](ev);
   infoModal('Follow-Up Complete', choiceKey==='gentle' ? 'Gentle Reminder given' : 'Consequences initiated', msg);
 }
 function openMalwarePopup(ev){
@@ -2676,6 +2703,7 @@ function showSettings(){
       ${row('fastDice','Fast dice','Skip the dice-roll animation and show the result immediately.')}
       ${row('miniGames','Mini-games','Replace the dice roll with a hands-on exercise for SIEM, server, log, isolation and crisis procedures. Clear the exercise to succeed; every other procedure still rolls a die.')}
       ${row('markers','Show markers','Draw the gold diamonds over interactable objects. The caller and CISO always show.')}
+      ${row('wasd','WASD movement','Use W A S D instead of the arrow keys to move and climb.')}
       <div class="m-actions"><button class="btn primary" data-act="close">Done ▸</button></div>
     </div>`);
   bind();
@@ -2722,6 +2750,10 @@ function bind(entity){
   });
 }
 
+document.getElementById('cyclePlayerBtn').onclick = (e)=>{
+  e.stopPropagation();
+  if(!modalOpen && players.length>1){ active=(active+1)%players.length; player=players[active]; target=null; save(); refreshHUD(); }
+};
 const hamMenu = document.getElementById('hamMenu');
 document.getElementById('hamBtn').onclick = (e)=>{ e.stopPropagation(); hamMenu.classList.toggle('open'); };
 document.addEventListener('click', ()=> hamMenu.classList.remove('open'));
@@ -2756,6 +2788,17 @@ function refreshHUD(){
       heartsEl.style.display='flex';
       heartsEl.innerHTML = Array.from({length:3},(_,i)=>`<span style="font-size:17px;color:${i<game.hearts?'var(--salmon)':'var(--divider)'}">\u2665</span>`).join('');
     } else heartsEl.style.display='none';
+  }
+  const cycleWrap = document.getElementById('cycleWrap');
+  if(cycleWrap){
+    if(numPlayers>1){
+      cycleWrap.style.display='';
+      const col = PLAYER_COLORS[active % PLAYER_COLORS.length];
+      const btn = document.getElementById('cyclePlayerBtn');
+      btn.style.color = col; btn.style.borderColor = col;
+      const nextName = `Player ${(active+1)%players.length + 1}`;
+      document.getElementById('cycleTip').textContent = `Switch to ${nextName} (Tab)`;
+    } else cycleWrap.style.display='none';
   }
   refreshTasksPanel();
   refreshCaseFile();
