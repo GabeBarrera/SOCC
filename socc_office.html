@@ -202,7 +202,7 @@
   /* ===== mini-games ===== */
   #miniHost{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;
     padding:22px;background:rgba(20,19,17,.94);backdrop-filter:blur(3px);}
-  .mini-screen{width:min(980px,95vw);height:min(640px,92vh);display:flex;flex-direction:column;
+  .mini-screen{position:relative;width:min(980px,95vw);height:min(640px,92vh);display:flex;flex-direction:column;
     background:#12141d;color:#dfe4ea;border-radius:12px;border:11px solid #26241f;
     box-shadow:0 0 0 2px #3a3733, 0 30px 70px rgba(0,0,0,.6), inset 0 0 90px rgba(0,0,0,.5);
     overflow:hidden;font-family:'Lora',Georgia,serif;position:relative;}
@@ -1272,6 +1272,7 @@ function randomTaskCount(){
 function spawnEvents(count){
   const list = [];
   const used = new Set();
+  const usedFollowupNames = new Set();
   let execAvailable = ENTITIES.some(e=>e.type==='ceo');
   let emailAvailable = true;
   // Each iteration only offers types that currently have a valid candidate, so a
@@ -1310,7 +1311,11 @@ function spawnEvents(count){
       used.add(ent.key);
     } else if(type==='followup'){
       const ent = rand(followupPool);
-      list.push({ id:mkId(), type:'followup', entityKey:ent.key, employeeName: rand(NAMES), dept: deptFor(ent), done:false });
+      const namePool = NAMES.filter(n=>!usedFollowupNames.has(n));
+      const empName = namePool.length ? rand(namePool) : rand(NAMES);
+      usedFollowupNames.add(empName);
+      const variant = rand(['reminder','suspicious','managerhell']);
+      list.push({ id:mkId(), type:'followup', entityKey:ent.key, employeeName: empName, dept: deptFor(ent), variant, done:false });
       used.add(ent.key);
     } else if(type==='budget'){
       const ent = rand(budgetPool);
@@ -1578,24 +1583,79 @@ function resolvePhysec(choiceKey){
 function openFollowupPopup(ev){
   activeEventCtx = ev;
   closeableModal = true;
-  setModal(`
-    <div class="m-head"><span class="m-kicker">Follow-up \u00b7 high-risk user</span><button class="m-x" data-act="close">\u2715</button></div>
-    <div class="m-body">
-      <p class="m-title sm">${esc(ev.employeeName)} (${esc(ev.dept)}) keeps tripping the same alert.</p>
-      <p class="m-desc">Time for the talk. How do you want to handle it?</p>
-      <div class="choice">
-        <button data-followup="gentle"><span><span class="ct">Gentle Reminder</span></span></button>
-        <button data-followup="consequences"><span><span class="ct">Initiate Consequences</span></span></button>
-      </div>
-    </div>`);
+  if(ev.variant==='suspicious'){
+    setModal(`
+      <div class="m-head"><span class="m-kicker">Follow-up \u00b7 suspicious computer activity</span><button class="m-x" data-act="close">\u2715</button></div>
+      <div class="m-body">
+        <p class="m-title sm">${esc(ev.employeeName)} (${esc(ev.dept)}) has some very active browser tabs.</p>
+        <p class="m-desc">You walk up mid-scroll. Something gets minimized very quickly. How do you want to handle it?</p>
+        <div class="choice">
+          <button data-followup="ask"><span><span class="ct">"Hey can you like... not watch that at work?"</span></span></button>
+          <button data-followup="take"><span><span class="ct">Take Computer</span></span></button>
+        </div>
+      </div>`);
+  } else if(ev.variant==='managerhell'){
+    setModal(`
+      <div class="m-head"><span class="m-kicker">Follow-up \u00b7 manager hell</span><button class="m-x" data-act="close">\u2715</button></div>
+      <div class="m-body">
+        <p class="m-title sm">You track down ${ev.employeeName}'s manager about that unanswered email.</p>
+        <p class="m-desc">You finally catch them by the printer. How do you want to handle it?</p>
+        <div class="choice">
+          <button data-followup="emailcheck"><span><span class="ct">"Any update on that email I sent you?"</span></span></button>
+          <button data-followup="smalltalk"><span><span class="ct">Initiate Small Talk</span></span></button>
+        </div>
+      </div>`);
+  } else {
+    setModal(`
+      <div class="m-head"><span class="m-kicker">Follow-up \u00b7 high-risk user</span><button class="m-x" data-act="close">\u2715</button></div>
+      <div class="m-body">
+        <p class="m-title sm">${esc(ev.employeeName)} (${esc(ev.dept)}) keeps tripping the same alert.</p>
+        <p class="m-desc">Time for the talk. How do you want to handle it?</p>
+        <div class="choice">
+          <button data-followup="gentle"><span><span class="ct">Gentle Reminder</span></span></button>
+          <button data-followup="consequences"><span><span class="ct">Initiate Consequences</span></span></button>
+        </div>
+      </div>`);
+  }
   bind();
 }
 function resolveFollowup(choiceKey){
   const ev = activeEventCtx; if(!ev || ev.done) return;
   ev.done = true; save(); refreshHUD();
+  if(ev.variant==='suspicious'){
+    if(choiceKey==='ask'){
+      infoModal('Follow-Up Complete', 'Politely addressed', `\u201cOh \u2014 oh no, that's not, I was just \u2014\u201d ${ev.employeeName} says, closing eleven tabs at once and opening a spreadsheet with visible shame.`);
+    } else {
+      const won = Math.random() < 0.2;
+      let msg = `You confiscate the computer on the spot. ${ev.employeeName} protests that it was "for research," then quietly asks if they can at least grab their bookmarks first.`;
+      if(won){
+        const unrevealed = game.hidden.filter(h=>!h.revealed);
+        if(unrevealed.length){
+          const pick = rand(unrevealed);
+          const rev = E.revealCard(game, pick.cardId, null);
+          save(); refreshHUD(); refreshKillChain();
+          msg += ` While wiping the drive you stumble onto something useful \u2014 a kill chain stage reveals itself.`;
+        } else {
+          msg += ` The drive is clean of anything useful \u2014 the kill chain is already fully mapped anyway.`;
+        }
+      } else {
+        msg += ` The confiscated laptop yields nothing but forty browser tabs and a folder labeled "definitely not that."`;
+      }
+      infoModal('Follow-Up Complete', 'Computer taken', msg);
+    }
+    return;
+  }
+  if(ev.variant==='managerhell'){
+    if(choiceKey==='emailcheck'){
+      infoModal('Follow-Up Complete', '"Did you see my email?"', `${ev.employeeName}'s manager nods gravely, says "on it, top priority," and appears to genuinely mean it \u2014 for about five minutes, after which they forget it ever happened. They never give you an update.`);
+    } else {
+      infoModal('Follow-Up Complete', 'Small talk initiated', `Forty-five minutes evaporate discussing a fantasy football trade, a kitchen renovation, and whether the office plant is "actually alive." Good vibes were shared. No work got done.`);
+    }
+    return;
+  }
   const msg = choiceKey==='gentle'
     ? `\u201cOh! Right, sorry, I'll stop clicking those,\u201d ${ev.employeeName} says, already opening another one out of habit.`
-    : `\u201cConsequences? For clicking a link?\u201d ${ev.employeeName} says, visibly rehearsing their appeal to HR before you've even finished the sentence.`;
+    : `\u201cConsequences? For clicking a link?\u201d ${ev.employeeName} says, visibly rehearsing their appeal to HR before you've even finished the sentence. IT confiscates the workstation on the spot and hands over a flip phone from a drawer marked "in case of emergency" and a laptop last updated for Windows Vista. \u201cThis is punitive,\u201d ${ev.employeeName} mutters, trying and failing to open a browser that doesn't exist.`;
   infoModal('Follow-Up Complete', choiceKey==='gentle' ? 'Gentle Reminder given' : 'Consequences initiated', msg);
 }
 function openMalwarePopup(ev){
@@ -1631,6 +1691,7 @@ function openEmailsMinigame(ev){
   while(pool.length < total){ pool.push(...EMAIL_SUBJECTS); }
   const subjects = shuffle(pool).slice(0, total);
   let remaining = total;
+  let repliedCount = 0, deletedCount = 0;
   miniHost.innerHTML = `
     <div class="mini-screen">
       <div class="mini-bar">
@@ -1640,6 +1701,7 @@ function openEmailsMinigame(ev){
         <button class="mini-quit" id="emailsQuit">Abort \u2715</button>
       </div>
       <div class="mini-area" id="emailsArea" style="overflow:auto;padding:10px 18px;"></div>
+      <div id="replyOverlay" style="display:none;position:absolute;inset:0;background:rgba(10,11,16,.92);align-items:center;justify-content:center;padding:24px;"></div>
     </div>`;
   const area = miniHost.querySelector('#emailsArea');
   subjects.forEach(m=>{
@@ -1652,18 +1714,57 @@ function openEmailsMinigame(ev){
       <button class="mini-btn" style="padding:6px 14px;font-size:13px" data-emailact="reply">Reply</button>
       <button class="mini-btn" style="padding:6px 14px;font-size:13px;background:#3a4152;color:#dfe4ea" data-emailact="delete">Delete</button>`;
     row.querySelectorAll('button').forEach(b=> b.onclick = ()=>{
+      if(b.dataset.emailact==='reply'){ openReplyCompose(m, row); return; }
+      deletedCount++;
       row.remove(); remaining--;
       const t = miniHost.querySelector('#emailsLeft'); if(t) t.textContent = remaining;
       if(remaining<=0) finish();
     });
     area.appendChild(row);
   });
+  function openReplyCompose(m, row){
+    const overlay = miniHost.querySelector('#replyOverlay');
+    overlay.style.display = 'flex';
+    overlay.innerHTML = `
+      <div style="width:100%;max-width:560px;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.5);">
+        <div style="background:#f3f2f2;border-bottom:1px solid #d9d5cf;padding:14px 18px;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:700;color:#201f1d">Re: ${esc(m.subj)}</div>
+          <div style="font-size:13px;color:#6b665f;margin-top:2px">To: ${esc(m.from)}</div>
+        </div>
+        <div style="padding:18px;">
+          <textarea id="replyText" rows="7" placeholder="Write your reply\u2026" style="width:100%;box-sizing:border-box;resize:vertical;border:1px solid #d9d5cf;border-radius:7px;padding:12px;font-family:'Lora',serif;font-size:14.5px;color:#201f1d;"></textarea>
+          <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:14px;">
+            <button id="replyCancel" style="padding:9px 16px;border-radius:7px;border:1px solid #d9d5cf;background:#fff;color:#6b665f;font-family:'Cormorant Garamond',serif;font-weight:700;letter-spacing:.04em;cursor:pointer;">Cancel</button>
+            <button id="replySend" style="padding:9px 20px;border-radius:7px;border:none;background:#2563eb;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:700;letter-spacing:.04em;cursor:pointer;">Send</button>
+          </div>
+        </div>
+      </div>`;
+    overlay.querySelector('#replyCancel').onclick = ()=>{ overlay.style.display='none'; overlay.innerHTML=''; };
+    overlay.querySelector('#replySend').onclick = ()=>{
+      overlay.style.display='none'; overlay.innerHTML='';
+      repliedCount++;
+      row.remove(); remaining--;
+      const t = miniHost.querySelector('#emailsLeft'); if(t) t.textContent = remaining;
+      if(remaining<=0) finish();
+    };
+  }
   const quitBtn = miniHost.querySelector('#emailsQuit');
   if(quitBtn) quitBtn.onclick = ()=> abort();
   function finish(){
     miniHost.style.display='none'; miniHost.innerHTML=''; modalOpen=false;
     ev.done = true; save(); refreshHUD();
-    infoModal('Inbox Zero', 'Emails cleared', 'All twenty messages handled \u2014 replies sent, spam deleted, chain letters unforwarded.');
+    let title, msg;
+    if(repliedCount===total){
+      title = 'Reply-All Champion';
+      msg = 'You personally replied to all twenty emails, including the three that were spam, the one that was a chain letter, and the one from "CEO" (spoofed) asking for gift cards. HR would like a word.';
+    } else if(deletedCount===total){
+      title = 'Scorched Earth';
+      msg = 'You deleted all twenty emails without reading a single one. Somewhere, an invoice is now forty days overdue and a strongly worded follow-up is already loading.';
+    } else {
+      title = 'Inbox Zero';
+      msg = 'All twenty messages handled \u2014 replies sent, spam deleted, chain letters unforwarded.';
+    }
+    infoModal(title, 'Inbox cleared', msg);
   }
   function abort(){ miniHost.style.display='none'; miniHost.innerHTML=''; modalOpen=false; refreshHUD(); }
 }
@@ -2710,7 +2811,7 @@ function goToCaseAction(kind){
   target = {x: ent.x + ent.w/2, floor: ent.floor, entity: ent};
 }
 function taskLabel(ev){
-  return ev.type==='malware' ? `Malware check: ${ev.objType}` : ev.type==='emails' ? 'Clear the inbox' : ev.type==='exec' ? 'Meet with the CEO' : ev.type==='physec' ? `Security check: ${ev.objType}` : ev.type==='budget' ? 'Collect InfoSec Budget' : `Follow-up: ${ev.employeeName}`;
+  return ev.type==='malware' ? `Malware check: ${ev.objType}` : ev.type==='emails' ? 'Clear the inbox' : ev.type==='exec' ? 'Meet with the CEO' : ev.type==='physec' ? `Security check: ${ev.objType}` : ev.type==='budget' ? 'Collect InfoSec Budget' : ev.variant==='suspicious' ? `Follow-up: ${ev.employeeName}'s screen` : ev.variant==='managerhell' ? `Follow-up: ${ev.employeeName}'s manager` : `Follow-up: ${ev.employeeName}`;
 }
 function goToTask(ev){
   const ent = ENTITIES.find(e=>e.key===ev.entityKey);
