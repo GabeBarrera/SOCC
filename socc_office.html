@@ -73,15 +73,6 @@
   #caseHandle{background:var(--slab);color:var(--paper);}
   #caseHandle:hover{background:var(--ink);}
   #casePanel{border-left:3px solid var(--slab);}
-  .info-i{position:relative;display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;flex:none;
-    border-radius:50%;border:1.3px solid var(--mute);color:var(--mute);font-size:11px;font-style:italic;
-    font-family:Georgia,serif;cursor:pointer;text-transform:none;letter-spacing:normal;}
-  .info-i:hover{border-color:var(--accentDeep);color:var(--accentDeep);}
-  .info-tip{position:absolute;top:calc(100% + 7px);left:0;width:220px;background:var(--ink);color:#fff;
-    font-size:12.5px;font-style:normal;font-family:'Lora',serif;line-height:1.45;font-weight:400;
-    padding:9px 11px;border-radius:7px;box-shadow:0 10px 24px rgba(0,0,0,.28);
-    opacity:0;pointer-events:none;transition:opacity .15s;z-index:6;text-transform:none;letter-spacing:normal;}
-  .info-i:hover .info-tip,.info-i.show .info-tip{opacity:1;pointer-events:auto;}
   #tasksHandle{background:var(--salmon);color:#fff;}
   #tasksHandle:hover{filter:brightness(.88);}
   #tasksPanel{border-left:3px solid var(--salmon);}
@@ -2550,29 +2541,6 @@ function showDebrief(){
   bind();
 }
 
-function showCaseFile(){
-  const oc = initialCall();
-  const ce = callerEntity();
-  const log = game.log.slice().reverse().map(l=>`<div class="le"><b>T${l.t}</b> ${esc(l.text)}</div>`).join('');
-  closeableModal = true;
-  setModal(`
-    <div class="m-head"><span class="m-kicker">Case file · Turn ${Math.min(game.turn,E.RULES.turns)}/${E.RULES.turns}</span>
-      <button class="m-x" data-act="close">✕</button></div>
-    <div class="m-body">
-      <div class="subhead">The call</div>
-      <p class="m-desc">“${esc(oc.call)}”<br><span style="color:var(--mute);font-style:italic">— ${esc(caller.name)}, ${esc(caller.dept)} (${floorName(ce.floor)})</span></p>
-      ${caller.inquired?`<div class="aside"><b>Symptom:</b> “${esc(oc.symptom)}”</div>`:`<p class="field-note">Visit ${esc(caller.name)}'s desk to inquire about symptoms.</p>`}
-      <div class="subhead">Team &amp; buffs</div>
-      <p class="m-desc" style="font-size:14px">Agents: ${players.length} · Coffee: ${game.coffeeCups||0}/4 (+${(game.coffeeCups||0)*25}% speed)${game.fridgeUsed?' · fridge used':''}${game.nextRollMod?` · next roll ${game.nextRollMod>0?'+':''}${game.nextRollMod}`:''}</p>
-      ${(numPlayers>1 && game.events && game.events.length) ? `<div class="subhead">Active tasks this turn</div><div class="proc-list">` + game.events.map(ev=>{
-        return `<div class="proc" style="cursor:default;${ev.done?'opacity:.5':''}"><span><span class="pt">${esc(taskLabel(ev))}</span></span><span class="pm ${ev.done?'est':'no'}">${ev.done?'✓ done':'pending'}</span></div>`;
-      }).join('') + `</div>` : ''}
-      <div class="subhead">Log</div>
-      <div class="log">${log}</div>
-    </div>`);
-  bind();
-}
-
 function showControls(){
   closeableModal = true;
   const kb = isMobile ? '' : `
@@ -2670,11 +2638,6 @@ document.getElementById('kcHandle').onclick = ()=> document.getElementById('kcDr
 document.getElementById('caseHandle').onclick = ()=> document.getElementById('caseDrawer').classList.toggle('open');
 document.getElementById('tasksHandle').onclick = ()=> document.getElementById('tasksDrawer').classList.toggle('open');
 document.querySelectorAll('.pulldrawer').forEach(d=>{ d.style.height = d.querySelector('button').offsetHeight+'px'; });
-const streakInfoBtn = document.getElementById('streakInfoBtn');
-if(streakInfoBtn){
-  streakInfoBtn.addEventListener('click', e=>{ e.stopPropagation(); streakInfoBtn.classList.toggle('show'); });
-  document.addEventListener('click', ()=> streakInfoBtn.classList.remove('show'));
-}
 endTurnBtn.onclick = ()=> endTurn();
 promptEl.onclick = ()=> tryInteract(); // tappable on touch screens (no E key)
 
